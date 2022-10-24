@@ -25,6 +25,10 @@ contract YourCollectible is ERC721, Ownable {
     // RELEASE THE LOOGIES!
   }
 
+  // constants
+  string[] colors = ["#190c28", "#fef7ee", "#fb0002", "#fef000", "#1c82eb"];
+
+  // variables
   mapping (uint256 => bytes3) public color;
   mapping (uint256 => uint256) public chubbiness;
 
@@ -50,7 +54,7 @@ contract YourCollectible is ERC721, Ownable {
   function tokenURI(uint256 id) public view override returns (string memory) {
       require(_exists(id), "not exist");
       string memory name = string(abi.encodePacked('Loogie #',id.toString()));
-      string memory description = string(abi.encodePacked('This Loogie is the color #',color[id].toColor(),' with a chubbiness of ',uint2str(chubbiness[id]),'!!!'));
+      string memory description = string(abi.encodePacked('This Loogie is the color #',color[id].toColor(),' with a chubbiness of ',uint2str(chubbiness[id]),' yay!'));
       string memory image = Base64.encode(bytes(generateSVGofTokenById(id)));
 
       return
