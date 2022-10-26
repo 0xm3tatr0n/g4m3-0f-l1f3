@@ -23,9 +23,8 @@ contract YourCollectible is ERC721, Ownable {
   Counters.Counter private _tokenIds;
 
   constructor() public ERC721("gam3 0f l1f3", "g0l") {
-    // RELEASE THE LOOGIES!
     console.log("LFG!");
-    initState();
+    _initState();
   }
 
   // constants
@@ -41,15 +40,14 @@ contract YourCollectible is ERC721, Ownable {
   uint256 mintDeadline = block.timestamp + 24 hours;
 
 
-  function initState() private {
+  function _initState() private {
     // temporary storage
     bool[32][32] memory results;
 
     // seed
     uint256 seed = uint256(keccak256(abi.encodePacked("foo", "bar", blockhash(block.number - 1))));
     bytes32 seedBytes = keccak256(abi.encodePacked("foo", "bar", blockhash(block.number - 1)));
-    console.log("seed >>", seed);
-    // console.log("seed bytes >>", String(seedBytes));
+
     mockState = seed;
     // generate some randomness
     // gotta create 1024 squares
@@ -58,15 +56,35 @@ contract YourCollectible is ERC721, Ownable {
     require(seedBytes.length % 32 == 0, 'not enough bytes');
 
     uint256 r = uint256(seedBytes);
-    bool[] memory b;
+    uint256[] memory b;
 
     for (uint256 i = 0; i < 32; i += 1){
       uint8 m = uint8( r >> i * 8);
-      //b.push(bool(m));
-      console.log(uint8(m));
 
+      for (uint256 j = 0; j < 32; j += 1){
+        uint256 s = uint256(keccak256(abi.encodePacked(Strings.toString(m), address(this))));
+        uint8 n = uint8( s >> j * 8);
+        bool result;
+        if (n > 120){
+          result = true;
+        } else {
+          result = false;
+        }
+
+        results[i][j] = result;
+      }
     }
 
+    gameState = results;
+
+  }
+
+  function _iterateState() private {
+    // play game of life
+  }
+
+  function checkState() public view returns (bool[32][32] memory){
+    return gameState;
   }
 
   function mintItem()
@@ -193,6 +211,21 @@ contract YourCollectible is ERC721, Ownable {
       ));
 
       return render;
+  }
+
+  function renderGameGrid(bool[32][32] memory grid) public view returns (string memory){
+    // render that thing
+    string[] memory squares;
+
+    for (uint256 i = 0; i < grid.length; i += 1){
+      //
+      bool[] memory row = grid[i];
+      for (uint256 j = 0; j < row.length; j += 1){
+        bool alive = grid[i][j];
+        // string square =
+      }
+
+    }
   }
 
   function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
