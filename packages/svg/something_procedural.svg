@@ -1,0 +1,33 @@
+<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg" onload="init()">
+
+    <defs>
+      <!-- der Script Bereich -->
+      <script type="text/javascript">
+      <![CDATA[
+        function init(){
+            for (let i = 0; i < 32; i++){
+              for (let j=0; j < 32; j++){
+                const element = document.createElementNS("http://www.w3.org/2000/svg","rect")
+                element.setAttribute('width', '10')
+                element.setAttribute('height', '10')
+                element.setAttribute('x', String(i * 10));
+                element.setAttribute('y', String(j * 10))
+                element.setAttribute('fill', 'white')
+                if (i % 7 === 0 && j % 4){
+                  element.setAttribute('fill', 'black')
+                }
+                document.getElementById("grid").appendChild(element)
+
+              }
+            }
+        }
+
+        
+      ]]>
+      </script>
+    </defs>
+    <g id="canvas">
+        <g id="grid">
+        </g>
+    </g>
+</svg>
