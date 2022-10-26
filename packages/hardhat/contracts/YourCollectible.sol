@@ -1,6 +1,7 @@
-pragma solidity >=0.6.0 <0.7.0;
+pragma solidity >=0.7.0 <0.8.0;
 //SPDX-License-Identifier: MIT
 
+import 'hardhat/console.sol';
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -21,8 +22,10 @@ contract YourCollectible is ERC721, Ownable {
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
 
-  constructor() public ERC721("Loogies", "LOOG") {
+  constructor() public ERC721("gam3 0f l1f3", "g0l") {
     // RELEASE THE LOOGIES!
+    console.log("LFG!");
+    initState();
   }
 
   // constants
@@ -32,7 +35,39 @@ contract YourCollectible is ERC721, Ownable {
   mapping (uint256 => bytes3) public color;
   mapping (uint256 => uint256) public chubbiness;
 
+  bool[32][32] public gameState;
+  uint256 public mockState;
+
   uint256 mintDeadline = block.timestamp + 24 hours;
+
+
+  function initState() private {
+    // temporary storage
+    bool[32][32] memory results;
+
+    // seed
+    uint256 seed = uint256(keccak256(abi.encodePacked("foo", "bar", blockhash(block.number - 1))));
+    bytes32 seedBytes = keccak256(abi.encodePacked("foo", "bar", blockhash(block.number - 1)));
+    console.log("seed >>", seed);
+    // console.log("seed bytes >>", String(seedBytes));
+    mockState = seed;
+    // generate some randomness
+    // gotta create 1024 squares
+
+    // loop over bytes
+    require(seedBytes.length % 32 == 0, 'not enough bytes');
+
+    uint256 r = uint256(seedBytes);
+    bool[] memory b;
+
+    for (uint256 i = 0; i < 32; i += 1){
+      uint8 m = uint8( r >> i * 8);
+      //b.push(bool(m));
+      console.log(uint8(m));
+
+    }
+
+  }
 
   function mintItem()
       public
@@ -90,8 +125,9 @@ contract YourCollectible is ERC721, Ownable {
   function generateSVGofTokenById(uint256 id) internal view returns (string memory) {
 
     string memory svg = string(abi.encodePacked(
-      '<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg">',
-        renderTokenById(id),
+      '<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg" onload="init()">',
+        // renderTokenById(id),
+        renderSimpleSVG(id),
       '</svg>'
     ));
 
@@ -119,6 +155,44 @@ contract YourCollectible is ERC721, Ownable {
       ));
 
     return render;
+  }
+
+  function renderTokenSVG(uint256 id) public view returns (string memory){
+    string memory render = string(abi.encodePacked(
+      '<defs><script type="text/javascript"><![CDATA[',
+        'function init(){',
+          'for (let i = 0; i < 32; i++){',
+            'for (let j=0; j < 32; j++){',
+              'const element = document.createElementNS("http://www.w3.org/2000/svg","rect")',
+              'element.setAttribute("width", "10")',
+              'element.setAttribute("height", "10")',
+              'element.setAttribute("x", String(i * 10));',
+              'element.setAttribute("y", String(j * 10))',
+              'element.setAttribute("fill", "white")',
+              'if (i % 7 === 0 && j % 4){',
+                'element.setAttribute("fill", "black")',
+              '}',
+              'document.getElementById("grid").appendChild(element)',
+      ']]></script></defs>',
+      '<g id="canvas">',
+        '<g id="grid"></g>',
+      '</g>'
+    ));
+
+    return render;
+  }
+
+  function renderSimpleSVG(uint256 id) public view returns (string memory){
+    string memory render = string(abi.encodePacked(
+      '<defs><script type="text/javascript"><![CDATA[',
+        'function init(){ document.getElementById("grid").setAttribute("fill", "green")}',
+      ']]></script></defs>',
+      '<g>',
+        '<rect id="grid" x="10" y="10" width="10" height="10" fill="red"/>',
+      '</g>'
+      ));
+
+      return render;
   }
 
   function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
