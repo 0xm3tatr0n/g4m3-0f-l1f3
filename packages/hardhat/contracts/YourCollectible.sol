@@ -29,43 +29,44 @@ contract YourCollectible is ERC721, Ownable {
 
   // constants
   string[] colors = ["#190c28", "#fef7ee", "#fb0002", "#fef000", "#1c82eb"];
+  uint256 constant private gridDimensions = 8;
 
   // variables
   mapping (uint256 => bytes3) public color;
   mapping (uint256 => uint256) public chubbiness;
 
-  bool[32][32] public gameState;
-  uint256 public mockState;
+  bool[gridDimensions][gridDimensions] public gameState;
 
   uint256 mintDeadline = block.timestamp + 24 hours;
 
 
   function _initState() private {
     // temporary storage
-    bool[32][32] memory results;
+    bool[gridDimensions][gridDimensions] memory results;
 
     // seed
-    uint256 seed = uint256(keccak256(abi.encodePacked("foo", "bar", blockhash(block.number - 1))));
-    bytes32 seedBytes = keccak256(abi.encodePacked("foo", "bar", blockhash(block.number - 1)));
+    bytes32 seedBytes = keccak256(abi.encodePacked("foo", "bar", blockhash(block.number - 1), block.timestamp));
 
-    mockState = seed;
+    // console.log('seedBytes uint ', uint256(seedBytes));
+    // console.log('blockhash used ', blockhash(block.number - 1));
     // generate some randomness
     // gotta create 1024 squares
 
     // loop over bytes
-    require(seedBytes.length % 32 == 0, 'not enough bytes');
+    require(seedBytes.length % gridDimensions == 0, 'not enough bytes');
 
     uint256 r = uint256(seedBytes);
     uint256[] memory b;
 
-    for (uint256 i = 0; i < 32; i += 1){
+    for (uint256 i = 0; i < gridDimensions; i += 1){
       uint8 m = uint8( r >> i * 8);
 
-      for (uint256 j = 0; j < 32; j += 1){
+      for (uint256 j = 0; j < gridDimensions; j += 1){
         uint256 s = uint256(keccak256(abi.encodePacked(Strings.toString(m), address(this))));
+        // console.log('row seed: ', s);
         uint8 n = uint8( s >> j * 8);
         bool result;
-        if (n > 120){
+        if (n > 125){
           result = true;
         } else {
           result = false;
@@ -81,9 +82,10 @@ contract YourCollectible is ERC721, Ownable {
 
   function _iterateState() private {
     // play game of life
+
   }
 
-  function checkState() public view returns (bool[32][32] memory){
+  function checkState() public view returns (bool[gridDimensions][gridDimensions] memory){
     return gameState;
   }
 
@@ -143,9 +145,9 @@ contract YourCollectible is ERC721, Ownable {
   function generateSVGofTokenById(uint256 id) internal view returns (string memory) {
 
     string memory svg = string(abi.encodePacked(
-      '<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg" onload="init()">',
+      '<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg" onload="init()">',
         // renderTokenById(id),
-        renderSimpleSVG(id),
+        renderGameGrid(gameState),
       '</svg>'
     ));
 
@@ -213,19 +215,51 @@ contract YourCollectible is ERC721, Ownable {
       return render;
   }
 
-  function renderGameGrid(bool[32][32] memory grid) public view returns (string memory){
+  function renderGameGrid(bool[gridDimensions][gridDimensions] memory grid) public view returns (string memory){
     // render that thing
-    string[] memory squares;
+    string[] memory squares = new string[](gridDimensions * gridDimensions);
+    uint256 slotCounter = 0;
 
     for (uint256 i = 0; i < grid.length; i += 1){
       //
-      bool[] memory row = grid[i];
+      bool[gridDimensions] memory row = grid[i];
       for (uint256 j = 0; j < row.length; j += 1){
         bool alive = grid[i][j];
-        // string square =
-      }
+        string memory square;
+        if (alive){
+          square = string(abi.encodePacked(
+            '<rect width="10" height="10" ', 
+            'x="', 
+            Strings.toString(i * 10), 
+            '" y="',
+            Strings.toString(j * 10),
+            '" fill="black"', 
+            '/>'));
+        } else {
+          square = string(abi.encodePacked(
+            '<rect width="10" height="10" ', 
+            'x="', 
+            Strings.toString(i * 10), 
+            '" y="',
+            Strings.toString(j * 10),
+            '" fill="white"', 
+            '/>'));
+        }
 
+        squares[slotCounter] = square;
+        slotCounter += 1;
+      }
     }
+
+  // combine array of squares into single bytes array
+
+  bytes memory output;
+  for (uint256 i = 0; i < squares.length; i += 1){
+    output = abi.encodePacked(output, squares[i]);
+  }
+
+  return string(output);
+
   }
 
   function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
