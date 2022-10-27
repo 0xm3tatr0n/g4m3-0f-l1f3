@@ -153,9 +153,9 @@
     "name": "checkState",
     "outputs": [
       {
-        "internalType": "bool[32][32]",
+        "internalType": "bool[8][8]",
         "name": "",
-        "type": "bool[32][32]"
+        "type": "bool[8][8]"
       }
     ],
     "stateMutability": "view",
@@ -281,19 +281,6 @@
   },
   {
     "inputs": [],
-    "name": "mockState",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "name",
     "outputs": [
       {
@@ -332,6 +319,25 @@
         "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bool[8][8]",
+        "name": "grid",
+        "type": "bool[8][8]"
+      }
+    ],
+    "name": "renderGameGrid",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
       }
     ],
     "stateMutability": "view",

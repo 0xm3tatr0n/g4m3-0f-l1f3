@@ -10,6 +10,7 @@ use(require('chai-bn')(BN));
 use(solidity);
 
 describe("My Dapp", function () {
+  const gridDimensions = 8;
   let myContract;
 
   async function deployContract(){
@@ -24,17 +25,30 @@ describe("My Dapp", function () {
       await deployContract()
     });
 
-    it("Should initialize a mock state", async function () {
-
-      const mockState = await myContract.mockState()
-      expect(mockState).to.be.a.bignumber
-
-    });
-
     it("Should initialize a game state", async function () {
 
       const gameState = await myContract.checkState()
-      expect(gameState).to.be.an('array').with.length(32)
+      expect(gameState).to.be.an('array').with.length(gridDimensions)
+
+    });
+
+    it("Should render a grid", async function () {
+
+      const gameState = await myContract.checkState()
+      const gameGridRender = await myContract.renderGameGrid(gameState)
+      console.log(gameGridRender)
+      
+      // expect(gameState).to.be.an('array').with.length(32)
+
+    });
+
+    it("Should return a complete SVG", async function () {
+
+      // const gameState = await myContract.checkState()
+      // const gameGridRender = await myContract.renderGameGrid(gameState)
+      // console.log(gameGridRender)
+      
+      // expect(gameState).to.be.an('array').with.length(32)
 
     });
 
