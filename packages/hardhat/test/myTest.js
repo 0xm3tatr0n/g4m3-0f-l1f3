@@ -25,16 +25,19 @@ describe("My Dapp", function () {
       await deployContract()
     });
 
-    it("Should initialize a game state", async function () {
+    it("Should mint an item", async function () {
 
-      const gameState = await myContract.checkState()
-      expect(gameState).to.be.an('array').with.length(gridDimensions)
+      const id = await myContract.mintItem()
+      const tokenUri = await myContract.tokenURI(0)
+      console.log('token URI ', tokenUri)
+      console.log('minted token id :', id)
+      expect(id).to.be.an('number')
 
     });
 
     it("Should render a grid", async function () {
 
-      const gameState = await myContract.checkState()
+      const gameState = await myContract.gameState()
       const gameGridRender = await myContract.renderGameGrid(gameState)
       // console.log(gameGridRender)
       

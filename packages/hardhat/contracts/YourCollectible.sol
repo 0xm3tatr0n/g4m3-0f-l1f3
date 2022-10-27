@@ -10,7 +10,7 @@ import 'base64-sol/base64.sol';
 
 import './HexStrings.sol';
 import './ToColor.sol';
-//learn more: https://docs.openzeppelin.com/contracts/3.x/erc721
+//learn more: https://docs.openzeppelin.com/contracts/3.x/erc721 16631332
 
 // GET LISTED ON OPENSEA: https://testnets.opensea.io/get-listed/step-two
 
@@ -32,8 +32,7 @@ contract YourCollectible is ERC721, Ownable {
   uint256 constant private gridDimensions = 8;
 
   // variables
-  mapping (uint256 => bytes3) public color;
-  mapping (uint256 => uint256) public chubbiness;
+  mapping(uint256 => bool[gridDimensions][gridDimensions]) tokenGridStates;
 
   bool[gridDimensions][gridDimensions] public gameState;
 
@@ -96,7 +95,7 @@ contract YourCollectible is ERC721, Ownable {
 
     for (uint256 i = 0; i < gridDimensions; i += 1){
       for (uint256 j = 0; j < gridDimensions; j += 1){
-        console.log('updating: ', i, j);
+        // console.log('updating: ', i, j);
         uint256 total = uint( 
           _b2u(gameState[i][_shiftIndex(int(j-1)) % N]) + _b2u(gameState[i][(j+1) % N ]) + 
           _b2u(gameState[_shiftIndex(int(i - 1)) % N][j]) + _b2u(gameState[(i + 1) % N][j]) +
@@ -105,7 +104,7 @@ contract YourCollectible is ERC721, Ownable {
                               
         );
 
-        console.log('total: ', total);
+        // console.log('total: ', total);
         if (gameState[i][j] == true){
           if (total < 2 || total > 3){
               newGameState[i][j] = false;
@@ -116,6 +115,7 @@ contract YourCollectible is ERC721, Ownable {
             newGameState[i][j] = true;
           }
         }
+
           // grid total. pyhton example: 
           // copy grid since we require 8 neighbors
           // for calculation and we go line by line
@@ -149,10 +149,6 @@ contract YourCollectible is ERC721, Ownable {
     gameState = newGameState;
   }
 
-  function checkState() public view returns (bool[gridDimensions][gridDimensions] memory){
-    return gameState;
-  }
-
   function mintItem()
       public
       returns (uint256)
@@ -163,18 +159,20 @@ contract YourCollectible is ERC721, Ownable {
       uint256 id = _tokenIds.current();
       _mint(msg.sender, id);
       _iterateState();
+      // tokenGridStates[id] = gameState;
 
-      bytes32 predictableRandom = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), id ));
-      color[id] = bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[1]) >> 8 ) | ( bytes3(predictableRandom[2]) >> 16 );
-      chubbiness[id] = 35+((55*uint256(uint8(predictableRandom[3])))/255);
+      // bytes32 predictableRandom = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), id ));
+      // color[id] = bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[1]) >> 8 ) | ( bytes3(predictableRandom[2]) >> 16 );
+      // chubbiness[id] = 35+((55*uint256(uint8(predictableRandom[3])))/255);
+
 
       return id;
   }
 
   function tokenURI(uint256 id) public view override returns (string memory) {
-      require(_exists(id), "not exist");
+      require(_exists(id), "token does not exist");
       string memory name = string(abi.encodePacked('Loogie #',id.toString()));
-      string memory description = string(abi.encodePacked('This Loogie is the color #',color[id].toColor(),' with a chubbiness of ',uint2str(chubbiness[id]),' yay!'));
+      string memory description = string(abi.encodePacked('gam3 0f l1f3 #', id.toString()));
       string memory image = Base64.encode(bytes(generateSVGofTokenById(id)));
 
       return
@@ -191,9 +189,9 @@ contract YourCollectible is ERC721, Ownable {
                               '", "external_url":"https://burnyboys.com/token/',
                               id.toString(),
                               '", "attributes": [{"trait_type": "color", "value": "#',
-                              color[id].toColor(),
+                              'bar',
                               '"},{"trait_type": "chubbiness", "value": ',
-                              uint2str(chubbiness[id]),
+                              'foo',
                               '}], "owner":"',
                               (uint160(ownerOf(id))).toHexString(20),
                               '", "image": "',
@@ -208,9 +206,9 @@ contract YourCollectible is ERC721, Ownable {
   }
 
   function generateSVGofTokenById(uint256 id) internal view returns (string memory) {
-
     string memory svg = string(abi.encodePacked(
       '<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg" onload="init()">',
+        // renderGameGrid(tokenGridStates[id]),
         renderGameGrid(gameState),
       '</svg>'
     ));
@@ -219,53 +217,6 @@ contract YourCollectible is ERC721, Ownable {
   }
 
   // Visibility is `public` to enable it being called by other contracts for composition.
-  function renderTokenById(uint256 id) public view returns (string memory) {
-    string memory render = string(abi.encodePacked(
-      '<g id="eye1">',
-          '<ellipse stroke-width="3" ry="29.5" rx="29.5" id="svg_1" cy="154.5" cx="181.5" stroke="#000" fill="#fff"/>',
-          '<ellipse ry="3.5" rx="2.5" id="svg_3" cy="154.5" cx="173.5" stroke-width="3" stroke="#000" fill="#000000"/>',
-        '</g>',
-        '<g id="head">',
-          '<ellipse fill="#',
-          color[id].toColor(),
-          '" stroke-width="3" cx="204.5" cy="211.80065" id="svg_5" rx="',
-          chubbiness[id].toString(),
-          '" ry="51.80065" stroke="#000"/>',
-        '</g>',
-        '<g id="eye2">',
-          '<ellipse stroke-width="3" ry="29.5" rx="29.5" id="svg_2" cy="168.5" cx="209.5" stroke="#000" fill="#fff"/>',
-          '<ellipse ry="3.5" rx="3" id="svg_4" cy="169.5" cx="208" stroke-width="3" fill="#000000" stroke="#000"/>',
-        '</g>'
-      ));
-
-    return render;
-  }
-
-  function renderTokenSVG(uint256 id) public view returns (string memory){
-    string memory render = string(abi.encodePacked(
-      '<defs><script type="text/javascript"><![CDATA[',
-        'function init(){',
-          'for (let i = 0; i < 32; i++){',
-            'for (let j=0; j < 32; j++){',
-              'const element = document.createElementNS("http://www.w3.org/2000/svg","rect")',
-              'element.setAttribute("width", "10")',
-              'element.setAttribute("height", "10")',
-              'element.setAttribute("x", String(i * 10));',
-              'element.setAttribute("y", String(j * 10))',
-              'element.setAttribute("fill", "white")',
-              'if (i % 7 === 0 && j % 4){',
-                'element.setAttribute("fill", "black")',
-              '}',
-              'document.getElementById("grid").appendChild(element)',
-      ']]></script></defs>',
-      '<g id="canvas">',
-        '<g id="grid"></g>',
-      '</g>'
-    ));
-
-    return render;
-  }
-
 
   function renderGameGrid(bool[gridDimensions][gridDimensions] memory grid) public view returns (string memory){
     // render that thing
