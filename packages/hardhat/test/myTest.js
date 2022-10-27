@@ -36,21 +36,21 @@ describe("My Dapp", function () {
 
       const gameState = await myContract.checkState()
       const gameGridRender = await myContract.renderGameGrid(gameState)
-      console.log(gameGridRender)
-      
-      // expect(gameState).to.be.an('array').with.length(32)
-
-    });
-
-    it("Should return a complete SVG", async function () {
-
-      // const gameState = await myContract.checkState()
-      // const gameGridRender = await myContract.renderGameGrid(gameState)
       // console.log(gameGridRender)
       
       // expect(gameState).to.be.an('array').with.length(32)
 
     });
+
+    // it("Should return a complete SVG", async function () {
+
+    //   // const gameState = await myContract.checkState()
+    //   // const gameGridRender = await myContract.renderGameGrid(gameState)
+    //   // console.log(gameGridRender)
+      
+    //   // expect(gameState).to.be.an('array').with.length(32)
+
+    // });
 
   });
 

@@ -23,12 +23,12 @@ contract YourCollectible is ERC721, Ownable {
   Counters.Counter private _tokenIds;
 
   constructor() public ERC721("gam3 0f l1f3", "g0l") {
-    console.log("LFG!");
     _initState();
+    _iterateState();
   }
 
   // constants
-  string[] colors = ["#190c28", "#fef7ee", "#fb0002", "#fef000", "#1c82eb"];
+  // string[] colors = ["#190c28", "#fef7ee", "#fb0002", "#fef000", "#1c82eb"];
   uint256 constant private gridDimensions = 8;
 
   // variables
@@ -44,13 +44,9 @@ contract YourCollectible is ERC721, Ownable {
     // temporary storage
     bool[gridDimensions][gridDimensions] memory results;
 
+    // generate some randomness
     // seed
     bytes32 seedBytes = keccak256(abi.encodePacked("foo", "bar", blockhash(block.number - 1), block.timestamp));
-
-    // console.log('seedBytes uint ', uint256(seedBytes));
-    // console.log('blockhash used ', blockhash(block.number - 1));
-    // generate some randomness
-    // gotta create 1024 squares
 
     // loop over bytes
     require(seedBytes.length % gridDimensions == 0, 'not enough bytes');
@@ -80,9 +76,77 @@ contract YourCollectible is ERC721, Ownable {
 
   }
 
+  function _b2u(bool input) private view returns(uint){
+    return input ? 1 : 0;
+  }
+
+  function _shiftIndex(int index) private view returns(uint256) { 
+    //
+    if (index < 0){
+      return gridDimensions - 1;
+    } else {
+      return uint(index);
+    }
+  }
+
   function _iterateState() private {
     // play game of life
+    bool[gridDimensions][gridDimensions] memory newGameState = gameState;
+    uint256 N = gridDimensions;
 
+    for (uint256 i = 0; i < gridDimensions; i += 1){
+      for (uint256 j = 0; j < gridDimensions; j += 1){
+        console.log('updating: ', i, j);
+        uint256 total = uint( 
+          _b2u(gameState[i][_shiftIndex(int(j-1)) % N]) + _b2u(gameState[i][(j+1) % N ]) + 
+          _b2u(gameState[_shiftIndex(int(i - 1)) % N][j]) + _b2u(gameState[(i + 1) % N][j]) +
+          _b2u(gameState[_shiftIndex(int(i - 1)) % N][(j-1) % N]) + _b2u(gameState[_shiftIndex(int(i - 1)) % N][(j + 1) % N]) +
+          _b2u(gameState[(i + 1) % N][_shiftIndex(int(j - 1)) % N]) + _b2u(gameState[(i + 1) % N][(j + 1) % N])
+                              
+        );
+
+        console.log('total: ', total);
+        if (gameState[i][j] == true){
+          if (total < 2 || total > 3){
+              newGameState[i][j] = false;
+
+          }
+        } else {
+          if (total ==3){
+            newGameState[i][j] = true;
+          }
+        }
+          // grid total. pyhton example: 
+          // copy grid since we require 8 neighbors
+          // for calculation and we go line by line
+          // newGrid = grid.copy()
+          // for i in range(N):
+          //     for j in range(N):
+      
+          //         # compute 8-neighbor sum
+          //         # using toroidal boundary conditions - x and y wrap around
+          //         # so that the simulation takes place on a toroidal surface.
+          //         total = int((grid[i, (j-1)%N] + grid[i, (j+1)%N] +
+          //                      grid[(i-1)%N, j] + grid[(i+1)%N, j] +
+          //                      grid[(i-1)%N, (j-1)%N] + grid[(i-1)%N, (j+1)%N] +
+          //                      grid[(i+1)%N, (j-1)%N] + grid[(i+1)%N, (j+1)%N])/255)
+      
+          //         # apply Conway's rules
+          //         if grid[i, j]  == ON:
+          //             if (total < 2) or (total > 3):
+          //                 newGrid[i, j] = OFF
+          //         else:
+          //             if total == 3:
+          //                 newGrid[i, j] = ON
+      
+          // # update data
+          // img.set_data(newGrid)
+          // grid[:] = newGrid[:]
+          // return img,
+      }      
+    }
+
+    gameState = newGameState;
   }
 
   function checkState() public view returns (bool[gridDimensions][gridDimensions] memory){
@@ -98,6 +162,7 @@ contract YourCollectible is ERC721, Ownable {
 
       uint256 id = _tokenIds.current();
       _mint(msg.sender, id);
+      _iterateState();
 
       bytes32 predictableRandom = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), id ));
       color[id] = bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[1]) >> 8 ) | ( bytes3(predictableRandom[2]) >> 16 );
@@ -146,7 +211,6 @@ contract YourCollectible is ERC721, Ownable {
 
     string memory svg = string(abi.encodePacked(
       '<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg" onload="init()">',
-        // renderTokenById(id),
         renderGameGrid(gameState),
       '</svg>'
     ));
@@ -202,18 +266,6 @@ contract YourCollectible is ERC721, Ownable {
     return render;
   }
 
-  function renderSimpleSVG(uint256 id) public view returns (string memory){
-    string memory render = string(abi.encodePacked(
-      '<defs><script type="text/javascript"><![CDATA[',
-        'function init(){ document.getElementById("grid").setAttribute("fill", "green")}',
-      ']]></script></defs>',
-      '<g>',
-        '<rect id="grid" x="10" y="10" width="10" height="10" fill="red"/>',
-      '</g>'
-      ));
-
-      return render;
-  }
 
   function renderGameGrid(bool[gridDimensions][gridDimensions] memory grid) public view returns (string memory){
     // render that thing
