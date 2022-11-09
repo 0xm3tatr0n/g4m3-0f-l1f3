@@ -23,29 +23,42 @@ describe("My Dapp", function () {
       await deployContract()
     });
 
-    it("Should mint an item", async function () {
+    // it("Should mint an item", async function () {
+    //   const [owner] = await ethers.getSigners()
+    //   await deployContract()
+    //   const mintResult = await myContract.mintItem(owner.address, { value: ethers.utils.parseEther("0.01") })
+    //   console.log(mintResult);
+    //   const tokenId = mintResult.toString()
+    //   console.log(tokenId)
+    //   console.log('tx result: ', mintResult)
+    //   const tokenUri = await myContract.callStatic.tokenURI(tokenId)
+    //   console.log('token URI ', tokenUri)
+    //   // console.log('minted token id :', id)
+    //   // expect(id).to.be.an('number')
+
+    // });
+
+    it("Should actually mint an item, really", async function(){
       const [owner] = await ethers.getSigners()
       await deployContract()
-      const mintResult = await myContract.callStatic.mintItem(owner.address, { value: ethers.utils.parseEther("0.02") })
-      const tokenId = mintResult.toString()
-      console.log(tokenId)
-      console.log('tx result: ', mintResult)
-      const tokenUri = await myContract.tokenURI(tokenId)
-      console.log('token URI ', tokenUri)
-      // console.log('minted token id :', id)
-      // expect(id).to.be.an('number')
+      const mintTx = await myContract.mintItem(owner.address, { value: ethers.utils.parseEther("0.01") });
+      const mintRc = await mintTx.wait()
+      const mintEv = mintRc.events.find(e => e.event === "Transfer")
+      const [from, to, id] = mintEv.args
+      console.log(from, to, id)
+      const tokenUri = await myContract.tokenURI(id.toString())
+      // todo: test if tokenUri is uri.
+    })
 
-    });
+    // it("Should render a grid", async function () {
 
-    it("Should render a grid", async function () {
-
-      const gameState = await myContract.gameState()
-      const gameGridRender = await myContract.renderGameGrid(gameState)
-      // console.log(gameGridRender)
+    //   const gameState = await myContract.gameState()
+    //   const gameGridRender = await myContract.renderGameGrid(gameState)
+    //   // console.log(gameGridRender)
       
-      // expect(gameState).to.be.an('array').with.length(32)
+    //   // expect(gameState).to.be.an('array').with.length(32)
 
-    });
+    // });
 
     // it("Should return a complete SVG", async function () {
 
