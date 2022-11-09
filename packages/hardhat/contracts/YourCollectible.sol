@@ -149,7 +149,7 @@ contract YourCollectible is ERC721, Ownable {
     gameState = newGameState;
   }
 
-  function mintItem(address mintTo)
+    function mintItem(address mintTo)
       public
       payable
       returns (uint256)
@@ -159,6 +159,22 @@ contract YourCollectible is ERC721, Ownable {
       _tokenIds.increment();
 
       uint256 id = _tokenIds.current();
+      _mint(mintTo, id);
+
+      return id;
+  }
+
+  function mintItemFullFeatured(address mintTo)
+      public
+      payable
+      returns (uint256)
+  {
+      require( block.timestamp < mintDeadline, "DONE MINTING");
+      require( msg.value >= 0.01 ether, "No such thing as a free mint!");
+      _tokenIds.increment();
+
+      uint256 id = _tokenIds.current();
+      console.log("minting to: ", mintTo, "token id:", id);
       _mint(mintTo, id);
       // _iterateState();
       // tokenGridStates[id] = gameState;
@@ -172,6 +188,7 @@ contract YourCollectible is ERC721, Ownable {
   }
 
   function tokenURI(uint256 id) public view override returns (string memory) {
+      console.log("calling tokenURI from ", msg.sender, "for token id: ", id);
       require(_exists(id), "token does not exist");
       string memory name = string(abi.encodePacked('Loogie #',id.toString()));
       string memory description = string(abi.encodePacked('gam3 0f l1f3 #', id.toString()));
