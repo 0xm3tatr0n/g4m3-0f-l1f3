@@ -33,14 +33,17 @@ contract YourCollectible is ERC721, Ownable {
 
   // variables
   mapping(uint256 => bool[gridDimensions][gridDimensions]) tokenGridStates;
-
   bool[gridDimensions][gridDimensions] public gameState;
-
   uint256 mintDeadline = block.timestamp + 24 hours;
 
+  // return state convenience
+  function showState() public view returns (bool[gridDimensions][gridDimensions] memory){
+    return gameState;
+  }
 
-  function _initState() private {
+  function _initState() internal {
     // temporary storage
+    console.log("initializing game state... ");
     bool[gridDimensions][gridDimensions] memory results;
 
     // generate some randomness
@@ -72,6 +75,7 @@ contract YourCollectible is ERC721, Ownable {
     }
 
     gameState = results;
+    console.log('game state initialized!', gameState.length);
 
   }
 
@@ -149,22 +153,8 @@ contract YourCollectible is ERC721, Ownable {
     gameState = newGameState;
   }
 
-    function mintItem(address mintTo)
-      public
-      payable
-      returns (uint256)
-  {
-      require( block.timestamp < mintDeadline, "DONE MINTING");
-      require( msg.value >= 0.01 ether, "No such thing as a free mint!");
-      _tokenIds.increment();
 
-      uint256 id = _tokenIds.current();
-      _mint(mintTo, id);
-
-      return id;
-  }
-
-  function mintItemFullFeatured(address mintTo)
+  function mintItem(address mintTo)
       public
       payable
       returns (uint256)
@@ -176,8 +166,8 @@ contract YourCollectible is ERC721, Ownable {
       uint256 id = _tokenIds.current();
       console.log("minting to: ", mintTo, "token id:", id);
       _mint(mintTo, id);
-      // _iterateState();
-      // tokenGridStates[id] = gameState;
+      _iterateState();
+      tokenGridStates[id] = gameState;
 
       // bytes32 predictableRandom = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), id ));
       // color[id] = bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[1]) >> 8 ) | ( bytes3(predictableRandom[2]) >> 16 );
@@ -305,4 +295,6 @@ contract YourCollectible is ERC721, Ownable {
       }
       return string(bstr);
   }
+
+
 }
