@@ -16,6 +16,7 @@ describe("My Dapp", function () {
   async function deployContract(){
     const YourContract = await ethers.getContractFactory("YourCollectible");
     myContract = await YourContract.deploy();
+    console.log('contract deployed')
   }
 
   describe("YourContract", function () {
@@ -50,15 +51,18 @@ describe("My Dapp", function () {
       // todo: test if tokenUri is uri.
     })
 
-    // it("Should render a grid", async function () {
+    it("Should render a grid 8x8", async function () {
+      const [owner] = await ethers.getSigners()
+      await deployContract()
+      // console.log('checking game state')
+      const gameState = await myContract.showState()
+      // console.log('gamestate: ')
+      // console.log(gameState)
+      const gameGridRender = await myContract.renderGameGrid(gameState)
+      console.log(gameGridRender)
+      expect(gameState).to.be.an('array').with.length(8)
 
-    //   const gameState = await myContract.gameState()
-    //   const gameGridRender = await myContract.renderGameGrid(gameState)
-    //   // console.log(gameGridRender)
-      
-    //   // expect(gameState).to.be.an('array').with.length(32)
-
-    // });
+    });
 
     // it("Should return a complete SVG", async function () {
 
