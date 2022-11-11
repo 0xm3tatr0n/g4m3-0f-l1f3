@@ -160,19 +160,13 @@ contract YourCollectible is ERC721, Ownable {
       returns (uint256)
   {
       require( block.timestamp < mintDeadline, "DONE MINTING");
-      require( msg.value >= 0.01 ether, "No such thing as a free mint!");
+      require( msg.value >= 0.001 ether, "No such thing as a free mint!");
       _tokenIds.increment();
 
       uint256 id = _tokenIds.current();
-      console.log("minting to: ", mintTo, "token id:", id);
       _mint(mintTo, id);
       _iterateState();
       tokenGridStates[id] = gameState;
-
-      // bytes32 predictableRandom = keccak256(abi.encodePacked( blockhash(block.number-1), msg.sender, address(this), id ));
-      // color[id] = bytes2(predictableRandom[0]) | ( bytes2(predictableRandom[1]) >> 8 ) | ( bytes3(predictableRandom[2]) >> 16 );
-      // chubbiness[id] = 35+((55*uint256(uint8(predictableRandom[3])))/255);
-
 
       return id;
   }
