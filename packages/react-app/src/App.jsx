@@ -201,8 +201,9 @@ function App(props) {
           const tokenId = await readContracts.YourCollectible.tokenOfOwnerByIndex(address, tokenIndex);
           console.log("tokenId", tokenId);
           const tokenURI = await readContracts.YourCollectible.tokenURI(tokenId);
+          console.log('token uri', tokenURI)
           const jsonManifestString = atob(tokenURI.substring(29))
-          console.log("jsonManifestString", jsonManifestString);
+          // console.log("jsonManifestString", jsonManifestString);
 /*
           const ipfsHash = tokenURI.replace("https://ipfs.io/ipfs/", "");
           console.log("ipfsHash", ipfsHash);
@@ -222,6 +223,8 @@ function App(props) {
           console.log(e);
         }
       }
+
+      console.log('setting collectibles: ', collectibleUpdate)
       setYourCollectibles(collectibleUpdate.reverse());
     };
     updateYourCollectibles();
