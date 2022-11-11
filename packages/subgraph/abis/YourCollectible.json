@@ -216,7 +216,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "mintTo",
+        "type": "address"
+      }
+    ],
     "name": "mintItem",
     "outputs": [
       {
@@ -225,7 +231,7 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -366,6 +372,19 @@
     "name": "setApprovalForAll",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "showState",
+    "outputs": [
+      {
+        "internalType": "bool[8][8]",
+        "name": "",
+        "type": "bool[8][8]"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
