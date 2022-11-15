@@ -207,7 +207,7 @@ contract YourCollectible is ERC721, Ownable {
 
   function generateSVGofTokenById(uint256 id) internal view returns (string memory) {
     string memory svg = string(abi.encodePacked(
-      '<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg" onload="init()">',
+      '<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg" onload="init()">',
         // renderGameGrid(tokenGridStates[id]),
         renderGameGrid(tokenGridStates[id]),
       '</svg>'
@@ -221,6 +221,7 @@ contract YourCollectible is ERC721, Ownable {
   function renderGameGrid(bool[gridDimensions][gridDimensions] memory grid) public pure returns (string memory){
     // render that thing
     string[] memory squares = new string[](gridDimensions * gridDimensions);
+    uint256 scale = 20;
     uint256 slotCounter = 0;
 
     for (uint256 i = 0; i < grid.length; i += 1){
@@ -231,20 +232,20 @@ contract YourCollectible is ERC721, Ownable {
         string memory square;
         if (alive){
           square = string(abi.encodePacked(
-            '<rect width="10" height="10" ', 
+            '<rect width="15" height="15" ', 
             'x="', 
-            Strings.toString(i * 10), 
+            Strings.toString(i * scale), 
             '" y="',
-            Strings.toString(j * 10),
+            Strings.toString(j * scale),
             '" fill="black"', 
             '/>'));
         } else {
           square = string(abi.encodePacked(
-            '<rect width="10" height="10" ', 
+            '<rect width="15" height="15" ', 
             'x="', 
-            Strings.toString(i * 10), 
+            Strings.toString(i * scale), 
             '" y="',
-            Strings.toString(j * 10),
+            Strings.toString(j * scale),
             '" fill="white"', 
             '/>'));
         }
@@ -256,36 +257,32 @@ contract YourCollectible is ERC721, Ownable {
 
   // combine array of squares into single bytes array
 
-  bytes memory output;
-  for (uint256 i = 0; i < squares.length; i += 1){
-    output = abi.encodePacked(output, squares[i]);
+    bytes memory output;
+    for (uint256 i = 0; i < squares.length; i += 1){
+      output = abi.encodePacked(output, squares[i]);
+    }
+
+    return string(output);
+
   }
 
-  return string(output);
+function getBooleanFromIndex(uint256 _packedBools, uint256 _boolNumber)  
+    public pure returns(bool)  
+{  
+    uint256 flag = (_packedBools >> _boolNumber) & uint256(1);  
+    return (flag == 1 ? true : false);  
+}
 
-  }
-
-  // function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
-  //     if (_i == 0) {
-  //         return "0";
-  //     }
-  //     uint j = _i;
-  //     uint len;
-  //     while (j != 0) {
-  //         len++;
-  //         j /= 10;
-  //     }
-  //     bytes memory bstr = new bytes(len);
-  //     uint k = len;
-  //     while (_i != 0) {
-  //         k = k-1;
-  //         uint8 temp = (48 + uint8(_i - _i / 10 * 10));
-  //         bytes1 b1 = bytes1(temp);
-  //         bstr[k] = b1;
-  //         _i /= 10;
-  //     }
-  //     return string(bstr);
-  // }
+function setBooleaOnIndex(  
+    uint256 _packedBools,  
+    uint256 _boolNumber,  
+    bool _value  
+) public pure returns(uint256) {  
+    if (_value)  
+        return _packedBools | uint256(1) << _boolNumber;  
+    else  
+        return _packedBools & ~(uint256(1) << _boolNumber);  
+}
 
 
 }
