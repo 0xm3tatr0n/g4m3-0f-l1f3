@@ -24,7 +24,7 @@ contract YourCollectible is ERC721, Ownable {
 
   constructor() public ERC721("gam3 0f l1f3", "g0l") {
     _initState();
-    _iterateState();
+    // _iterateState();
   }
 
   // constants
