@@ -172,7 +172,6 @@ contract YourCollectible is ERC721, Ownable {
   }
 
   function tokenURI(uint256 id) public view override returns (string memory) {
-      console.log("calling tokenURI from ", msg.sender, "for token id: ", id);
       require(_exists(id), "token does not exist");
       string memory name = string(abi.encodePacked('Loogie #',id.toString()));
       string memory description = string(abi.encodePacked('gam3 0f l1f3 #', id.toString()));
@@ -193,9 +192,7 @@ contract YourCollectible is ERC721, Ownable {
                               id.toString(),
                               '", "attributes": [{"trait_type": "color", "value": "#',
                               'bar',
-                              '"},{"trait_type": "chubbiness", "value": ',
-                              'foo',
-                              '}], "owner":"',
+                              '"}], "owner":"',
                               (uint160(ownerOf(id))).toHexString(20),
                               '", "image": "',
                               'data:image/svg+xml;base64,',
