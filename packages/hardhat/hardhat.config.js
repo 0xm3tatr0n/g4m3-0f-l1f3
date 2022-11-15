@@ -6,6 +6,7 @@ require("@nomiclabs/hardhat-waffle");
 require("@tenderly/hardhat-tenderly")
 
 require("@nomiclabs/hardhat-etherscan");
+require("hardhat-gas-reporter");
 
 const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 
