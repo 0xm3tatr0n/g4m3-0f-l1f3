@@ -282,9 +282,9 @@
   {
     "inputs": [
       {
-        "internalType": "bool[16][16]",
+        "internalType": "bool[8][8]",
         "name": "grid",
-        "type": "bool[16][16]"
+        "type": "bool[8][8]"
       }
     ],
     "name": "renderGameGrid",
@@ -295,7 +295,7 @@
         "type": "string"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -379,9 +379,9 @@
     "name": "showState",
     "outputs": [
       {
-        "internalType": "bool[16][16]",
+        "internalType": "bool[8][8]",
         "name": "",
-        "type": "bool[16][16]"
+        "type": "bool[8][8]"
       }
     ],
     "stateMutability": "view",
