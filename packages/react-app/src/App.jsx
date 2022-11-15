@@ -196,11 +196,11 @@ function App(props) {
       const collectibleUpdate = [];
       for (let tokenIndex = 0; tokenIndex < balance; tokenIndex++) {
         try {
-          console.log("GEtting token index", tokenIndex);
+          // console.log("GEtting token index", tokenIndex);
           const tokenId = await readContracts.YourCollectible.tokenOfOwnerByIndex(address, tokenIndex);
-          console.log("tokenId", tokenId);
+          // console.log("tokenId", tokenId);
           const tokenURI = await readContracts.YourCollectible.tokenURI(tokenId);
-          console.log("token uri", tokenURI);
+          // console.log("token uri", tokenURI);
           const jsonManifestString = atob(tokenURI.substring(29));
           // console.log("jsonManifestString", jsonManifestString);
           /*

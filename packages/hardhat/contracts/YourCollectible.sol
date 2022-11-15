@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import 'base64-sol/base64.sol';
 
 import './HexStrings.sol';
-import './ToColor.sol';
+// import './ToColor.sol';
 //learn more: https://docs.openzeppelin.com/contracts/3.x/erc721 16631332
 
 // GET LISTED ON OPENSEA: https://testnets.opensea.io/get-listed/step-two
@@ -18,11 +18,11 @@ contract YourCollectible is ERC721, Ownable {
 
   using Strings for uint256;
   using HexStrings for uint160;
-  using ToColor for bytes3;
+  // using ToColor for bytes3;
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
 
-  constructor() public ERC721("gam3 0f l1f3", "g0l") {
+  constructor() ERC721("gam3 0f l1f3", "g0l") {
     _initState();
     // _iterateState();
   }
@@ -54,7 +54,7 @@ contract YourCollectible is ERC721, Ownable {
     require(seedBytes.length % gridDimensions == 0, 'not enough bytes');
 
     uint256 r = uint256(seedBytes);
-    uint256[] memory b;
+    // uint256[] memory b;
 
     for (uint256 i = 0; i < gridDimensions; i += 1){
       uint8 m = uint8( r >> i * 8);
@@ -79,11 +79,11 @@ contract YourCollectible is ERC721, Ownable {
 
   }
 
-  function _b2u(bool input) private view returns(uint){
+  function _b2u(bool input) private pure returns(uint){
     return input ? 1 : 0;
   }
 
-  function _shiftIndex(int index) private view returns(uint256) { 
+  function _shiftIndex(int index) private pure returns(uint256) { 
     //
     if (index < 0){
       return gridDimensions - 1;
@@ -173,7 +173,7 @@ contract YourCollectible is ERC721, Ownable {
 
   function tokenURI(uint256 id) public view override returns (string memory) {
       require(_exists(id), "token does not exist");
-      string memory name = string(abi.encodePacked('Loogie #',id.toString()));
+      string memory name = string(abi.encodePacked('gam3 0f l1f3 #',id.toString()));
       string memory description = string(abi.encodePacked('gam3 0f l1f3 #', id.toString()));
       string memory image = Base64.encode(bytes(generateSVGofTokenById(id)));
 
@@ -218,7 +218,7 @@ contract YourCollectible is ERC721, Ownable {
 
   // Visibility is `public` to enable it being called by other contracts for composition.
 
-  function renderGameGrid(bool[gridDimensions][gridDimensions] memory grid) public view returns (string memory){
+  function renderGameGrid(bool[gridDimensions][gridDimensions] memory grid) public pure returns (string memory){
     // render that thing
     string[] memory squares = new string[](gridDimensions * gridDimensions);
     uint256 slotCounter = 0;
@@ -265,27 +265,27 @@ contract YourCollectible is ERC721, Ownable {
 
   }
 
-  function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
-      if (_i == 0) {
-          return "0";
-      }
-      uint j = _i;
-      uint len;
-      while (j != 0) {
-          len++;
-          j /= 10;
-      }
-      bytes memory bstr = new bytes(len);
-      uint k = len;
-      while (_i != 0) {
-          k = k-1;
-          uint8 temp = (48 + uint8(_i - _i / 10 * 10));
-          bytes1 b1 = bytes1(temp);
-          bstr[k] = b1;
-          _i /= 10;
-      }
-      return string(bstr);
-  }
+  // function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
+  //     if (_i == 0) {
+  //         return "0";
+  //     }
+  //     uint j = _i;
+  //     uint len;
+  //     while (j != 0) {
+  //         len++;
+  //         j /= 10;
+  //     }
+  //     bytes memory bstr = new bytes(len);
+  //     uint k = len;
+  //     while (_i != 0) {
+  //         k = k-1;
+  //         uint8 temp = (48 + uint8(_i - _i / 10 * 10));
+  //         bytes1 b1 = bytes1(temp);
+  //         bstr[k] = b1;
+  //         _i /= 10;
+  //     }
+  //     return string(bstr);
+  // }
 
 
 }
