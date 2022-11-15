@@ -29,12 +29,18 @@ contract YourCollectible is ERC721, Ownable {
 
   // constants
   // string[] colors = ["#190c28", "#fef7ee", "#fb0002", "#fef000", "#1c82eb"];
+  
   uint256 constant private gridDimensions = 8;
+
+  // new approach: customizable rows / columns
+  // total squares < n_rows * n_columns
+  uint256 constant rows = 8;
+  uint256 constant columns = 8;
 
   // variables
   mapping(uint256 => bool[gridDimensions][gridDimensions]) tokenGridStates;
   bool[gridDimensions][gridDimensions] public gameState;
-  uint256 mintDeadline = block.timestamp + 24 hours;
+  uint256 private gameStateInt;
 
   // return state convenience
   function showState() public view returns (bool[gridDimensions][gridDimensions] memory){
@@ -43,25 +49,26 @@ contract YourCollectible is ERC721, Ownable {
 
   function _initState() internal {
     // temporary storage
-    console.log("initializing game state... ");
     bool[gridDimensions][gridDimensions] memory results;
 
     // generate some randomness
     // seed
-    bytes32 seedBytes = keccak256(abi.encodePacked("foo", "bar", blockhash(block.number - 1), block.timestamp));
+    bytes32 seedBytes = keccak256(abi.encodePacked(address(this) ,"foo", "bar", blockhash(block.number - 1), block.timestamp));
 
     // loop over bytes
     require(seedBytes.length % gridDimensions == 0, 'not enough bytes');
 
     uint256 r = uint256(seedBytes);
     // uint256[] memory b;
-
+    uint256 gridInt = r;
     for (uint256 i = 0; i < gridDimensions; i += 1){
       uint8 m = uint8( r >> i * 8);
 
       for (uint256 j = 0; j < gridDimensions; j += 1){
+        // generate row seed
         uint256 s = uint256(keccak256(abi.encodePacked(Strings.toString(m), address(this))));
         // console.log('row seed: ', s);
+
         uint8 n = uint8( s >> j * 8);
         bool result;
         if (n > 125){
@@ -71,11 +78,13 @@ contract YourCollectible is ERC721, Ownable {
         }
 
         results[i][j] = result;
+        gridInt = setBooleaOnIndex(gridInt, (i * columns) + j, result);
       }
     }
 
+
     gameState = results;
-    console.log('game state initialized!', gameState.length);
+    gameStateInt = gridInt;
 
   }
 
@@ -159,7 +168,6 @@ contract YourCollectible is ERC721, Ownable {
       payable
       returns (uint256)
   {
-      require( block.timestamp < mintDeadline, "DONE MINTING");
       require( msg.value >= 0.001 ether, "No such thing as a free mint!");
       _tokenIds.increment();
 
