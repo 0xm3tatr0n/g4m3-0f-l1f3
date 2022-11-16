@@ -104,6 +104,9 @@ contract YourCollectible is ERC721, Ownable {
   function _iterateState() private {
     // play game of life
     bool[gridDimensions][gridDimensions] memory newGameState = gameState;
+
+    // for game state as int:
+    uint256 newGameStateInt = gameStateInt;
     uint256 N = gridDimensions;
 
     for (uint256 i = 0; i < gridDimensions; i += 1){
@@ -275,7 +278,7 @@ contract YourCollectible is ERC721, Ownable {
   }
 
 function getBooleanFromIndex(uint256 _packedBools, uint256 _boolNumber)  
-    public pure returns(bool)  
+    private pure returns(bool)  
 {  
     uint256 flag = (_packedBools >> _boolNumber) & uint256(1);  
     return (flag == 1 ? true : false);  
@@ -285,11 +288,36 @@ function setBooleaOnIndex(
     uint256 _packedBools,  
     uint256 _boolNumber,  
     bool _value  
-) public pure returns(uint256) {  
+) private pure returns(uint256) {  
     if (_value)  
         return _packedBools | uint256(1) << _boolNumber;  
     else  
         return _packedBools & ~(uint256(1) << _boolNumber);  
+}
+
+function wordToGrid(uint256 word) view internal returns ( bool[rows][columns] memory){
+  // convert word to bool[][] (prior to iterate state)
+  bool[rows][columns] memory grid;
+  for (uint256 i = 0; i < rows; i += 1){
+    for (uint256 j = 0; j < columns; j += 1){
+      //
+      grid[i][j] = getBooleanFromIndex(word, (i * columns + j));
+    }
+  }
+
+  return grid;
+}
+
+function gridToWord(bool[gridDimensions][gridDimensions] memory grid) view internal returns(uint256){
+  // convert bool[][] to word (after completing iterating state)
+  uint256 word;
+  for (uint256 i = 0; i < rows; i += 1){
+    for (uint256 j = 0; j < columns; j += 1){
+      setBooleaOnIndex(word, (i * columns + j), grid[i][j]);
+    }
+  }
+
+  return word;
 }
 
 
