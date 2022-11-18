@@ -39,18 +39,14 @@ contract YourCollectible is ERC721, Ownable {
 
   // variables
   // old implementation
-  mapping(uint256 => bool[gridDimensions][gridDimensions]) tokenGridStates;
+  // mapping(uint256 => bool[gridDimensions][gridDimensions]) tokenGridStates;
   // new implementation
   mapping(uint256 => uint256) tokenGridStatesInt;
 
-  bool[gridDimensions][gridDimensions] public gameState;
+  // bool[gridDimensions][gridDimensions] public gameState;
   uint256 private gameStateInt;
 
   // return state convenience
-  function showState() public view returns (bool[gridDimensions][gridDimensions] memory){
-    return gameState;
-  }
-
   function showStateInt() public view returns (uint256){
     return gameStateInt;
   }
@@ -63,9 +59,6 @@ contract YourCollectible is ERC721, Ownable {
     // seed
     bytes32 seedBytes = keccak256(abi.encodePacked(address(this) ,"foo", "bar", blockhash(block.number - 1), block.timestamp));
 
-    // loop over bytes
-    require(seedBytes.length % gridDimensions == 0, 'not enough bytes');
-
     uint256 r = uint256(seedBytes);
     // uint256[] memory b;
     uint256 gridInt = r;
@@ -75,7 +68,6 @@ contract YourCollectible is ERC721, Ownable {
       for (uint256 j = 0; j < gridDimensions; j += 1){
         // generate row seed
         uint256 s = uint256(keccak256(abi.encodePacked(Strings.toString(m), address(this))));
-        // console.log('row seed: ', s);
 
         uint8 n = uint8( s >> j * 8);
         bool result;
@@ -90,9 +82,6 @@ contract YourCollectible is ERC721, Ownable {
       }
     }
 
-
-    gameState = results;
-    console.log('grid int', gridInt);
     gameStateInt = gridInt;
 
   }
@@ -112,66 +101,8 @@ contract YourCollectible is ERC721, Ownable {
 
   function _iterateState() private {
     // play game of life
-    bool[gridDimensions][gridDimensions] memory newGameState = gameState;
 
     uint256 N = gridDimensions;
-
-    // old loop based on gameState
-    for (uint256 i = 0; i < gridDimensions; i += 1){
-      for (uint256 j = 0; j < gridDimensions; j += 1){
-        // console.log('updating: ', i, j);
-        uint256 total = uint( 
-          _b2u(gameState[i][_shiftIndex(int(j-1)) % N]) + _b2u(gameState[i][(j+1) % N ]) + 
-          _b2u(gameState[_shiftIndex(int(i - 1)) % N][j]) + _b2u(gameState[(i + 1) % N][j]) +
-          _b2u(gameState[_shiftIndex(int(i - 1)) % N][(j-1) % N]) + _b2u(gameState[_shiftIndex(int(i - 1)) % N][(j + 1) % N]) +
-          _b2u(gameState[(i + 1) % N][_shiftIndex(int(j - 1)) % N]) + _b2u(gameState[(i + 1) % N][(j + 1) % N])
-                              
-        );
-
-        // console.log('total: ', total);
-        if (gameState[i][j] == true){
-          if (total < 2 || total > 3){
-              newGameState[i][j] = false;
-
-          }
-        } else {
-          if (total ==3){
-            newGameState[i][j] = true;
-          }
-        }
-
-          // grid total. pyhton example: 
-          // copy grid since we require 8 neighbors
-          // for calculation and we go line by line
-          // newGrid = grid.copy()
-          // for i in range(N):
-          //     for j in range(N):
-      
-          //         # compute 8-neighbor sum
-          //         # using toroidal boundary conditions - x and y wrap around
-          //         # so that the simulation takes place on a toroidal surface.
-          //         total = int((grid[i, (j-1)%N] + grid[i, (j+1)%N] +
-          //                      grid[(i-1)%N, j] + grid[(i+1)%N, j] +
-          //                      grid[(i-1)%N, (j-1)%N] + grid[(i-1)%N, (j+1)%N] +
-          //                      grid[(i+1)%N, (j-1)%N] + grid[(i+1)%N, (j+1)%N])/255)
-      
-          //         # apply Conway's rules
-          //         if grid[i, j]  == ON:
-          //             if (total < 2) or (total > 3):
-          //                 newGrid[i, j] = OFF
-          //         else:
-          //             if total == 3:
-          //                 newGrid[i, j] = ON
-      
-          // # update data
-          // img.set_data(newGrid)
-          // grid[:] = newGrid[:]
-          // return img,
-      }      
-    }
-
-    gameState = newGameState;
-
 
     // new approach based on gameStateInt // newGameStateFromInt
     // for game state as int:
@@ -182,7 +113,7 @@ contract YourCollectible is ERC721, Ownable {
 
     for (uint256 i = 0; i < gridDimensions; i += 1){
       for (uint256 j = 0; j < gridDimensions; j += 1){
-        // console.log('updating: ', i, j);
+
         uint256 total = uint( 
           _b2u(oldGameStateFromInt[i][_shiftIndex(int(j-1)) % N]) + _b2u(oldGameStateFromInt[i][(j+1) % N ]) + 
           _b2u(oldGameStateFromInt[_shiftIndex(int(i - 1)) % N][j]) + _b2u(oldGameStateFromInt[(i + 1) % N][j]) +
@@ -191,7 +122,6 @@ contract YourCollectible is ERC721, Ownable {
                               
         );
 
-        // console.log('total: ', total);
         if (oldGameStateFromInt[i][j] == true){
           if (total < 2 || total > 3){
               // todo: change this!
@@ -255,11 +185,7 @@ contract YourCollectible is ERC721, Ownable {
       _mint(mintTo, id);
       _iterateState();
 
-      // old implementation
-      tokenGridStates[id] = gameState;
-
       // new implementation
-      console.log('gameStateInt after mint of token ', id, gameStateInt);
       tokenGridStatesInt[id] = gameStateInt;
 
       return id;
@@ -396,17 +322,12 @@ function wordToGrid(uint256 word) pure internal returns ( bool[rows][columns] me
 
 function gridToWord(bool[gridDimensions][gridDimensions] memory grid) view internal returns(uint256){
   // convert bool[][] to word (after completing iterating state)
-  console.log('converting grid with dims', grid.length, grid[0].length);
-
   uint256 word;
   for (uint256 i = 0; i < rows; i += 1){
     for (uint256 j = 0; j < columns; j += 1){
-      console.log('in gridtoWor loop', i, j, grid[i][j]);
       word = setBooleaOnIndex(word, (i * columns + j), grid[i][j]);
     }
   }
-
-  console.log('converted grid to word', word);
   return word;
 }
 
