@@ -303,11 +303,10 @@ contract YourCollectible is ERC721, Ownable {
     // get token gameState as int, convert to grid
     bool[rows][columns] memory grid = wordToGrid(tokenGridStatesInt[id]);
 
-
     string memory svg = string(abi.encodePacked(
       '<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg" onload="init()">',
         // renderGameGrid(tokenGridStates[id]),
-        renderGameGrid(tokenGridStates[id]),
+        renderGameGrid(grid),
       '</svg>'
     ));
 
