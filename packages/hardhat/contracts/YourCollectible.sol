@@ -105,10 +105,9 @@ contract YourCollectible is ERC721, Ownable {
     // play game of life
     bool[gridDimensions][gridDimensions] memory newGameState = gameState;
 
-    // for game state as int:
-    uint256 newGameStateInt = gameStateInt;
     uint256 N = gridDimensions;
 
+    // old loop based on gameState
     for (uint256 i = 0; i < gridDimensions; i += 1){
       for (uint256 j = 0; j < gridDimensions; j += 1){
         // console.log('updating: ', i, j);
@@ -163,6 +162,75 @@ contract YourCollectible is ERC721, Ownable {
     }
 
     gameState = newGameState;
+
+
+    // new approach based on gameStateInt // newGameStateFromInt
+    // for game state as int:
+    // uint256 newGameStateInt = gameStateInt;
+
+    bool[rows][columns] memory oldGameStateFromInt = wordToGrid(gameStateInt);
+    bool[rows][columns] memory newGameStateFromInt = oldGameStateFromInt;
+
+    for (uint256 i = 0; i < gridDimensions; i += 1){
+      for (uint256 j = 0; j < gridDimensions; j += 1){
+        // console.log('updating: ', i, j);
+        uint256 total = uint( 
+          _b2u(oldGameStateFromInt[i][_shiftIndex(int(j-1)) % N]) + _b2u(oldGameStateFromInt[i][(j+1) % N ]) + 
+          _b2u(oldGameStateFromInt[_shiftIndex(int(i - 1)) % N][j]) + _b2u(oldGameStateFromInt[(i + 1) % N][j]) +
+          _b2u(oldGameStateFromInt[_shiftIndex(int(i - 1)) % N][(j-1) % N]) + _b2u(oldGameStateFromInt[_shiftIndex(int(i - 1)) % N][(j + 1) % N]) +
+          _b2u(oldGameStateFromInt[(i + 1) % N][_shiftIndex(int(j - 1)) % N]) + _b2u(oldGameStateFromInt[(i + 1) % N][(j + 1) % N])
+                              
+        );
+
+        // console.log('total: ', total);
+        if (oldGameStateFromInt[i][j] == true){
+          if (total < 2 || total > 3){
+              // todo: change this!
+              newGameStateFromInt[i][j] = false;
+
+          }
+        } else {
+          if (total ==3){
+            // todo: change this!
+            newGameStateFromInt[i][j] = true;
+          }
+        }
+
+          // grid total. pyhton example: 
+          // copy grid since we require 8 neighbors
+          // for calculation and we go line by line
+          // newGrid = grid.copy()
+          // for i in range(N):
+          //     for j in range(N):
+      
+          //         # compute 8-neighbor sum
+          //         # using toroidal boundary conditions - x and y wrap around
+          //         # so that the simulation takes place on a toroidal surface.
+          //         total = int((grid[i, (j-1)%N] + grid[i, (j+1)%N] +
+          //                      grid[(i-1)%N, j] + grid[(i+1)%N, j] +
+          //                      grid[(i-1)%N, (j-1)%N] + grid[(i-1)%N, (j+1)%N] +
+          //                      grid[(i+1)%N, (j-1)%N] + grid[(i+1)%N, (j+1)%N])/255)
+      
+          //         # apply Conway's rules
+          //         if grid[i, j]  == ON:
+          //             if (total < 2) or (total > 3):
+          //                 newGrid[i, j] = OFF
+          //         else:
+          //             if total == 3:
+          //                 newGrid[i, j] = ON
+      
+          // # update data
+          // img.set_data(newGrid)
+          // grid[:] = newGrid[:]
+          // return img,
+      }      
+    }
+
+    // convert newGameStateFromInt back to int, update state
+    gameStateInt = gridToWord(newGameStateFromInt);
+
+
+    
   }
 
 
