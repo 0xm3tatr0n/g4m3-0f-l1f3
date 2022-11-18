@@ -38,13 +38,21 @@ contract YourCollectible is ERC721, Ownable {
   uint256 constant columns = 8;
 
   // variables
+  // old implementation
   mapping(uint256 => bool[gridDimensions][gridDimensions]) tokenGridStates;
+  // new implementation
+  mapping(uint256 => uint256) tokenGridStatesInt;
+
   bool[gridDimensions][gridDimensions] public gameState;
   uint256 private gameStateInt;
 
   // return state convenience
   function showState() public view returns (bool[gridDimensions][gridDimensions] memory){
     return gameState;
+  }
+
+  function showStateInt() public view returns (uint256){
+    return gameStateInt;
   }
 
   function _initState() internal {
@@ -84,6 +92,7 @@ contract YourCollectible is ERC721, Ownable {
 
 
     gameState = results;
+    console.log('grid int', gridInt);
     gameStateInt = gridInt;
 
   }
@@ -245,7 +254,13 @@ contract YourCollectible is ERC721, Ownable {
       uint256 id = _tokenIds.current();
       _mint(mintTo, id);
       _iterateState();
+
+      // old implementation
       tokenGridStates[id] = gameState;
+
+      // new implementation
+      console.log('gameStateInt after mint of token ', id, gameStateInt);
+      tokenGridStatesInt[id] = gameStateInt;
 
       return id;
   }
@@ -285,6 +300,10 @@ contract YourCollectible is ERC721, Ownable {
   }
 
   function generateSVGofTokenById(uint256 id) internal view returns (string memory) {
+    // get token gameState as int, convert to grid
+    bool[rows][columns] memory grid = wordToGrid(tokenGridStatesInt[id]);
+
+
     string memory svg = string(abi.encodePacked(
       '<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg" onload="init()">',
         // renderGameGrid(tokenGridStates[id]),
@@ -363,7 +382,7 @@ function setBooleaOnIndex(
         return _packedBools & ~(uint256(1) << _boolNumber);  
 }
 
-function wordToGrid(uint256 word) view internal returns ( bool[rows][columns] memory){
+function wordToGrid(uint256 word) pure internal returns ( bool[rows][columns] memory){
   // convert word to bool[][] (prior to iterate state)
   bool[rows][columns] memory grid;
   for (uint256 i = 0; i < rows; i += 1){
@@ -378,13 +397,17 @@ function wordToGrid(uint256 word) view internal returns ( bool[rows][columns] me
 
 function gridToWord(bool[gridDimensions][gridDimensions] memory grid) view internal returns(uint256){
   // convert bool[][] to word (after completing iterating state)
+  console.log('converting grid with dims', grid.length, grid[0].length);
+
   uint256 word;
   for (uint256 i = 0; i < rows; i += 1){
     for (uint256 j = 0; j < columns; j += 1){
-      setBooleaOnIndex(word, (i * columns + j), grid[i][j]);
+      console.log('in gridtoWor loop', i, j, grid[i][j]);
+      word = setBooleaOnIndex(word, (i * columns + j), grid[i][j]);
     }
   }
 
+  console.log('converted grid to word', word);
   return word;
 }
 

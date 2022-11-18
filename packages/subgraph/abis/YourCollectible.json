@@ -194,30 +194,6 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_packedBools",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_boolNumber",
-        "type": "uint256"
-      }
-    ],
-    "name": "getBooleanFromIndex",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "owner",
         "type": "address"
@@ -399,35 +375,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_packedBools",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_boolNumber",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "_value",
-        "type": "bool"
-      }
-    ],
-    "name": "setBooleaOnIndex",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "showState",
     "outputs": [
@@ -435,6 +382,19 @@
         "internalType": "bool[8][8]",
         "name": "",
         "type": "bool[8][8]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "showStateInt",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
