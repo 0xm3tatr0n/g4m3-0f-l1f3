@@ -80,14 +80,14 @@ contract YourCollectible is ERC721, Ownable {
     return input ? 1 : 0;
   }
 
-  function _shiftIndex(int index) private pure returns(uint256) { 
-    //
-    if (index < 0){
-      return dim - 1;
-    } else {
-      return uint(index);
-    }
-  }
+  // function _shiftIndex(int index) private pure returns(uint256) { 
+  //   //
+  //   if (index < 0){
+  //     return dim - 1;
+  //   } else {
+  //     return uint(index);
+  //   }
+  // }
 
   function _iterateState() private {
     // play game of life
@@ -99,12 +99,24 @@ contract YourCollectible is ERC721, Ownable {
     for (uint256 i = 0; i < dim; i += 1){
       for (uint256 j = 0; j < dim; j += 1){
 
-        uint256 total = uint( 
-          _b2u(oldGameStateFromInt[i][_shiftIndex(int(j-1)) % N]) + _b2u(oldGameStateFromInt[i][(j+1) % N ]) + 
-          _b2u(oldGameStateFromInt[_shiftIndex(int(i - 1)) % N][j]) + _b2u(oldGameStateFromInt[(i + 1) % N][j]) +
-          _b2u(oldGameStateFromInt[_shiftIndex(int(i - 1)) % N][(j-1) % N]) + _b2u(oldGameStateFromInt[_shiftIndex(int(i - 1)) % N][(j + 1) % N]) +
-          _b2u(oldGameStateFromInt[(i + 1) % N][_shiftIndex(int(j - 1)) % N]) + _b2u(oldGameStateFromInt[(i + 1) % N][(j + 1) % N])
+        // uint256 total = uint( 
+        //   _b2u(oldGameStateFromInt[i][_shiftIndex(int(j-1)) % N]) + _b2u(oldGameStateFromInt[i][(j+1) % N ]) + 
+        //   _b2u(oldGameStateFromInt[_shiftIndex(int(i - 1)) % N][j]) + _b2u(oldGameStateFromInt[(i + 1) % N][j]) +
+        //   _b2u(oldGameStateFromInt[_shiftIndex(int(i - 1)) % N][(j-1) % N]) + _b2u(oldGameStateFromInt[_shiftIndex(int(i - 1)) % N][(j + 1) % N]) +
+        //   _b2u(oldGameStateFromInt[(i + 1) % N][_shiftIndex(int(j - 1)) % N]) + _b2u(oldGameStateFromInt[(i + 1) % N][(j + 1) % N])
                               
+        // );
+
+
+        uint256 total = uint(
+          _b2u(oldGameStateFromInt[uint((i - 1) % N)][uint((j-1) % N)]) +
+          _b2u(oldGameStateFromInt[uint((i - 1) % N)][j]) +
+          _b2u(oldGameStateFromInt[uint((i - 1) % N)][uint((j+1) % N)]) +
+          _b2u(oldGameStateFromInt[i][uint((j+1) % N)]) +
+          _b2u(oldGameStateFromInt[uint((i + 1) % N)][uint((j+1) % N)]) +
+          _b2u(oldGameStateFromInt[uint((i + 1) % N)][j]) +
+          _b2u(oldGameStateFromInt[uint((i + 1) % N)][uint((j-1) % N)]) +
+          _b2u(oldGameStateFromInt[i][uint((j-1) % N)])
         );
 
         if (oldGameStateFromInt[i][j] == true){
@@ -237,7 +249,7 @@ contract YourCollectible is ERC721, Ownable {
         string memory square;
         if (alive){
           square = string(abi.encodePacked(
-            '<rect width="',Strings.toString(scale),'" height="',Strings.toString(scale),'" ', 
+            '<rect width="',Strings.toString(scale - 4),'" height="',Strings.toString(scale - 4),'" ', 
             'x="', 
             Strings.toString(i * scale), 
             '" y="',
