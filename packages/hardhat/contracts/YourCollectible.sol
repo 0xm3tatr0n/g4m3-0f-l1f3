@@ -30,20 +30,11 @@ contract YourCollectible is ERC721, Ownable {
   // constants
   // string[] colors = ["#190c28", "#fef7ee", "#fb0002", "#fef000", "#1c82eb"];
   
-  uint256 constant private gridDimensions = 8;
-
-  // new approach: customizable rows / columns
-  // total squares < n_rows * n_columns
-  uint256 constant rows = 8;
-  uint256 constant columns = 8;
+  uint256 constant private dim = 10;
 
   // variables
-  // old implementation
-  // mapping(uint256 => bool[gridDimensions][gridDimensions]) tokenGridStates;
   // new implementation
   mapping(uint256 => uint256) tokenGridStatesInt;
-
-  // bool[gridDimensions][gridDimensions] public gameState;
   uint256 private gameStateInt;
 
   // return state convenience
@@ -53,19 +44,18 @@ contract YourCollectible is ERC721, Ownable {
 
   function _initState() internal {
     // temporary storage
-    bool[gridDimensions][gridDimensions] memory results;
+    bool[dim][dim] memory results;
 
-    // generate some randomness
-    // seed
+    // generate some "randomness"
     bytes32 seedBytes = keccak256(abi.encodePacked(address(this) ,"foo", "bar", blockhash(block.number - 1), block.timestamp));
 
     uint256 r = uint256(seedBytes);
     // uint256[] memory b;
     uint256 gridInt = r;
-    for (uint256 i = 0; i < gridDimensions; i += 1){
+    for (uint256 i = 0; i < dim; i += 1){
       uint8 m = uint8( r >> i * 8);
 
-      for (uint256 j = 0; j < gridDimensions; j += 1){
+      for (uint256 j = 0; j < dim; j += 1){
         // generate row seed
         uint256 s = uint256(keccak256(abi.encodePacked(Strings.toString(m), address(this))));
 
@@ -78,7 +68,7 @@ contract YourCollectible is ERC721, Ownable {
         }
 
         results[i][j] = result;
-        gridInt = setBooleaOnIndex(gridInt, (i * columns) + j, result);
+        gridInt = setBooleaOnIndex(gridInt, (i * dim) + j, result);
       }
     }
 
@@ -93,7 +83,7 @@ contract YourCollectible is ERC721, Ownable {
   function _shiftIndex(int index) private pure returns(uint256) { 
     //
     if (index < 0){
-      return gridDimensions - 1;
+      return dim - 1;
     } else {
       return uint(index);
     }
@@ -101,18 +91,13 @@ contract YourCollectible is ERC721, Ownable {
 
   function _iterateState() private {
     // play game of life
+    uint256 N = dim;
 
-    uint256 N = gridDimensions;
+    bool[dim][dim] memory oldGameStateFromInt = wordToGrid(gameStateInt);
+    bool[dim][dim] memory newGameStateFromInt = oldGameStateFromInt;
 
-    // new approach based on gameStateInt // newGameStateFromInt
-    // for game state as int:
-    // uint256 newGameStateInt = gameStateInt;
-
-    bool[rows][columns] memory oldGameStateFromInt = wordToGrid(gameStateInt);
-    bool[rows][columns] memory newGameStateFromInt = oldGameStateFromInt;
-
-    for (uint256 i = 0; i < gridDimensions; i += 1){
-      for (uint256 j = 0; j < gridDimensions; j += 1){
+    for (uint256 i = 0; i < dim; i += 1){
+      for (uint256 j = 0; j < dim; j += 1){
 
         uint256 total = uint( 
           _b2u(oldGameStateFromInt[i][_shiftIndex(int(j-1)) % N]) + _b2u(oldGameStateFromInt[i][(j+1) % N ]) + 
@@ -167,9 +152,6 @@ contract YourCollectible is ERC721, Ownable {
 
     // convert newGameStateFromInt back to int, update state
     gameStateInt = gridToWord(newGameStateFromInt);
-
-
-    
   }
 
 
@@ -227,7 +209,7 @@ contract YourCollectible is ERC721, Ownable {
 
   function generateSVGofTokenById(uint256 id) internal view returns (string memory) {
     // get token gameState as int, convert to grid
-    bool[rows][columns] memory grid = wordToGrid(tokenGridStatesInt[id]);
+    bool[dim][dim] memory grid = wordToGrid(tokenGridStatesInt[id]);
 
     string memory svg = string(abi.encodePacked(
       '<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg" onload="init()">',
@@ -241,21 +223,21 @@ contract YourCollectible is ERC721, Ownable {
 
   // Visibility is `public` to enable it being called by other contracts for composition.
 
-  function renderGameGrid(bool[gridDimensions][gridDimensions] memory grid) public pure returns (string memory){
+  function renderGameGrid(bool[dim][dim] memory grid) public pure returns (string memory){
     // render that thing
-    string[] memory squares = new string[](gridDimensions * gridDimensions);
-    uint256 scale = 20;
+    string[] memory squares = new string[](dim * dim);
+    uint256 scale = 25;
     uint256 slotCounter = 0;
 
     for (uint256 i = 0; i < grid.length; i += 1){
       //
-      bool[gridDimensions] memory row = grid[i];
+      bool[dim] memory row = grid[i];
       for (uint256 j = 0; j < row.length; j += 1){
         bool alive = grid[i][j];
         string memory square;
         if (alive){
           square = string(abi.encodePacked(
-            '<rect width="15" height="15" ', 
+            '<rect width="',Strings.toString(scale),'" height="',Strings.toString(scale),'" ', 
             'x="', 
             Strings.toString(i * scale), 
             '" y="',
@@ -264,7 +246,7 @@ contract YourCollectible is ERC721, Ownable {
             '/>'));
         } else {
           square = string(abi.encodePacked(
-            '<rect width="15" height="15" ', 
+            '<rect width="',Strings.toString(scale),'" height="',Strings.toString(scale),'" ', 
             'x="', 
             Strings.toString(i * scale), 
             '" y="',
@@ -307,25 +289,25 @@ function setBooleaOnIndex(
         return _packedBools & ~(uint256(1) << _boolNumber);  
 }
 
-function wordToGrid(uint256 word) pure internal returns ( bool[rows][columns] memory){
+function wordToGrid(uint256 word) pure internal returns ( bool[dim][dim] memory){
   // convert word to bool[][] (prior to iterate state)
-  bool[rows][columns] memory grid;
-  for (uint256 i = 0; i < rows; i += 1){
-    for (uint256 j = 0; j < columns; j += 1){
+  bool[dim][dim] memory grid;
+  for (uint256 i = 0; i < dim; i += 1){
+    for (uint256 j = 0; j < dim; j += 1){
       //
-      grid[i][j] = getBooleanFromIndex(word, (i * columns + j));
+      grid[i][j] = getBooleanFromIndex(word, (i * dim + j));
     }
   }
 
   return grid;
 }
 
-function gridToWord(bool[gridDimensions][gridDimensions] memory grid) view internal returns(uint256){
+function gridToWord(bool[dim][dim] memory grid) view internal returns(uint256){
   // convert bool[][] to word (after completing iterating state)
   uint256 word;
-  for (uint256 i = 0; i < rows; i += 1){
-    for (uint256 j = 0; j < columns; j += 1){
-      word = setBooleaOnIndex(word, (i * columns + j), grid[i][j]);
+  for (uint256 i = 0; i < dim; i += 1){
+    for (uint256 j = 0; j < dim; j += 1){
+      word = setBooleaOnIndex(word, (i * dim + j), grid[i][j]);
     }
   }
   return word;

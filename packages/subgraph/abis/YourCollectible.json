@@ -152,30 +152,6 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "gameState",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
       }
@@ -282,9 +258,9 @@
   {
     "inputs": [
       {
-        "internalType": "bool[8][8]",
+        "internalType": "bool[10][10]",
         "name": "grid",
-        "type": "bool[8][8]"
+        "type": "bool[10][10]"
       }
     ],
     "name": "renderGameGrid",
@@ -372,19 +348,6 @@
     "name": "setApprovalForAll",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "showState",
-    "outputs": [
-      {
-        "internalType": "bool[8][8]",
-        "name": "",
-        "type": "bool[8][8]"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
