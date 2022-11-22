@@ -258,9 +258,9 @@
   {
     "inputs": [
       {
-        "internalType": "bool[10][10]",
+        "internalType": "bool[12][12]",
         "name": "grid",
-        "type": "bool[10][10]"
+        "type": "bool[12][12]"
       }
     ],
     "name": "renderGameGrid",

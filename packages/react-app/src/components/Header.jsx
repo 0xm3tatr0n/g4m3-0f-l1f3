@@ -12,19 +12,15 @@ const styles = {
   },
   header: {
     fontSize: "30px",
-    // border: "1px solid yellow",
     marginRight: "20px",
   },
   items: {
-    color: "red",
     fontSize: "20px",
-    // border: "1px solid yellow",
     marginRight: "10px",
     display: "flex",
   },
   a: {
-    color: "red",
-    // border: "1px solid green",
+    color: "#ff4538",
     alignSelf: "flex-end",
   },
 };

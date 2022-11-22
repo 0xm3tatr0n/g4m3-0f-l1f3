@@ -114,6 +114,10 @@ const web3Modal = new Web3Modal({
   },
 });
 
+// base for own card wrapper component
+
+const itemCard = item => {};
+
 function App(props) {
   const mainnetProvider = scaffoldEthProvider && scaffoldEthProvider._network ? scaffoldEthProvider : mainnetInfura;
 
@@ -326,7 +330,6 @@ function App(props) {
 
   const [faucetClicked, setFaucetClicked] = useState(false);
 
-
   const [sending, setSending] = useState();
   const [ipfsHash, setIpfsHash] = useState();
   const [ipfsDownHash, setIpfsDownHash] = useState();
@@ -382,12 +385,16 @@ function App(props) {
                   onClick={() => {
                     tx(writeContracts.YourCollectible.mintItem(address, { value: parseEther("0.001") }));
                   }}
-                  style={{ color: "green", backgroundColor: "white", border: "green", borderRadius: "5px"}}
+                  style={{ color: "green", backgroundColor: "white", border: "green", borderRadius: "5px" }}
                 >
                   MINT
                 </Button>
               ) : (
-                <Button type="primary" onClick={loadWeb3Modal} style={{ color: "green", backgroundColor: "white", border: "green", borderRadius: "5px"}}>
+                <Button
+                  type="primary"
+                  onClick={loadWeb3Modal}
+                  style={{ color: "green", backgroundColor: "white", border: "green", borderRadius: "5px" }}
+                >
                   CONNECT WALLET
                 </Button>
               )}
@@ -395,7 +402,8 @@ function App(props) {
 
             <div style={{ width: 820, margin: "auto", paddingBottom: 256 }}>
               <List
-                bordered
+                bordered={false}
+                split={false}
                 dataSource={yourCollectibles}
                 renderItem={item => {
                   const id = item.id.toNumber();
@@ -405,11 +413,12 @@ function App(props) {
                   return (
                     <List.Item key={id + "_" + item.uri + "_" + item.owner}>
                       <Card
-                        title={
-                          <div>
-                            <span style={{ fontSize: 18, marginRight: 8 }}>{item.name}</span>
-                          </div>
-                        }
+                        // title={
+                        //   <div>
+                        //     <span style={{ fontSize: 18, marginRight: 8 }}>{item.name}</span>
+                        //   </div>
+                        // }
+                        style={{margin: "auto"}}
                       >
                         <a
                           href={
@@ -424,35 +433,34 @@ function App(props) {
                           <img src={item.image} alt="NFT" />
                         </a>
                         <div>{item.description}</div>
+                        <div>
+                          owner:{" "}
+                          <Address
+                            address={item.owner}
+                            ensProvider={mainnetProvider}
+                            blockExplorer={blockExplorer}
+                            fontSize={16}
+                          />
+                          <AddressInput
+                            ensProvider={mainnetProvider}
+                            placeholder="transfer to address"
+                            value={transferToAddresses[id]}
+                            onChange={newValue => {
+                              const update = {};
+                              update[id] = newValue;
+                              setTransferToAddresses({ ...transferToAddresses, ...update });
+                            }}
+                          />
+                          <Button
+                            onClick={() => {
+                              console.log("writeContracts", writeContracts);
+                              tx(writeContracts.YourCollectible.transferFrom(address, transferToAddresses[id], id));
+                            }}
+                          >
+                            Transfer
+                          </Button>
+                        </div>
                       </Card>
-
-                      <div>
-                        owner:{" "}
-                        <Address
-                          address={item.owner}
-                          ensProvider={mainnetProvider}
-                          blockExplorer={blockExplorer}
-                          fontSize={16}
-                        />
-                        <AddressInput
-                          ensProvider={mainnetProvider}
-                          placeholder="transfer to address"
-                          value={transferToAddresses[id]}
-                          onChange={newValue => {
-                            const update = {};
-                            update[id] = newValue;
-                            setTransferToAddresses({ ...transferToAddresses, ...update });
-                          }}
-                        />
-                        <Button
-                          onClick={() => {
-                            console.log("writeContracts", writeContracts);
-                            tx(writeContracts.YourCollectible.transferFrom(address, transferToAddresses[id], id));
-                          }}
-                        >
-                          Transfer
-                        </Button>
-                      </div>
                     </List.Item>
                   );
                 }}
@@ -471,9 +479,7 @@ function App(props) {
             </div>
           </Route>
           <Route path="/gallery">
-            <div>
-              gallery
-            </div>
+            <div>gallery</div>
           </Route>
           <Route path="/debug">
             <div style={{ padding: 32 }}>

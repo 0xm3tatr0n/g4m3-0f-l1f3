@@ -30,7 +30,7 @@ contract YourCollectible is ERC721, Ownable {
   // constants
   // string[] colors = ["#190c28", "#fef7ee", "#fb0002", "#fef000", "#1c82eb"];
   
-  uint256 constant private dim = 10;
+  uint256 constant private dim = 12;
 
   // variables
   // new implementation
@@ -224,7 +224,7 @@ contract YourCollectible is ERC721, Ownable {
     bool[dim][dim] memory grid = wordToGrid(tokenGridStatesInt[id]);
 
     string memory svg = string(abi.encodePacked(
-      '<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg" onload="init()">',
+      '<svg width="480" height="480" xmlns="http://www.w3.org/2000/svg" onload="init()">',
         // renderGameGrid(tokenGridStates[id]),
         renderGameGrid(grid),
       '</svg>'
@@ -238,7 +238,7 @@ contract YourCollectible is ERC721, Ownable {
   function renderGameGrid(bool[dim][dim] memory grid) public pure returns (string memory){
     // render that thing
     string[] memory squares = new string[](dim * dim);
-    uint256 scale = 25;
+    uint256 scale = 40;
     uint256 slotCounter = 0;
 
     for (uint256 i = 0; i < grid.length; i += 1){
