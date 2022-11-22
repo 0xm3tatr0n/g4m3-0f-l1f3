@@ -325,7 +325,31 @@ function App(props) {
   const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name === "localhost";
 
   const [faucetClicked, setFaucetClicked] = useState(false);
-
+  if (
+    !faucetClicked &&
+    localProvider &&
+    localProvider._network &&
+    localProvider._network.chainId === 31337 &&
+    yourLocalBalance &&
+    formatEther(yourLocalBalance) <= 0
+  ) {
+    faucetHint = (
+      <div style={{ padding: 16 }}>
+        <Button
+          type="primary"
+          onClick={() => {
+            faucetTx({
+              to: address,
+              value: parseEther("0.01"),
+            });
+            setFaucetClicked(true);
+          }}
+        >
+          💰 Grab funds from the faucet ⛽️
+        </Button>
+      </div>
+    );
+  }
 
   const [sending, setSending] = useState();
   const [ipfsHash, setIpfsHash] = useState();
@@ -364,9 +388,32 @@ function App(props) {
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
       <Header />
-      {/* {networkDisplay} */}
+      {networkDisplay}
 
       <BrowserRouter>
+        <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
+          <Menu.Item key="/">
+            <Link
+              onClick={() => {
+                setRoute("/");
+              }}
+              to="/"
+            >
+              Your iterations
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="/debug">
+            <Link
+              onClick={() => {
+                setRoute("/debug");
+              }}
+              to="/debug"
+            >
+              Smart Contract
+            </Link>
+          </Menu.Item>
+        </Menu>
+
         <Switch>
           <Route exact path="/">
             {/*
@@ -382,12 +429,11 @@ function App(props) {
                   onClick={() => {
                     tx(writeContracts.YourCollectible.mintItem(address, { value: parseEther("0.001") }));
                   }}
-                  style={{ color: "green", backgroundColor: "white", border: "green", borderRadius: "5px"}}
                 >
                   MINT
                 </Button>
               ) : (
-                <Button type="primary" onClick={loadWeb3Modal} style={{ color: "green", backgroundColor: "white", border: "green", borderRadius: "5px"}}>
+                <Button type="primary" onClick={loadWeb3Modal}>
                   CONNECT WALLET
                 </Button>
               )}
@@ -400,7 +446,7 @@ function App(props) {
                 renderItem={item => {
                   const id = item.id.toNumber();
 
-                  // console.log("IMAGE", item.image);
+                  console.log("IMAGE", item.image);
 
                   return (
                     <List.Item key={id + "_" + item.uri + "_" + item.owner}>
@@ -470,11 +516,6 @@ function App(props) {
               and build a cool SVG NFT!
             </div>
           </Route>
-          <Route path="/gallery">
-            <div>
-              gallery
-            </div>
-          </Route>
           <Route path="/debug">
             <div style={{ padding: 32 }}>
               <Address
@@ -493,10 +534,10 @@ function App(props) {
         </Switch>
       </BrowserRouter>
 
-      {/* <ThemeSwitch /> */}
+      <ThemeSwitch />
 
       {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
-      {/* <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10 }}>
+      <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10 }}>
         <Account
           address={address}
           localProvider={localProvider}
@@ -510,7 +551,47 @@ function App(props) {
           isSigner={isSigner}
         />
         {faucetHint}
-      </div> */}
+      </div>
+
+      {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
+      <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
+        <Row align="middle" gutter={[4, 4]}>
+          <Col span={8}>
+            <Ramp price={price} address={address} networks={NETWORKS} />
+          </Col>
+
+          <Col span={8} style={{ textAlign: "center", opacity: 0.8 }}>
+            <GasGauge gasPrice={gasPrice} />
+          </Col>
+          <Col span={8} style={{ textAlign: "center", opacity: 1 }}>
+            <Button
+              onClick={() => {
+                window.open("https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA");
+              }}
+              size="large"
+              shape="round"
+            >
+              <span style={{ marginRight: 8 }} role="img" aria-label="support">
+                💬
+              </span>
+              Support
+            </Button>
+          </Col>
+        </Row>
+
+        <Row align="middle" gutter={[4, 4]}>
+          <Col span={24}>
+            {
+              /*  if the local provider has a signer, let's show the faucet:  */
+              faucetAvailable ? (
+                <Faucet localProvider={localProvider} price={price} ensProvider={mainnetProvider} />
+              ) : (
+                ""
+              )
+            }
+          </Col>
+        </Row>
+      </div>
     </div>
   );
 }
