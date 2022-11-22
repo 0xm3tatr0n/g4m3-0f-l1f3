@@ -28,9 +28,9 @@ const styles = {
 export default function Header() {
   return (
     <>
-      <div id="header" style={styles.headerBox} >
-        <div style={styles.header} >gam3 0f lif3</div>
-        <div style={styles.items} >
+      <div id="header" style={styles.headerBox}>
+        <div style={styles.header}>gam3 0f lif3</div>
+        <div style={styles.items}>
           <a href="/" style={styles.a}>
             mint
           </a>

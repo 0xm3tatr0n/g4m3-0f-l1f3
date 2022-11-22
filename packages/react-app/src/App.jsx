@@ -200,20 +200,10 @@ function App(props) {
       const collectibleUpdate = [];
       for (let tokenIndex = 0; tokenIndex < balance; tokenIndex++) {
         try {
-          // console.log("GEtting token index", tokenIndex);
           const tokenId = await readContracts.YourCollectible.tokenOfOwnerByIndex(address, tokenIndex);
-          // console.log("tokenId", tokenId);
           const tokenURI = await readContracts.YourCollectible.tokenURI(tokenId);
-          // console.log("token uri", tokenURI);
           const jsonManifestString = atob(tokenURI.substring(29));
-          // console.log("jsonManifestString", jsonManifestString);
-          /*
-          const ipfsHash = tokenURI.replace("https://ipfs.io/ipfs/", "");
-          console.log("ipfsHash", ipfsHash);
 
-          const jsonManifestBuffer = await getFromIPFS(ipfsHash);
-
-        */
           try {
             const jsonManifest = JSON.parse(jsonManifestString);
             console.log("jsonManifest", jsonManifest);
@@ -225,11 +215,49 @@ function App(props) {
           console.log(e);
         }
       }
-
-      console.log("setting collectibles: ", collectibleUpdate);
       setYourCollectibles(collectibleUpdate.reverse());
     };
-    updateYourCollectibles();
+    // updateYourCollectibles();
+
+    // new update your collectibles approach in two steps: 1) get owner's token IDs, 2) get tokenURIs for all IDs
+    const updateOwenersCollectibles = async () => {
+      const collectibleIdPromises = [];
+      for (let i = 0; i < balance; i++) {
+        collectibleIdPromises.push(readContracts.YourCollectible.tokenOfOwnerByIndex(address, i));
+      }
+
+      const ids = await Promise.all(collectibleIdPromises);
+      console.log(">>> habemus ids: ", ids);
+
+      // check if any collectibles owned
+      if (ids.length > 0) {
+        console.log(">>> trying to update collectibles now ");
+        const uriPromises = [];
+        ids.forEach(e => {
+          uriPromises.push(readContracts.YourCollectible.tokenURI(e));
+        });
+
+        console.log(">>> got uriPromises: ", uriPromises);
+        const uris = await Promise.all(uriPromises);
+        console.log(">>> habemus URIs: ", uris);
+
+        try {
+          // trying to parse URIs
+          const collectibleUpdate = uris.map((u, idx) => {
+            const jsonManifestString = atob(u.substring(29));
+            const jsonManifest = JSON.parse(jsonManifestString);
+            return { id: ids[idx], uri: u, owner: address, ...jsonManifest };
+          });
+
+          console.log(">>> gonna update collectibles: ", collectibleUpdate);
+          setYourCollectibles(collectibleUpdate.reverse());
+        } catch (error) {
+          console.log("error updating your collectibles: ", error);
+        }
+      }
+    };
+
+    updateOwenersCollectibles();
   }, [address, yourBalance]);
 
   /*
@@ -325,7 +353,7 @@ function App(props) {
     setRoute(window.location.pathname);
   }, [setRoute]);
 
-  let faucetHint = "";
+  const faucetHint = "";
   const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name === "localhost";
 
   const [faucetClicked, setFaucetClicked] = useState(false);
@@ -407,18 +435,21 @@ function App(props) {
                 dataSource={yourCollectibles}
                 renderItem={item => {
                   const id = item.id.toNumber();
-
-                  // console.log("IMAGE", item.image);
+                  let isFront = true;
+                  const toggleFront = () => {
+                    isFront = !isFront;
+                  };
 
                   return (
-                    <List.Item key={id + "_" + item.uri + "_" + item.owner}>
+                    <List.Item key={id + "_" + item.uri + "_" + item.owner} >
                       <Card
                         // title={
                         //   <div>
                         //     <span style={{ fontSize: 18, marginRight: 8 }}>{item.name}</span>
                         //   </div>
                         // }
-                        style={{margin: "auto"}}
+                        style={{ margin: "auto" }}
+                        onClick={toggleFront}
                       >
                         <a
                           href={
@@ -441,6 +472,9 @@ function App(props) {
                             blockExplorer={blockExplorer}
                             fontSize={16}
                           />
+
+                          isFront: {isFront ? "true" : "false"}
+
                           <AddressInput
                             ensProvider={mainnetProvider}
                             placeholder="transfer to address"
