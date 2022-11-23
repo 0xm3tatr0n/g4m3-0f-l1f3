@@ -42,7 +42,8 @@ export default function AddressInput(props) {
   const scannerButton = (
     <div
       style={{ marginTop: 4, cursor: "pointer" }}
-      onClick={() => {
+      onClick={e => {
+        e.stopPropagation();
         setScan(!scan);
       }}
     >
@@ -85,7 +86,8 @@ export default function AddressInput(props) {
         top: 0,
         width: "100%",
       }}
-      onClick={() => {
+      onClick={e => {
+        e.stopPropagation();
         setScan(false);
       }}
     >
@@ -129,6 +131,9 @@ export default function AddressInput(props) {
         addonAfter={scannerButton}
         onChange={e => {
           updateAddress(e.target.value);
+        }}
+        onClick={e => {
+          e.stopPropagation();
         }}
       />
     </div>

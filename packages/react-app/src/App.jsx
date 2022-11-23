@@ -116,7 +116,51 @@ const web3Modal = new Web3Modal({
 
 // base for own card wrapper component
 
-const itemCard = item => {};
+function ItemCard(props) {
+  const { item, ensProvider, blockExplorer, transferToAddresses, setTransferToAddresses, writeContracts, address, tx } =
+    props;
+  const [isFront, setIsFront] = useState(true);
+  const flipCard = () => {
+    console.log(">>> flip item clicked");
+    setIsFront(!isFront);
+  };
+
+  return (
+    <Card style={{ margin: "auto" }} onClick={flipCard}>
+      {isFront ? (
+        <img src={item.image} alt="g0l" />
+      ) : (
+        <div style={{ width: "320px", height: "320px", margin: "auto" }}>
+          <div>description: {item.description}</div>
+          <div>owner: {item.owner}</div>
+          <div>traits: placeholder</div>
+          <AddressInput
+            ensProvider={ensProvider}
+            placeholder="transfer to address"
+            value={transferToAddresses[item.id]}
+            onChange={newValue => {
+              // e.stopPropagation();
+              const update = {};
+              update[item.id] = newValue;
+              setTransferToAddresses({ ...transferToAddresses, ...update });
+            }}
+            onClick={e => {
+              e.stopPropagation();
+            }}
+          />
+          <Button
+            onClick={e => {
+              e.stopPropagation();
+              tx(writeContracts.YourCollectible.transferFrom(address, transferToAddresses[item.id], item.id));
+            }}
+          >
+            Transfer
+          </Button>
+        </div>
+      )}
+    </Card>
+  );
+}
 
 function App(props) {
   const mainnetProvider = scaffoldEthProvider && scaffoldEthProvider._network ? scaffoldEthProvider : mainnetInfura;
@@ -428,7 +472,7 @@ function App(props) {
               )}
             </div>
 
-            <div style={{ width: 820, margin: "auto", paddingBottom: 256 }}>
+            {/* <div style={{ width: 820, margin: "auto", paddingBottom: 256 }}>
               <List
                 bordered={false}
                 split={false}
@@ -437,11 +481,12 @@ function App(props) {
                   const id = item.id.toNumber();
                   let isFront = true;
                   const toggleFront = () => {
+                    console.log(">>> toggle flip clicked");
                     isFront = !isFront;
                   };
 
                   return (
-                    <List.Item key={id + "_" + item.uri + "_" + item.owner} >
+                    <List.Item key={id + "_" + item.uri + "_" + item.owner}>
                       <Card
                         // title={
                         //   <div>
@@ -472,9 +517,7 @@ function App(props) {
                             blockExplorer={blockExplorer}
                             fontSize={16}
                           />
-
                           isFront: {isFront ? "true" : "false"}
-
                           <AddressInput
                             ensProvider={mainnetProvider}
                             placeholder="transfer to address"
@@ -499,6 +542,34 @@ function App(props) {
                   );
                 }}
               />
+            </div> */}
+
+            <div style={{ width: 820, margin: "auto", paddingBottom: 256 }}>
+              <Row>
+              {yourCollectibles
+                ? yourCollectibles.map(c => {
+                    return (
+                      <Col xs={24} md={12} lg={12}>
+
+                        <ItemCard
+                          item={c}
+                          ensProvider={mainnetProvider}
+                          blockExplorer={blockExplorer}
+                          transferToAddresses={transferToAddresses}
+                          setTransferToAddresses={setTransferToAddresses}
+                          writeContracts={writeContracts}
+                          tx={tx}
+                          address={address}
+                        />
+
+                      </Col>
+                    );
+                  })
+                : <Col span={24}>"no collectibles"</Col>}
+
+
+
+              </Row>
             </div>
             <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 256 }}>
               🛠 built with{" "}
