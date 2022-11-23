@@ -459,7 +459,7 @@ function App(props) {
                   }}
                   style={{ color: "green", backgroundColor: "white", border: "green", borderRadius: "5px" }}
                 >
-                  MINT
+                  MINT 🌿
                 </Button>
               ) : (
                 <Button
@@ -544,8 +544,8 @@ function App(props) {
               />
             </div> */}
 
-            <div style={{ width: 820, margin: "auto", paddingBottom: 256 }}>
-              <Row>
+            <div style={{ maxWidth: 820, margin: "auto", paddingBottom: 256, paddingLeft: "16px", paddingRight: "16px" }}>
+              <Row gutter={[16, 16]}>
               {yourCollectibles
                 ? yourCollectibles.map(c => {
                     return (
