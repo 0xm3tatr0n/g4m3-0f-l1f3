@@ -20,7 +20,7 @@ const styles = {
     display: "flex",
   },
   a: {
-    color: "#ff4538",
+    color: "#26abd4", // "#ff4538",
     alignSelf: "flex-end",
   },
 };
