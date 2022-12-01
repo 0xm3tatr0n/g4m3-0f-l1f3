@@ -7,6 +7,7 @@ require("@tenderly/hardhat-tenderly")
 
 require("@nomiclabs/hardhat-etherscan");
 require("hardhat-gas-reporter");
+require("@nomicfoundation/hardhat-network-helpers")
 
 const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 

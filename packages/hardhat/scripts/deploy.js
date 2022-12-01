@@ -4,6 +4,7 @@ const chalk = require("chalk");
 const { config, ethers, tenderly, run } = require("hardhat");
 const { utils } = require("ethers");
 const R = require("ramda");
+const helpers = require("@nomicfoundation/hardhat-network-helpers");
 
 
 const main = async () => {
@@ -22,9 +23,9 @@ const main = async () => {
   console.log(" \n")*/
 
   // deploy the contract with all the artworks forSale
-  const yourCollectible = await deploy("YourCollectible"/*,[ bytes32Array ]*/) // <-- add in constructor args like line 19 vvvv
+  const yourCollectible = await deploy("YourCollectible"/*,[ bytes32Array ]*/); // <-- add in constructor args like line 19 vvvv
 
-  yourCollectible.transferOwnership("0x34aA3F359A9D614239015126635CE7732c18fDF3") //austingriffith.eth
+  yourCollectible.transferOwnership("0x34aA3F359A9D614239015126635CE7732c18fDF3"); //austingriffith.eth
 
   //const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
   //const secondContract = await deploy("SecondContract")
@@ -109,6 +110,9 @@ const deploy = async (contractName, _args = [], overrides = {}, libraries = {}) 
     " ⛽",
     chalk.grey(extraGasInfo)
   );
+
+  // console.log("funding address 0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295", 100 )
+  // await helpers.setBalance("0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295", 10000000000);
 
   await tenderly.persistArtifacts({
     name: contractName,
