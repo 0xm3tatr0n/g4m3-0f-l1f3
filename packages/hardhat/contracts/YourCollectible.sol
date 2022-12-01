@@ -251,7 +251,7 @@ contract YourCollectible is ERC721, Ownable {
       // assign colors
       aliveColor = colors[4];
       deadColor = colors[0];
-    } else if (density > 28){
+    } else if (density > 27){
       // case: over population
       // assign colors
       aliveColor = colors[7];
@@ -270,13 +270,16 @@ contract YourCollectible is ERC721, Ownable {
         string memory square;
         if (alive){
           square = string(abi.encodePacked(
-            '<rect width="',Strings.toString(scale - 4),'" height="',Strings.toString(scale - 4),'" ', 
-            'x="', 
-            Strings.toString(i * scale), 
-            '" y="',
-            Strings.toString(j * scale),
-            '" fill="',aliveColor,'"', 
-            '/>'));
+            '<g>',
+              '<rect width="',Strings.toString(scale - 4),'" height="',Strings.toString(scale - 4),'" ', 
+                'x="', 
+                Strings.toString(i * scale), 
+                '" y="',
+                Strings.toString(j * scale),
+                '" fill="',aliveColor,'"', 
+              '/>',
+              '<text x="0" y="50" font-family="Verdana" font-size="14" fill="blue">hello</text>',
+            '</g>'));
         } else {
           square = string(abi.encodePacked(
             '<rect width="',Strings.toString(scale),'" height="',Strings.toString(scale),'" ', 
