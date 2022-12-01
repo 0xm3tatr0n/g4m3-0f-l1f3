@@ -126,7 +126,10 @@ function ItemCard(props) {
   };
 
   return (
-    <Card style={{ margin: "auto", borderRadius: "0", border: "2px solid #c3c3c3", overflow: "hidden" }} onClick={flipCard}>
+    <Card
+      style={{ margin: "auto", borderRadius: "0", border: "2px solid #c3c3c3", overflow: "hidden" }}
+      onClick={flipCard}
+    >
       {isFront ? (
         <img src={item.image} alt="g0l" />
       ) : (
@@ -545,13 +548,14 @@ function App(props) {
               />
             </div> */}
 
-            <div style={{ maxWidth: 820, margin: "auto", paddingBottom: 256, paddingLeft: "16px", paddingRight: "16px" }}>
+            <div
+              style={{ maxWidth: 820, margin: "auto", paddingBottom: 256, paddingLeft: "16px", paddingRight: "16px" }}
+            >
               <Row gutter={[16, 16]}>
-              {yourCollectibles
-                ? yourCollectibles.map(c => {
+                {yourCollectibles ? (
+                  yourCollectibles.map(c => {
                     return (
                       <Col xs={24} md={12} lg={12}>
-
                         <ItemCard
                           item={c}
                           ensProvider={mainnetProvider}
@@ -562,14 +566,12 @@ function App(props) {
                           tx={tx}
                           address={address}
                         />
-
                       </Col>
                     );
                   })
-                : <Col span={24}>"no collectibles"</Col>}
-
-
-
+                ) : (
+                  <Col span={24}>"no collectibles"</Col>
+                )}
               </Row>
             </div>
             <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 256 }}>
@@ -623,8 +625,8 @@ function App(props) {
         />
         {faucetHint}
       </div> */}
-            {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
-            <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
+      {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
+      <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
         <Row align="middle" gutter={[4, 4]}>
           <Col span={8}>
             <Ramp price={price} address={address} networks={NETWORKS} />
