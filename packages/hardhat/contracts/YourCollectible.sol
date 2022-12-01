@@ -21,20 +21,23 @@ contract YourCollectible is ERC721, Ownable {
   // using ToColor for bytes3;
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
+  Counters.Counter private _currentGeneration;
 
   constructor() ERC721("gam3 0f l1f3", "g0l") {
     _initState();
-    // _iterateState();
   }
 
   // constants
   // string[] colors = ["#190c28", "#fef7ee", "#fb0002", "#fef000", "#1c82eb"];
+  string[] colors = ["#29af3f", "#dcc729", "#26abd4", "#c3c3c3", "#404040"];
   
   uint256 constant private dim = 8;
 
   // variables
   // new implementation
-  mapping(uint256 => uint256) tokenGridStatesInt;
+  mapping(uint256 => uint256) private tokenGridStatesInt;
+  mapping(uint256 => uint256) private tokenGeneration;
+
   uint256 private gameStateInt;
 
   // return state convenience
@@ -43,11 +46,15 @@ contract YourCollectible is ERC721, Ownable {
   }
 
   function _initState() internal {
+
+    // set generation
+    _currentGeneration.increment();
+
     // temporary storage
     bool[dim][dim] memory results;
 
     // generate some "randomness"
-    bytes32 seedBytes = keccak256(abi.encodePacked(address(this) ,"foo", "bar", blockhash(block.number - 1), block.timestamp));
+    bytes32 seedBytes = keccak256(abi.encodePacked(address(this) ,_currentGeneration.current(), "bar", blockhash(block.number - 1), block.timestamp));
 
     uint256 r = uint256(seedBytes);
     // uint256[] memory b;
@@ -80,15 +87,6 @@ contract YourCollectible is ERC721, Ownable {
     return input ? 1 : 0;
   }
 
-  // function _shiftIndex(int index) private pure returns(uint256) { 
-  //   //
-  //   if (index < 0){
-  //     return dim - 1;
-  //   } else {
-  //     return uint(index);
-  //   }
-  // }
-
   function _iterateState() private {
     // play game of life
     uint256 N = dim;
@@ -98,16 +96,6 @@ contract YourCollectible is ERC721, Ownable {
 
     for (uint256 i = 0; i < dim; i += 1){
       for (uint256 j = 0; j < dim; j += 1){
-
-        // uint256 total = uint( 
-        //   _b2u(oldGameStateFromInt[i][_shiftIndex(int(j-1)) % N]) + _b2u(oldGameStateFromInt[i][(j+1) % N ]) + 
-        //   _b2u(oldGameStateFromInt[_shiftIndex(int(i - 1)) % N][j]) + _b2u(oldGameStateFromInt[(i + 1) % N][j]) +
-        //   _b2u(oldGameStateFromInt[_shiftIndex(int(i - 1)) % N][(j-1) % N]) + _b2u(oldGameStateFromInt[_shiftIndex(int(i - 1)) % N][(j + 1) % N]) +
-        //   _b2u(oldGameStateFromInt[(i + 1) % N][_shiftIndex(int(j - 1)) % N]) + _b2u(oldGameStateFromInt[(i + 1) % N][(j + 1) % N])
-                              
-        // );
-
-
         uint256 total = uint(
           _b2u(oldGameStateFromInt[uint((i - 1) % N)][uint((j-1) % N)]) +
           _b2u(oldGameStateFromInt[uint((i - 1) % N)][j]) +
@@ -131,6 +119,7 @@ contract YourCollectible is ERC721, Ownable {
             newGameStateFromInt[i][j] = true;
           }
         }
+
 
           // grid total. pyhton example: 
           // copy grid since we require 8 neighbors
@@ -162,8 +151,17 @@ contract YourCollectible is ERC721, Ownable {
       }      
     }
 
-    // convert newGameStateFromInt back to int, update state
-    gameStateInt = gridToWord(newGameStateFromInt);
+    // check if generation ended (no change between iteration)
+    uint256 gameStateIntNew = gridToWord(newGameStateFromInt);
+
+    if (gameStateInt == gameStateIntNew){
+      // init new state
+      _initState();
+    } else {
+      gameStateInt = gameStateIntNew;
+    }
+
+
   }
 
 
@@ -179,8 +177,9 @@ contract YourCollectible is ERC721, Ownable {
       _mint(mintTo, id);
       _iterateState();
 
-      // new implementation
+      // store token states
       tokenGridStatesInt[id] = gameStateInt;
+      tokenGeneration[id] = _currentGeneration.current();
 
       return id;
   }
@@ -190,6 +189,8 @@ contract YourCollectible is ERC721, Ownable {
       string memory name = string(abi.encodePacked('gam3 0f l1f3 #',id.toString()));
       string memory description = string(abi.encodePacked('gam3 0f l1f3 #', id.toString()));
       string memory image = Base64.encode(bytes(generateSVGofTokenById(id)));
+      string memory generation = Strings.toString(tokenGeneration[id]);
+      string memory populationDensity = Strings.toString(getCountOfOnBits(tokenGridStatesInt[id]));
 
       return
           string(
@@ -204,9 +205,9 @@ contract YourCollectible is ERC721, Ownable {
                               description,
                               '", "external_url":"https://burnyboys.com/token/',
                               id.toString(),
-                              '", "attributes": [{"trait_type": "color", "value": "#',
-                              'bar',
-                              '"}], "owner":"',
+                              '", "attributes": [{"trait_type": "generation", "value": "#',
+                              generation,
+                              '"},','{"trait_type" : "density", "value": "', populationDensity, '"}' ,'],', '"owner":"',
                               (uint160(ownerOf(id))).toHexString(20),
                               '", "image": "',
                               'data:image/svg+xml;base64,',
@@ -282,6 +283,18 @@ contract YourCollectible is ERC721, Ownable {
     return string(output);
 
   }
+
+    function getCountOfOnBits(uint boolsUint) public view returns(uint256) {
+        uint256 boolsUintCopy = boolsUint;
+        uint8 _count = 0;
+        for(uint8 i = 0; i < 255; i++) {
+            if(boolsUintCopy & 1 == 1) {
+                _count++;
+            }
+            boolsUintCopy >>= 1;
+        }
+        return _count;
+    }
 
 function getBooleanFromIndex(uint256 _packedBools, uint256 _boolNumber)  
     private pure returns(bool)  

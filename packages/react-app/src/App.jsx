@@ -127,17 +127,25 @@ function ItemCard(props) {
 
   return (
     <div>
-      <Card
-        style={{ margin: "auto", borderRadius: "0", border: "2px solid #c3c3c3", overflow: "hidden" }}
-        onClick={flipCard}
-      >
-        {isFront ? (
+      {isFront ? (
+        <Card
+          style={{ margin: "auto", borderRadius: "0", border: "2px solid #c3c3c3", overflow: "hidden", backgroundColor: "white" }}
+          onClick={flipCard}
+        >
           <img src={item.image} alt="g0l" />
-        ) : (
+        </Card>
+      ) : (
+        <Card
+          style={{ margin: "auto", borderRadius: "0", border: "2px solid #c3c3c3", overflow: "hidden" }}
+          onClick={flipCard}
+        >
           <div style={{ width: "320px", height: "320px", margin: "auto" }}>
             <div>{item.description}</div>
             <div>owned by: {item.owner}</div>
-            <div>traits: placeholder</div>
+            <div>traits:</div>
+            {item.attributes.map((a) => {
+              return (<div>{a.trait_type} {a.value}</div>)
+            })}
             <AddressInput
               ensProvider={ensProvider}
               placeholder="transfer to address"
@@ -161,8 +169,8 @@ function ItemCard(props) {
               Transfer
             </Button>
           </div>
-        )}
-      </Card>
+        </Card>
+      )}
     </div>
   );
 }
@@ -555,9 +563,9 @@ function App(props) {
             >
               <Row gutter={[16, 16]}>
                 {yourCollectibles ? (
-                  yourCollectibles.map(c => {
+                  yourCollectibles.map((c, icx) => {
                     return (
-                      <Col xs={24} md={12} lg={12}>
+                      <Col xs={24} md={12} lg={12} key={`collectible-${icx}`}>
                         <ItemCard
                           item={c}
                           ensProvider={mainnetProvider}
