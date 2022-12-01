@@ -277,9 +277,9 @@
   {
     "inputs": [
       {
-        "internalType": "bool[8][8]",
-        "name": "grid",
-        "type": "bool[8][8]"
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
       }
     ],
     "name": "renderGameGrid",
@@ -290,7 +290,7 @@
         "type": "string"
       }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "view",
     "type": "function"
   },
   {

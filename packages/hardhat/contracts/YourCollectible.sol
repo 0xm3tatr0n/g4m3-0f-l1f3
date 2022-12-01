@@ -29,7 +29,7 @@ contract YourCollectible is ERC721, Ownable {
 
   // constants
   // string[] colors = ["#190c28", "#fef7ee", "#fb0002", "#fef000", "#1c82eb"];
-  string[] colors = ["#29af3f", "#dcc729", "#26abd4", "#c3c3c3", "#404040"];
+  string[] colors = ["#ffffff", "#000000","#29af3f", "#dcc729", "#26abd4", "#c3c3c3", "#404040", "#fb0002"];
   
   uint256 constant private dim = 8;
 
@@ -222,12 +222,10 @@ contract YourCollectible is ERC721, Ownable {
 
   function generateSVGofTokenById(uint256 id) internal view returns (string memory) {
     // get token gameState as int, convert to grid
-    bool[dim][dim] memory grid = wordToGrid(tokenGridStatesInt[id]);
-
     string memory svg = string(abi.encodePacked(
       '<svg width="320" height="320" xmlns="http://www.w3.org/2000/svg" onload="init()">',
         // renderGameGrid(tokenGridStates[id]),
-        renderGameGrid(grid),
+        renderGameGrid(id),
       '</svg>'
     ));
 
@@ -236,11 +234,33 @@ contract YourCollectible is ERC721, Ownable {
 
   // Visibility is `public` to enable it being called by other contracts for composition.
 
-  function renderGameGrid(bool[dim][dim] memory grid) public pure returns (string memory){
+  function renderGameGrid(uint256 id) public view returns (string memory){
     // render that thing
+    bool[dim][dim] memory grid = wordToGrid(tokenGridStatesInt[id]);
     string[] memory squares = new string[](dim * dim);
     uint256 scale = 40;
     uint256 slotCounter = 0;
+
+    // determine color map
+    string memory aliveColor;
+    string memory deadColor;
+    uint256 density = getCountOfOnBits(tokenGridStatesInt[id]);
+
+    if (density < 26){
+      // case: low population
+      // assign colors
+      aliveColor = colors[4];
+      deadColor = colors[0];
+    } else if (density > 28){
+      // case: over population
+      // assign colors
+      aliveColor = colors[7];
+      deadColor = colors[0];
+    } else {
+      // case: "normal" population
+      aliveColor = colors[2];
+      deadColor = colors[0];
+    }
 
     for (uint256 i = 0; i < grid.length; i += 1){
       //
@@ -255,7 +275,7 @@ contract YourCollectible is ERC721, Ownable {
             Strings.toString(i * scale), 
             '" y="',
             Strings.toString(j * scale),
-            '" fill="black"', 
+            '" fill="',aliveColor,'"', 
             '/>'));
         } else {
           square = string(abi.encodePacked(
@@ -264,7 +284,7 @@ contract YourCollectible is ERC721, Ownable {
             Strings.toString(i * scale), 
             '" y="',
             Strings.toString(j * scale),
-            '" fill="white"', 
+            '" fill="',deadColor,'"', 
             '/>'));
         }
 
