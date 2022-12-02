@@ -185,14 +185,52 @@ contract YourCollectible is ERC721, Ownable {
 
       return id;
   }
+  
+  // todo: better naming as it does begin to include most metadata
+  struct ChangeCounts {
+    string birthCount;
+    string deathCount;
+    string populationDensity;
+    string name;
+    string description;
+    string generation;
+  }
+
+  function stateChangeCount(uint256 id) private view returns (ChangeCounts memory){
+      
+      ChangeCounts memory changeCount;
+      changeCount.populationDensity = Strings.toString(getCountOfOnBits(tokenGridStatesInt[id]));
+      changeCount.name = string(abi.encodePacked('gam3 0f l1f3 #',id.toString()));
+      changeCount.description = string(abi.encodePacked('gam3 0f l1f3 #', id.toString()));
+      changeCount.generation = Strings.toString(tokenGeneration[id]);
+      
+      // get data for births & deaths
+      uint256 stateDiff;
+      if (id > 1){
+        stateDiff = tokenGridStatesInt[id - 1] ^ tokenGridStatesInt[id];
+        // births
+        uint256 bornCells = tokenGridStatesInt[id] & stateDiff;
+        // deaths
+        uint256 perishedCells = ~tokenGridStatesInt[id] & stateDiff;
+        // set counts
+        changeCount.birthCount = Strings.toString(getCountOfOnBits(bornCells));
+        changeCount.deathCount = Strings.toString(getCountOfOnBits(perishedCells));
+      }
+
+      
+
+      return changeCount;
+  }
 
   function tokenURI(uint256 id) public view override returns (string memory) {
       require(_exists(id), "token does not exist");
-      string memory name = string(abi.encodePacked('gam3 0f l1f3 #',id.toString()));
-      string memory description = string(abi.encodePacked('gam3 0f l1f3 #', id.toString()));
+      // string memory name = string(abi.encodePacked('gam3 0f l1f3 #',id.toString()));
+      // string memory description = string(abi.encodePacked('gam3 0f l1f3 #', id.toString()));
       string memory image = Base64.encode(bytes(generateSVGofTokenById(id)));
-      string memory generation = Strings.toString(tokenGeneration[id]);
-      string memory populationDensity = Strings.toString(getCountOfOnBits(tokenGridStatesInt[id]));
+      // string memory generation = Strings.toString(tokenGeneration[id]);
+      // string memory populationDensity = Strings.toString(getCountOfOnBits(tokenGridStatesInt[id]));
+
+      ChangeCounts memory changeCount = stateChangeCount(id);
 
       return
           string(
@@ -202,14 +240,17 @@ contract YourCollectible is ERC721, Ownable {
                     bytes(
                           abi.encodePacked(
                               '{"name":"',
-                              name,
+                              changeCount.name,
                               '", "description":"',
-                              description,
+                              changeCount.description,
                               '", "external_url":"https://burnyboys.com/token/',
                               id.toString(),
                               '", "attributes": [{"trait_type": "generation", "value": "#',
-                              generation,
-                              '"},','{"trait_type" : "density", "value": "', populationDensity, '"}' ,'],', '"owner":"',
+                              changeCount.generation,
+                              '"},','{"trait_type" : "density", "value": "', changeCount.populationDensity, '"},' ,
+                              '{"trait_type" : "births", "value": "', changeCount.birthCount, '"},' ,
+                              '{"trait_type" : "deaths", "value": "', changeCount.deathCount, '"}' ,
+                              '],', '"owner":"',
                               (uint160(ownerOf(id))).toHexString(20),
                               '", "image": "',
                               'data:image/svg+xml;base64,',
