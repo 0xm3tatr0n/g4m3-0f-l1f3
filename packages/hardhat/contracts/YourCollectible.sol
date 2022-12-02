@@ -224,12 +224,7 @@ contract YourCollectible is ERC721, Ownable {
 
   function tokenURI(uint256 id) public view override returns (string memory) {
       require(_exists(id), "token does not exist");
-      // string memory name = string(abi.encodePacked('gam3 0f l1f3 #',id.toString()));
-      // string memory description = string(abi.encodePacked('gam3 0f l1f3 #', id.toString()));
       string memory image = Base64.encode(bytes(generateSVGofTokenById(id)));
-      // string memory generation = Strings.toString(tokenGeneration[id]);
-      // string memory populationDensity = Strings.toString(getCountOfOnBits(tokenGridStatesInt[id]));
-
       ChangeCounts memory changeCount = stateChangeCount(id);
 
       return
@@ -267,7 +262,6 @@ contract YourCollectible is ERC721, Ownable {
     // get token gameState as int, convert to grid
     string memory svg = string(abi.encodePacked(
       '<svg width="320" height="320" xmlns="http://www.w3.org/2000/svg" onload="init()">',
-        // renderGameGrid(tokenGridStates[id]),
         renderGameGrid(id),
       '</svg>'
     ));
