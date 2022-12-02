@@ -32,6 +32,8 @@ contract YourCollectible is ERC721, Ownable {
   string[] colors = ["#ffffff", "#000000","#29af3f", "#dcc729", "#26abd4", "#c3c3c3", "#404040", "#fb0002"];
   
   uint256 constant private dim = 8;
+  uint256 constant scale = 40;
+  string s_scale = Strings.toString(scale - 4);
 
   // variables
   // new implementation
@@ -232,35 +234,55 @@ contract YourCollectible is ERC721, Ownable {
     return svg;
   }
 
+  struct ColorMap {
+    string aliveColor;
+    string deadColor;
+    string bornColor;
+    string perishedColor;
+  }
+  function generateColorMap(uint256 density) private view returns (ColorMap memory){
+    
+    ColorMap memory colorMap;
+    
+    if (density < 26){
+      // case: low population
+      // assign colors
+      colorMap.aliveColor = colors[4];
+      colorMap.deadColor = colors[0];
+    } else if (density > 27){
+      // case: over population
+      // assign colors
+      colorMap.aliveColor = colors[7];
+      colorMap.deadColor = colors[0];
+    } else {
+      // case: "normal" population
+      colorMap.aliveColor = colors[2];
+      colorMap.deadColor = colors[0];
+    }
+
+    return colorMap;
+  }
+
   // Visibility is `public` to enable it being called by other contracts for composition.
 
   function renderGameGrid(uint256 id) public view returns (string memory){
     // render that thing
     bool[dim][dim] memory grid = wordToGrid(tokenGridStatesInt[id]);
     string[] memory squares = new string[](dim * dim);
-    uint256 scale = 40;
     uint256 slotCounter = 0;
+    uint256 stateDiff;
+
+    // figure out which cells have changed in this round
+    if (id > 1){
+      // case: not the first item (todo: catch generation changes)
+      stateDiff = tokenGridStatesInt[id - 1] ^ tokenGridStatesInt[id];
+    } else  {
+      // no changes since first born
+    }
 
     // determine color map
-    string memory aliveColor;
-    string memory deadColor;
     uint256 density = getCountOfOnBits(tokenGridStatesInt[id]);
-
-    if (density < 26){
-      // case: low population
-      // assign colors
-      aliveColor = colors[4];
-      deadColor = colors[0];
-    } else if (density > 27){
-      // case: over population
-      // assign colors
-      aliveColor = colors[7];
-      deadColor = colors[0];
-    } else {
-      // case: "normal" population
-      aliveColor = colors[2];
-      deadColor = colors[0];
-    }
+    ColorMap memory colorMap = generateColorMap(density);
 
     for (uint256 i = 0; i < grid.length; i += 1){
       //
@@ -268,27 +290,74 @@ contract YourCollectible is ERC721, Ownable {
       for (uint256 j = 0; j < row.length; j += 1){
         bool alive = grid[i][j];
         string memory square;
-        if (alive){
+
+        // trying to solve stack too deep
+        string memory i_scale = Strings.toString(i * scale);
+        string memory j_scale = Strings.toString(j * scale);
+        string memory i_scale_offset = Strings.toString((i * scale) + scale / 2);
+        string memory j_scale_offset = Strings.toString((j * scale) + scale / 2);
+
+        // check for stateDiff
+        bool hasChanged = getBooleanFromIndex(stateDiff, (i * dim + j));
+        
+        if (alive && !hasChanged){
+          // was alive last round
           square = string(abi.encodePacked(
             '<g>',
-              '<rect width="',Strings.toString(scale - 4),'" height="',Strings.toString(scale - 4),'" ', 
+              '<rect width="',s_scale,'" height="',s_scale,'" ', 
                 'x="', 
-                Strings.toString(i * scale), 
+                i_scale, 
                 '" y="',
-                Strings.toString(j * scale),
-                '" fill="',aliveColor,'"', 
-              '/>',
-              '<text x="0" y="50" font-family="Verdana" font-size="14" fill="blue">hello</text>',
+                j_scale,
+                '" fill="',colorMap.aliveColor,'"', 
+              '/>'
             '</g>'));
-        } else {
+        } else if (alive && hasChanged){
+          // case: new born
           square = string(abi.encodePacked(
-            '<rect width="',Strings.toString(scale),'" height="',Strings.toString(scale),'" ', 
-            'x="', 
-            Strings.toString(i * scale), 
-            '" y="',
-            Strings.toString(j * scale),
-            '" fill="',deadColor,'"', 
-            '/>'));
+            '<g>',
+              '<rect width="',s_scale,'" height="',s_scale,'" ', 
+                'x="', 
+                i_scale, 
+                '" y="',
+                j_scale,
+                '" fill="',colorMap.aliveColor,'"', 
+              '/>',
+              '<text x="',
+              i_scale_offset, 
+              '" y="',
+              j_scale_offset,
+              '" font-family="Verdana" font-size="14" fill="blue" dominant-baseline="middle" text-anchor="middle">O</text>',
+            '</g>'));
+        } else if (!alive && !hasChanged){
+          // case: didn't exist in previous round
+          square = string(abi.encodePacked(
+            '<g>',
+              '<rect width="',s_scale,'" height="',s_scale,'" ', 
+                'x="', 
+                i_scale, 
+                '" y="',
+                j_scale,
+                '" fill="',colorMap.deadColor,'"', 
+              '/>',
+            '</g>'));
+        } else if (!alive && hasChanged) {
+          // case: died last round
+          square = string(abi.encodePacked(
+            '<g>',
+              '<rect width="',s_scale,'" height="',s_scale,'" ', 
+                'x="', 
+                i_scale, 
+                '" y="',
+                j_scale,
+                '" fill="',colorMap.deadColor,'"', 
+              '/>',
+              '<text x="',
+              i_scale_offset, 
+              '" y="',
+              j_scale_offset,
+              '" font-family="Verdana" font-size="14" fill="blue" dominant-baseline="middle" text-anchor="middle">X</text>',
+            '</g>'));
         }
 
         squares[slotCounter] = square;
@@ -307,17 +376,17 @@ contract YourCollectible is ERC721, Ownable {
 
   }
 
-    function getCountOfOnBits(uint boolsUint) public view returns(uint256) {
-        uint256 boolsUintCopy = boolsUint;
-        uint8 _count = 0;
-        for(uint8 i = 0; i < 255; i++) {
-            if(boolsUintCopy & 1 == 1) {
-                _count++;
-            }
-            boolsUintCopy >>= 1;
-        }
-        return _count;
-    }
+  function getCountOfOnBits(uint boolsUint) public view returns(uint256) {
+      uint256 boolsUintCopy = boolsUint;
+      uint8 _count = 0;
+      for(uint8 i = 0; i < 255; i++) {
+          if(boolsUintCopy & 1 == 1) {
+              _count++;
+          }
+          boolsUintCopy >>= 1;
+      }
+      return _count;
+  }
 
 function getBooleanFromIndex(uint256 _packedBools, uint256 _boolNumber)  
     private pure returns(bool)  
