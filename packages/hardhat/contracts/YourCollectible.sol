@@ -187,22 +187,25 @@ contract YourCollectible is ERC721, Ownable {
   }
   
   // todo: better naming as it does begin to include most metadata
-  struct ChangeCounts {
+  struct MetaData {
     string birthCount;
     string deathCount;
     string populationDensity;
     string name;
     string description;
     string generation;
+    string trend;
+    string populationDiff;
+    string times;
   }
 
-  function stateChangeCount(uint256 id) private view returns (ChangeCounts memory){
+  function generateMetadata(uint256 id) private view returns (MetaData memory){
       
-      ChangeCounts memory changeCount;
-      changeCount.populationDensity = Strings.toString(getCountOfOnBits(tokenGridStatesInt[id]));
-      changeCount.name = string(abi.encodePacked('gam3 0f l1f3 #',id.toString()));
-      changeCount.description = string(abi.encodePacked('gam3 0f l1f3 #', id.toString()));
-      changeCount.generation = Strings.toString(tokenGeneration[id]);
+      MetaData memory metadata;
+      metadata.populationDensity = Strings.toString(getCountOfOnBits(tokenGridStatesInt[id]));
+      metadata.name = string(abi.encodePacked('gam3 0f l1f3 #',id.toString()));
+      metadata.description = string(abi.encodePacked('gam3 0f l1f3 #', id.toString()));
+      metadata.generation = Strings.toString(tokenGeneration[id]);
       
       // get data for births & deaths
       uint256 stateDiff;
@@ -213,19 +216,58 @@ contract YourCollectible is ERC721, Ownable {
         // deaths
         uint256 perishedCells = ~tokenGridStatesInt[id] & stateDiff;
         // set counts
-        changeCount.birthCount = Strings.toString(getCountOfOnBits(bornCells));
-        changeCount.deathCount = Strings.toString(getCountOfOnBits(perishedCells));
+        metadata.birthCount = Strings.toString(getCountOfOnBits(bornCells));
+        metadata.deathCount = Strings.toString(getCountOfOnBits(perishedCells));
+        
+        // determine prosperity levels
+        int populationDiff = int(bornCells) - int(perishedCells);
+
+        if (populationDiff > 0){
+          // case: population increase
+          metadata.populationDiff = Strings.toString(uint(populationDiff));
+          metadata.trend = 'up';
+          if (populationDiff > 4){
+            metadata.times = 'prosperous';
+          } else {
+            metadata.times = 'stable';
+          }
+        } else if (populationDiff < 0){
+          // case: population decrease
+          metadata.populationDiff = Strings.toString(uint(-populationDiff));
+          metadata.trend = 'down';
+          if (populationDiff > -4){
+            metadata.times = 'prosperous';
+          } else {
+            metadata.times = 'stable';
+          }
+        } else {
+          // case: 0
+          metadata.populationDiff = Strings.toString(uint(populationDiff));
+          metadata.trend = 'zero';
+          metadata.times = 'end';
+        }
       }
 
-      
+      return metadata;
+  }
 
-      return changeCount;
+  function generateAttributeString(MetaData memory metadata) internal pure returns (string memory){
+    string memory attributeString = string(abi.encodePacked('", "attributes": [{"trait_type": "generation", "value": "#',
+                              metadata.generation,
+                              '"},','{"trait_type" : "density", "value": "', metadata.populationDensity, '"},' ,
+                              '{"trait_type" : "births", "value": "', metadata.birthCount, '"},' ,
+                              '{"trait_type" : "deaths", "value": "', metadata.deathCount, '"},' ,
+                              '{"trait_type" : "trend", "value": "', metadata.trend, '"},' ,
+                              '{"trait_type" : "population_diff", "value": "', metadata.populationDiff, '"},' ,
+                              '{"trait_type" : "times", "value": "', metadata.times, '"}' ,
+                              '],'));
+    return attributeString;
   }
 
   function tokenURI(uint256 id) public view override returns (string memory) {
       require(_exists(id), "token does not exist");
       string memory image = Base64.encode(bytes(generateSVGofTokenById(id)));
-      ChangeCounts memory changeCount = stateChangeCount(id);
+      MetaData memory metadata = generateMetadata(id);
 
       return
           string(
@@ -235,17 +277,13 @@ contract YourCollectible is ERC721, Ownable {
                     bytes(
                           abi.encodePacked(
                               '{"name":"',
-                              changeCount.name,
+                              metadata.name,
                               '", "description":"',
-                              changeCount.description,
+                              metadata.description,
                               '", "external_url":"https://burnyboys.com/token/',
                               id.toString(),
-                              '", "attributes": [{"trait_type": "generation", "value": "#',
-                              changeCount.generation,
-                              '"},','{"trait_type" : "density", "value": "', changeCount.populationDensity, '"},' ,
-                              '{"trait_type" : "births", "value": "', changeCount.birthCount, '"},' ,
-                              '{"trait_type" : "deaths", "value": "', changeCount.deathCount, '"}' ,
-                              '],', '"owner":"',
+                              generateAttributeString(metadata),
+                              '"owner":"',
                               (uint160(ownerOf(id))).toHexString(20),
                               '", "image": "',
                               'data:image/svg+xml;base64,',
@@ -298,44 +336,21 @@ contract YourCollectible is ERC721, Ownable {
     return colorMap;
   }
 
-  // Visibility is `public` to enable it being called by other contracts for composition.
 
-  function renderGameGrid(uint256 id) public view returns (string memory){
-    // render that thing
-    bool[dim][dim] memory grid = wordToGrid(tokenGridStatesInt[id]);
-    string[] memory squares = new string[](dim * dim);
-    uint256 slotCounter = 0;
-    uint256 stateDiff;
+  function renderGameSquare(
+    bool alive, 
+    bool hasChanged, 
+    uint256 i,
+    uint256 j,
+    ColorMap memory colorMap) internal view returns (string memory){
+    //
+    string memory square;
+    string memory i_scale = Strings.toString(i * scale);
+    string memory j_scale = Strings.toString(j * scale);
+    string memory i_scale_offset = Strings.toString((i * scale) + scale / 2);
+    string memory j_scale_offset = Strings.toString((j * scale) + scale / 2);
 
-    // figure out which cells have changed in this round
-    if (id > 1){
-      // case: not the first item (todo: catch generation changes)
-      stateDiff = tokenGridStatesInt[id - 1] ^ tokenGridStatesInt[id];
-    } else  {
-      // no changes since first born
-    }
-
-    // determine color map
-    uint256 density = getCountOfOnBits(tokenGridStatesInt[id]);
-    ColorMap memory colorMap = generateColorMap(density);
-
-    for (uint256 i = 0; i < grid.length; i += 1){
-      //
-      bool[dim] memory row = grid[i];
-      for (uint256 j = 0; j < row.length; j += 1){
-        bool alive = grid[i][j];
-        string memory square;
-
-        // trying to solve stack too deep
-        string memory i_scale = Strings.toString(i * scale);
-        string memory j_scale = Strings.toString(j * scale);
-        string memory i_scale_offset = Strings.toString((i * scale) + scale / 2);
-        string memory j_scale_offset = Strings.toString((j * scale) + scale / 2);
-
-        // check for stateDiff
-        bool hasChanged = getBooleanFromIndex(stateDiff, (i * dim + j));
-        
-        if (alive && !hasChanged){
+    if (alive && !hasChanged){
           // was alive last round
           square = string(abi.encodePacked(
             '<g>',
@@ -362,7 +377,7 @@ contract YourCollectible is ERC721, Ownable {
               i_scale_offset, 
               '" y="',
               j_scale_offset,
-              '" font-family="Verdana" font-size="14" fill="blue" dominant-baseline="middle" text-anchor="middle">O</text>',
+              '" font-family="Courier" font-size="14" fill="',colorMap.deadColor,'" dominant-baseline="middle" text-anchor="middle" font-weight="bold">O</text>',
             '</g>'));
         } else if (!alive && !hasChanged){
           // case: didn't exist in previous round
@@ -391,10 +406,45 @@ contract YourCollectible is ERC721, Ownable {
               i_scale_offset, 
               '" y="',
               j_scale_offset,
-              '" font-family="Verdana" font-size="14" fill="blue" dominant-baseline="middle" text-anchor="middle">X</text>',
+              '" font-family="Courier" font-size="14" fill="',colorMap.aliveColor,'" dominant-baseline="middle" text-anchor="middle" font-weight="bold">X</text>',
             '</g>'));
         }
 
+        return square;
+  }
+
+  // Visibility is `public` to enable it being called by other contracts for composition.
+
+  function renderGameGrid(uint256 id) public view returns (string memory){
+    // render that thing
+    bool[dim][dim] memory grid = wordToGrid(tokenGridStatesInt[id]);
+    string[] memory squares = new string[](dim * dim);
+    uint256 slotCounter = 0;
+    uint256 stateDiff;
+
+    // figure out which cells have changed in this round
+    if (id > 1){
+      // case: not the first item (todo: catch generation changes)
+      stateDiff = tokenGridStatesInt[id - 1] ^ tokenGridStatesInt[id];
+    } else  {
+      // no changes since first born
+    }
+
+    // determine color map
+    uint256 density = getCountOfOnBits(tokenGridStatesInt[id]);
+    ColorMap memory colorMap = generateColorMap(density);
+
+    for (uint256 i = 0; i < grid.length; i += 1){
+      //
+      bool[dim] memory row = grid[i];
+      for (uint256 j = 0; j < row.length; j += 1){
+        bool alive = grid[i][j];
+        string memory square;
+
+        // check for stateDiff
+        bool hasChanged = getBooleanFromIndex(stateDiff, (i * dim + j));
+        square = renderGameSquare(alive, hasChanged,i, j, colorMap);
+        
         squares[slotCounter] = square;
         slotCounter += 1;
       }
