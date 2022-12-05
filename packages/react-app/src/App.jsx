@@ -288,7 +288,7 @@ function App(props) {
 
       // check if any collectibles owned
       if (ids.length > 0) {
-        console.log(">>> trying to update collectibles now ");
+        // console.log(">>> trying to update collectibles now ");
         const uriPromises = [];
         ids.forEach(e => {
           uriPromises.push(readContracts.YourCollectible.tokenURI(e));
@@ -296,7 +296,7 @@ function App(props) {
 
         console.log(">>> got uriPromises: ", uriPromises);
         const uris = await Promise.all(uriPromises);
-        console.log(">>> habemus URIs: ", uris);
+        // console.log(">>> habemus URIs: ", uris);
 
         try {
           // trying to parse URIs
@@ -306,7 +306,7 @@ function App(props) {
             return { id: ids[idx], uri: u, owner: address, ...jsonManifest };
           });
 
-          console.log(">>> gonna update collectibles: ", collectibleUpdate);
+          // console.log(">>> gonna update collectibles: ", collectibleUpdate);
           setYourCollectibles(collectibleUpdate.reverse());
         } catch (error) {
           console.log("error updating your collectibles: ", error);
