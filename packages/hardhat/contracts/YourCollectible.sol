@@ -14,6 +14,8 @@ import './HexStrings.sol';
 
 // GET LISTED ON OPENSEA: https://testnets.opensea.io/get-listed/step-two
 
+import {G0l, BitOps} from './Libraries.sol';
+
 contract YourCollectible is ERC721, Ownable {
 
   using Strings for uint256;
@@ -30,7 +32,8 @@ contract YourCollectible is ERC721, Ownable {
   // constants
   // string[] colors = ["#190c28", "#fef7ee", "#fb0002", "#fef000", "#1c82eb"];
   string[] colors = ["#ffffff", "#000000","#29af3f", "#dcc729", "#26abd4", "#c3c3c3", "#404040", "#fb0002"];
-  
+  string[] colorsRainbow = ["#15A1C4", "#1E62AB", "#34287E", "#5A2681", "#C5027D", "#C7381D", "#CF6018", "#D88616", "#EDBB11", "#FAED24", "#92B83C", "#469D45" ];
+
   uint256 constant private dim = 8;
   uint256 constant scale = 40;
   string s_scale = Strings.toString(scale - 4);
@@ -77,7 +80,7 @@ contract YourCollectible is ERC721, Ownable {
         }
 
         results[i][j] = result;
-        gridInt = setBooleaOnIndex(gridInt, (i * dim) + j, result);
+        gridInt = BitOps.setBooleaOnIndex(gridInt, (i * dim) + j, result);
       }
     }
 
@@ -195,8 +198,34 @@ contract YourCollectible is ERC721, Ownable {
     string description;
     string generation;
     string trend;
-    string populationDiff;
+    string popDiff;
     string times;
+  }
+
+  struct Trends {
+    uint256 popDiff;
+    uint256 up;
+    uint256 births;
+    uint256 deaths;
+  }
+
+  function getTrends(uint256 bornCells, uint256 perishedCells) internal pure returns (Trends memory){
+    Trends memory trends;
+    trends.births = bornCells;
+    trends.deaths = perishedCells;
+
+    if (bornCells > perishedCells){
+      trends.up = 1;
+      trends.popDiff = bornCells - perishedCells;
+    } else if (bornCells < perishedCells){
+      trends.up = 0;
+      trends.popDiff = uint256(-int(bornCells - perishedCells));
+    } else {
+      trends.up = 99;
+      trends.popDiff = 0;
+    }
+
+    return trends;
   }
 
   function generateMetadata(uint256 id) private view returns (MetaData memory){
@@ -211,41 +240,37 @@ contract YourCollectible is ERC721, Ownable {
       uint256 stateDiff;
       if (id > 1){
         stateDiff = tokenGridStatesInt[id - 1] ^ tokenGridStatesInt[id];
-        // births
-        uint256 bornCells = tokenGridStatesInt[id] & stateDiff;
-        // deaths
-        uint256 perishedCells = ~tokenGridStatesInt[id] & stateDiff;
-        // set counts
-        metadata.birthCount = Strings.toString(getCountOfOnBits(bornCells));
-        metadata.deathCount = Strings.toString(getCountOfOnBits(perishedCells));
-        
-        // determine prosperity levels
-        int populationDiff = int(bornCells) - int(perishedCells);
 
-        if (populationDiff > 0){
-          // case: population increase
-          metadata.populationDiff = Strings.toString(uint(populationDiff));
+        uint256 bornCells = getCountOfOnBits(tokenGridStatesInt[id] & stateDiff);
+        uint256 perishedCells = getCountOfOnBits(~tokenGridStatesInt[id] & stateDiff);
+        // set counts
+        metadata.birthCount = Strings.toString(bornCells);
+        metadata.deathCount = Strings.toString(perishedCells);
+
+        Trends memory populationTrends = getTrends(bornCells, perishedCells);
+
+        // determine prosperity levels
+        metadata.popDiff = Strings.toString(populationTrends.popDiff);
+
+        if (populationTrends.up == 1){
           metadata.trend = 'up';
-          if (populationDiff > 4){
+          if (populationTrends.popDiff > 4){
             metadata.times = 'prosperous';
           } else {
             metadata.times = 'stable';
           }
-        } else if (populationDiff < 0){
-          // case: population decrease
-          metadata.populationDiff = Strings.toString(uint(-populationDiff));
+        } else if (populationTrends.up == 0){
           metadata.trend = 'down';
-          if (populationDiff > -4){
-            metadata.times = 'prosperous';
+          if (populationTrends.popDiff > 4){
+            metadata.times = 'bad';
           } else {
             metadata.times = 'stable';
           }
         } else {
-          // case: 0
-          metadata.populationDiff = Strings.toString(uint(populationDiff));
-          metadata.trend = 'zero';
-          metadata.times = 'end';
+          metadata.trend = 'none';
+          metadata.times = 'balanced';
         }
+
       }
 
       return metadata;
@@ -255,10 +280,12 @@ contract YourCollectible is ERC721, Ownable {
     string memory attributeString = string(abi.encodePacked('", "attributes": [{"trait_type": "generation", "value": "#',
                               metadata.generation,
                               '"},','{"trait_type" : "density", "value": "', metadata.populationDensity, '"},' ,
+                              // '{"trait_type" : "births", "value": "', metadata.birthCount, '"},' ,
+                              // '{"trait_type" : "deaths", "value": "', metadata.deathCount, '"},' ,
                               '{"trait_type" : "births", "value": "', metadata.birthCount, '"},' ,
                               '{"trait_type" : "deaths", "value": "', metadata.deathCount, '"},' ,
                               '{"trait_type" : "trend", "value": "', metadata.trend, '"},' ,
-                              '{"trait_type" : "population_diff", "value": "', metadata.populationDiff, '"},' ,
+                              '{"trait_type" : "population_difference", "value": "', metadata.popDiff, '"},' ,
                               '{"trait_type" : "times", "value": "', metadata.times, '"}' ,
                               '],'));
     return attributeString;
@@ -442,7 +469,7 @@ contract YourCollectible is ERC721, Ownable {
         string memory square;
 
         // check for stateDiff
-        bool hasChanged = getBooleanFromIndex(stateDiff, (i * dim + j));
+        bool hasChanged = BitOps.getBooleanFromIndex(stateDiff, (i * dim + j));
         square = renderGameSquare(alive, hasChanged,i, j, colorMap);
         
         squares[slotCounter] = square;
@@ -473,23 +500,23 @@ contract YourCollectible is ERC721, Ownable {
       return _count;
   }
 
-function getBooleanFromIndex(uint256 _packedBools, uint256 _boolNumber)  
-    private pure returns(bool)  
-{  
-    uint256 flag = (_packedBools >> _boolNumber) & uint256(1);  
-    return (flag == 1 ? true : false);  
-}
+// function getBooleanFromIndex(uint256 _packedBools, uint256 _boolNumber)  
+//     private pure returns(bool)  
+// {  
+//     uint256 flag = (_packedBools >> _boolNumber) & uint256(1);  
+//     return (flag == 1 ? true : false);  
+// }
 
-function setBooleaOnIndex(  
-    uint256 _packedBools,  
-    uint256 _boolNumber,  
-    bool _value  
-) private pure returns(uint256) {  
-    if (_value)  
-        return _packedBools | uint256(1) << _boolNumber;  
-    else  
-        return _packedBools & ~(uint256(1) << _boolNumber);  
-}
+// function setBooleaOnIndex(  
+//     uint256 _packedBools,  
+//     uint256 _boolNumber,  
+//     bool _value  
+// ) private pure returns(uint256) {  
+//     if (_value)  
+//         return _packedBools | uint256(1) << _boolNumber;  
+//     else  
+//         return _packedBools & ~(uint256(1) << _boolNumber);  
+// }
 
 function wordToGrid(uint256 word) pure internal returns ( bool[dim][dim] memory){
   // convert word to bool[][] (prior to iterate state)
@@ -497,7 +524,7 @@ function wordToGrid(uint256 word) pure internal returns ( bool[dim][dim] memory)
   for (uint256 i = 0; i < dim; i += 1){
     for (uint256 j = 0; j < dim; j += 1){
       //
-      grid[i][j] = getBooleanFromIndex(word, (i * dim + j));
+      grid[i][j] = BitOps.getBooleanFromIndex(word, (i * dim + j));
     }
   }
 
@@ -509,7 +536,7 @@ function gridToWord(bool[dim][dim] memory grid) view internal returns(uint256){
   uint256 word;
   for (uint256 i = 0; i < dim; i += 1){
     for (uint256 j = 0; j < dim; j += 1){
-      word = setBooleaOnIndex(word, (i * dim + j), grid[i][j]);
+      word = BitOps.setBooleaOnIndex(word, (i * dim + j), grid[i][j]);
     }
   }
   return word;
