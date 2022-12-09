@@ -15,6 +15,7 @@ import './HexStrings.sol';
 // GET LISTED ON OPENSEA: https://testnets.opensea.io/get-listed/step-two
 
 import {G0l, BitOps} from './Libraries.sol';
+import {Structs} from './StructsLibrary.sol';
 
 contract YourCollectible is ERC721, Ownable {
 
@@ -32,7 +33,7 @@ contract YourCollectible is ERC721, Ownable {
   // constants
   // string[] colors = ["#190c28", "#fef7ee", "#fb0002", "#fef000", "#1c82eb"];
   string[] colors = ["#ffffff", "#000000","#29af3f", "#dcc729", "#26abd4", "#c3c3c3", "#404040", "#fb0002"];
-  string[] colorsRainbow = ["#15A1C4", "#1E62AB", "#34287E", "#5A2681", "#C5027D", "#C7381D", "#CF6018", "#D88616", "#EDBB11", "#FAED24", "#92B83C", "#469D45" ];
+  // string[] colorsRainbow = ["#15A1C4", "#1E62AB", "#34287E", "#5A2681", "#C5027D", "#C7381D", "#CF6018", "#D88616", "#EDBB11", "#FAED24", "#92B83C", "#469D45" ];
 
   uint256 constant private dim = 8;
   uint256 constant scale = 40;
@@ -189,28 +190,9 @@ contract YourCollectible is ERC721, Ownable {
       return id;
   }
   
-  // todo: better naming as it does begin to include most metadata
-  struct MetaData {
-    string birthCount;
-    string deathCount;
-    string populationDensity;
-    string name;
-    string description;
-    string generation;
-    string trend;
-    string popDiff;
-    string times;
-  }
 
-  struct Trends {
-    uint256 popDiff;
-    uint256 up;
-    uint256 births;
-    uint256 deaths;
-  }
-
-  function getTrends(uint256 bornCells, uint256 perishedCells) internal pure returns (Trends memory){
-    Trends memory trends;
+  function getTrends(uint256 bornCells, uint256 perishedCells) internal pure returns (Structs.Trends memory){
+    Structs.Trends memory trends;
     trends.births = bornCells;
     trends.deaths = perishedCells;
 
@@ -228,10 +210,10 @@ contract YourCollectible is ERC721, Ownable {
     return trends;
   }
 
-  function generateMetadata(uint256 id) private view returns (MetaData memory){
+  function generateMetadata(uint256 id) private view returns (Structs.MetaData memory){
       
-      MetaData memory metadata;
-      metadata.populationDensity = Strings.toString(getCountOfOnBits(tokenGridStatesInt[id]));
+      Structs.MetaData memory metadata;
+      metadata.populationDensity = BitOps.getCountOfOnBits(tokenGridStatesInt[id]);
       metadata.name = string(abi.encodePacked('gam3 0f l1f3 #',id.toString()));
       metadata.description = string(abi.encodePacked('gam3 0f l1f3 #', id.toString()));
       metadata.generation = Strings.toString(tokenGeneration[id]);
@@ -241,16 +223,16 @@ contract YourCollectible is ERC721, Ownable {
       if (id > 1){
         stateDiff = tokenGridStatesInt[id - 1] ^ tokenGridStatesInt[id];
 
-        uint256 bornCells = getCountOfOnBits(tokenGridStatesInt[id] & stateDiff);
-        uint256 perishedCells = getCountOfOnBits(~tokenGridStatesInt[id] & stateDiff);
+        uint256 bornCells = BitOps.getCountOfOnBits(tokenGridStatesInt[id] & stateDiff);
+        uint256 perishedCells = BitOps.getCountOfOnBits(~tokenGridStatesInt[id] & stateDiff);
         // set counts
-        metadata.birthCount = Strings.toString(bornCells);
-        metadata.deathCount = Strings.toString(perishedCells);
+        metadata.birthCount = bornCells;
+        metadata.deathCount = perishedCells;
 
-        Trends memory populationTrends = getTrends(bornCells, perishedCells);
+        Structs.Trends memory populationTrends = getTrends(bornCells, perishedCells);
 
         // determine prosperity levels
-        metadata.popDiff = Strings.toString(populationTrends.popDiff);
+        metadata.popDiff = populationTrends.popDiff;
 
         if (populationTrends.up == 1){
           metadata.trend = 'up';
@@ -276,25 +258,24 @@ contract YourCollectible is ERC721, Ownable {
       return metadata;
   }
 
-  function generateAttributeString(MetaData memory metadata) internal pure returns (string memory){
+  function generateAttributeString(Structs.MetaData memory metadata) internal pure returns (string memory){
     string memory attributeString = string(abi.encodePacked('", "attributes": [{"trait_type": "generation", "value": "#',
-                              metadata.generation,
-                              '"},','{"trait_type" : "density", "value": "', metadata.populationDensity, '"},' ,
-                              // '{"trait_type" : "births", "value": "', metadata.birthCount, '"},' ,
-                              // '{"trait_type" : "deaths", "value": "', metadata.deathCount, '"},' ,
-                              '{"trait_type" : "births", "value": "', metadata.birthCount, '"},' ,
-                              '{"trait_type" : "deaths", "value": "', metadata.deathCount, '"},' ,
-                              '{"trait_type" : "trend", "value": "', metadata.trend, '"},' ,
-                              '{"trait_type" : "population_difference", "value": "', metadata.popDiff, '"},' ,
-                              '{"trait_type" : "times", "value": "', metadata.times, '"}' ,
-                              '],'));
+        metadata.generation,
+        '"},',
+        '{"trait_type" : "density", "value": "', Strings.toString(metadata.populationDensity), '"},' ,
+        '{"trait_type" : "births", "value": "', Strings.toString(metadata.birthCount), '"},' ,
+        '{"trait_type" : "deaths", "value": "', Strings.toString(metadata.deathCount), '"},' ,
+        '{"trait_type" : "trend", "value": "', metadata.trend, '"},' ,
+        '{"trait_type" : "population_difference", "value": "', Strings.toString(metadata.popDiff), '"},' ,
+        '{"trait_type" : "times", "value": "', metadata.times, '"}' ,
+        '],'));
     return attributeString;
   }
 
   function tokenURI(uint256 id) public view override returns (string memory) {
       require(_exists(id), "token does not exist");
       string memory image = Base64.encode(bytes(generateSVGofTokenById(id)));
-      MetaData memory metadata = generateMetadata(id);
+      Structs.MetaData memory metadata = generateMetadata(id);
 
       return
           string(
@@ -334,31 +315,41 @@ contract YourCollectible is ERC721, Ownable {
     return svg;
   }
 
-  struct ColorMap {
-    string aliveColor;
-    string deadColor;
-    string bornColor;
-    string perishedColor;
-  }
-  function generateColorMap(uint256 density) private view returns (ColorMap memory){
+  function generateColorMap(Structs.MetaData memory metadata) private view returns (Structs.ColorMap memory){
     
-    ColorMap memory colorMap;
-    
-    if (density < 26){
-      // case: low population
-      // assign colors
-      colorMap.aliveColor = colors[4];
-      colorMap.deadColor = colors[0];
-    } else if (density > 27){
-      // case: over population
-      // assign colors
-      colorMap.aliveColor = colors[7];
-      colorMap.deadColor = colors[0];
+    Structs.ColorMap memory colorMap;
+
+    if (metadata.birthCount > metadata.deathCount){
+      // case: trend up
+      // pick from first 6 (0-5), assuming they'll be sorted by intensity
+      colorMap.aliveColor = G0l.returnColor(metadata.popDiff % 6);
+      colorMap.deadColor = "#ffffff";
+    } else if (metadata.birthCount < metadata.deathCount){
+      // case: trend down
+      // pick from last 6 (6-11), assuming they'll be sorted by intensity
+      colorMap.aliveColor = G0l.returnColor((metadata.popDiff % 6) + 6);
+      colorMap.deadColor = "#ffffff";
     } else {
-      // case: "normal" population
-      colorMap.aliveColor = colors[2];
-      colorMap.deadColor = colors[0];
+      // case 0: black & white?
+      colorMap.aliveColor = "#000000";
+      colorMap.deadColor = "#ffffff";
     }
+    
+    // if (metadata.populationDensity < 26){
+    //   // case: low population
+    //   // assign colors
+    //   colorMap.aliveColor = colors[4];
+    //   colorMap.deadColor = colors[0];
+    // } else if (metadata.populationDensity > 27){
+    //   // case: over population
+    //   // assign colors
+    //   colorMap.aliveColor = colors[7];
+    //   colorMap.deadColor = colors[0];
+    // } else {
+    //   // case: "normal" population
+    //   colorMap.aliveColor = colors[2];
+    //   colorMap.deadColor = colors[0];
+    // }
 
     return colorMap;
   }
@@ -369,7 +360,7 @@ contract YourCollectible is ERC721, Ownable {
     bool hasChanged, 
     uint256 i,
     uint256 j,
-    ColorMap memory colorMap) internal view returns (string memory){
+    Structs.ColorMap memory colorMap) internal view returns (string memory){
     //
     string memory square;
     string memory i_scale = Strings.toString(i * scale);
@@ -458,8 +449,9 @@ contract YourCollectible is ERC721, Ownable {
     }
 
     // determine color map
-    uint256 density = getCountOfOnBits(tokenGridStatesInt[id]);
-    ColorMap memory colorMap = generateColorMap(density);
+    // uint256 density = BitOps.getCountOfOnBits(tokenGridStatesInt[id]);
+    Structs.MetaData memory metaData = generateMetadata(id);
+    Structs.ColorMap memory colorMap = generateColorMap(metaData);
 
     for (uint256 i = 0; i < grid.length; i += 1){
       //
@@ -487,36 +479,6 @@ contract YourCollectible is ERC721, Ownable {
     return string(output);
 
   }
-
-  function getCountOfOnBits(uint boolsUint) public view returns(uint256) {
-      uint256 boolsUintCopy = boolsUint;
-      uint8 _count = 0;
-      for(uint8 i = 0; i < 255; i++) {
-          if(boolsUintCopy & 1 == 1) {
-              _count++;
-          }
-          boolsUintCopy >>= 1;
-      }
-      return _count;
-  }
-
-// function getBooleanFromIndex(uint256 _packedBools, uint256 _boolNumber)  
-//     private pure returns(bool)  
-// {  
-//     uint256 flag = (_packedBools >> _boolNumber) & uint256(1);  
-//     return (flag == 1 ? true : false);  
-// }
-
-// function setBooleaOnIndex(  
-//     uint256 _packedBools,  
-//     uint256 _boolNumber,  
-//     bool _value  
-// ) private pure returns(uint256) {  
-//     if (_value)  
-//         return _packedBools | uint256(1) << _boolNumber;  
-//     else  
-//         return _packedBools & ~(uint256(1) << _boolNumber);  
-// }
 
 function wordToGrid(uint256 word) pure internal returns ( bool[dim][dim] memory){
   // convert word to bool[][] (prior to iterate state)
