@@ -143,8 +143,8 @@ function ItemCard(props) {
             <div>{item.description}</div>
             <div>owned by: {item.owner}</div>
             <div>traits:</div>
-            {item.attributes.map((a) => {
-              return (<div>{a.trait_type} {a.value}</div>)
+            {item.attributes.map((a, iax) => {
+              return (<div key={`attribute-${iax}`}>{a.trait_type} {a.value}</div>)
             })}
             <AddressInput
               ensProvider={ensProvider}

@@ -383,19 +383,21 @@ contract YourCollectible is ERC721, Ownable {
         } else if (alive && hasChanged){
           // case: new born
           square = string(abi.encodePacked(
-            '<g>',
+            '<g transform="translate(', i_scale , ',' , j_scale , ')">',
               '<rect width="',s_scale,'" height="',s_scale,'" ', 
-                'x="', 
-                i_scale, 
-                '" y="',
-                j_scale,
-                '" fill="',colorMap.aliveColor,'"', 
+                // 'x="', 
+                // i_scale, 
+                // '" y="',
+                // j_scale,
+                // '"',
+                ' fill="',colorMap.aliveColor,'"', 
               '/>',
-              '<text x="',
-              i_scale_offset, 
-              '" y="',
-              j_scale_offset,
-              '" font-family="Courier" font-size="14" fill="',colorMap.deadColor,'" dominant-baseline="middle" text-anchor="middle" font-weight="bold">O</text>',
+              // '<text x="',
+              // i_scale_offset, 
+              // '" y="',
+              // j_scale_offset,
+              // '" font-family="Courier" font-size="14" fill="',colorMap.deadColor,'" dominant-baseline="middle" text-anchor="middle" font-weight="bold">O</text>',
+              G0l.renderBabySVG("0", "0", "36", 'foo'),
             '</g>'));
         } else if (!alive && !hasChanged){
           // case: didn't exist in previous round
@@ -412,19 +414,21 @@ contract YourCollectible is ERC721, Ownable {
         } else if (!alive && hasChanged) {
           // case: died last round
           square = string(abi.encodePacked(
-            '<g>',
+            '<g transform="translate(', i_scale , ',' , j_scale , ')">',
               '<rect width="',s_scale,'" height="',s_scale,'" ', 
-                'x="', 
-                i_scale, 
-                '" y="',
-                j_scale,
-                '" fill="',colorMap.deadColor,'"', 
+                // 'x="', 
+                // i_scale, 
+                // '" y="',
+                // j_scale,
+                // '"',
+                ' fill="',colorMap.deadColor,'"', 
               '/>',
-              '<text x="',
-              i_scale_offset, 
-              '" y="',
-              j_scale_offset,
-              '" font-family="Courier" font-size="14" fill="',colorMap.aliveColor,'" dominant-baseline="middle" text-anchor="middle" font-weight="bold">X</text>',
+              // '<text x="',
+              // i_scale_offset, 
+              // '" y="',
+              // j_scale_offset,
+              // '" font-family="Courier" font-size="14" fill="',colorMap.deadColor,'" dominant-baseline="middle" text-anchor="middle" font-weight="bold">O</text>',
+              G0l.renderZombieSVG(colorMap),
             '</g>'));
         }
 
