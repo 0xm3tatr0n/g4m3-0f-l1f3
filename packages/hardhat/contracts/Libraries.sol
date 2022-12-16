@@ -32,11 +32,18 @@ library G0l {
     }
 
 
-    function returnColor(uint256 pos) internal pure returns (string memory){
+    function returnColor(uint256 paletteNumber , uint256 colorPos) internal pure returns (string memory){
         // 0-3: base colors
         // 5-6: births
         // 8-9: deaths
-        string[10] memory colorsRainbow = ["#1E62AB","#C5027D","#5A2681", "#34287E","#15A1C4", "#92B83C", "#469D45", "#FAED24" ,"#CF6018","#C7381D"];
+        // string[10] memory colorsRainbow = ["#1E62AB","#C5027D","#5A2681", "#34287E","#15A1C4", "#92B83C", "#469D45", "#FAED24" ,"#CF6018","#C7381D"];
+
+        string[7][4] memory colorPalettes = [
+            ["#EDEBD7","#E3B23C", "#423E37","#17BEBB", "#74A57F", "#FE6D73", "#7D5BA6"],
+            ["#071E22","#FF1053", "#251101","#5BC0EB", "#D2F898", "#495159", "#3D3522"],
+            ["#EDEBD7","#E3B23C", "#423E37","#17BEBB", "#74A57F", "#FE6D73", "#7D5BA6"],
+            ["#071E22","#FF1053", "#251101","#5BC0EB", "#D2F898", "#495159", "#3D3522"]
+        ];
         
         // original rainbow colors: ["#15A1C4", "#1E62AB", "#34287E", "#5A2681", "#C5027D", "#C7381D", "#CF6018", "#D88616", "#EDBB11", "#FAED24", "#92B83C", "#469D45" ]
         // 
@@ -46,9 +53,11 @@ library G0l {
         // string[] rainbow = ["#1E62AB","#C5027D","#5A2681", "#34287E","#15A1C4", "#92B83C", "#469D45", "#FAED24" ,"#CF6018","#C7381D"]
         // base alternatives remaining: ["#C5027D","#5A2681", "#34287E"]
         // background, live, dead, born0, born1, perished0, perished1 
-        //  [""]
+        //  ["#EDEBD7","#E3B23C", "#423E37","#17BEBB", "#74A57F", "#FE6D73", "#7D5BA6"]
+        //  ["#071E22","#FF1053", "#251101","#5BC0EB", "#D2F898", "#495159", "#3D3522"]
 
-          return colorsRainbow[pos];
+          // return colorsRainbow[palettePos];
+        return colorPalettes[paletteNumber][colorPos];
     }
 }
 
@@ -56,6 +65,7 @@ library BitOps {
     function getBooleanFromIndex(uint256 _packedBools, uint256 _boolNumber)  
         internal pure returns(bool)  
         {  
+            // get bool value from integer word at position _boolNumber
             uint256 flag = (_packedBools >> _boolNumber) & uint256(1);  
             return (flag == 1 ? true : false);  
         }
@@ -65,6 +75,7 @@ library BitOps {
         uint256 _boolNumber,  
         bool _value  
     ) internal pure returns(uint256) {  
+        // set bool value on integer word at position _bolNumber
         if (_value)  
             return _packedBools | uint256(1) << _boolNumber;  
         else  
@@ -72,6 +83,7 @@ library BitOps {
     }
 
     function getCountOfOnBits(uint boolsUint) internal pure returns(uint256) {
+        // count all the on bits in boolsUint
         uint256 boolsUintCopy = boolsUint;
         uint8 _count = 0;
         for(uint8 i = 0; i < 255; i++) {
