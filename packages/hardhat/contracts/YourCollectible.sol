@@ -237,20 +237,20 @@ contract YourCollectible is ERC721, Ownable {
         if (populationTrends.up == 1){
           metadata.trend = 'up';
           if (populationTrends.popDiff > 4){
-            metadata.times = 'prosperous';
+            metadata.times = 1;
           } else {
-            metadata.times = 'stable';
+            metadata.times = 0;
           }
         } else if (populationTrends.up == 0){
           metadata.trend = 'down';
           if (populationTrends.popDiff > 4){
-            metadata.times = 'bad';
+            metadata.times = 2;
           } else {
-            metadata.times = 'stable';
+            metadata.times = 0;
           }
         } else {
           metadata.trend = 'none';
-          metadata.times = 'balanced';
+          metadata.times = 3;
         }
 
       }
@@ -259,6 +259,17 @@ contract YourCollectible is ERC721, Ownable {
   }
 
   function generateAttributeString(Structs.MetaData memory metadata) internal pure returns (string memory){
+    
+    string memory timesName;
+    if (metadata.times == 0){
+      timesName = 'stable';
+    }
+    else if (metadata.times == 1) {
+      timesName = 'good';
+    } else if (metadata.times == 2){
+      timesName = 'bad';
+    }
+    
     string memory attributeString = string(abi.encodePacked('", "attributes": [{"trait_type": "generation", "value": "#',
         metadata.generation,
         '"},',
@@ -267,7 +278,7 @@ contract YourCollectible is ERC721, Ownable {
         '{"trait_type" : "deaths", "value": "', Strings.toString(metadata.deathCount), '"},' ,
         '{"trait_type" : "trend", "value": "', metadata.trend, '"},' ,
         '{"trait_type" : "population_difference", "value": "', Strings.toString(metadata.popDiff), '"},' ,
-        '{"trait_type" : "times", "value": "', metadata.times, '"}' ,
+        '{"trait_type" : "times", "value": "', timesName, '"}' ,
         '],'));
     return attributeString;
   }
@@ -319,37 +330,27 @@ contract YourCollectible is ERC721, Ownable {
     
     Structs.ColorMap memory colorMap;
 
-    if (metadata.birthCount > metadata.deathCount){
-      // case: trend up
-      // pick from first 6 (0-5), assuming they'll be sorted by intensity
-      colorMap.aliveColor = G0l.returnColor(metadata.popDiff % 6);
-      colorMap.deadColor = "#ffffff";
-    } else if (metadata.birthCount < metadata.deathCount){
-      // case: trend down
-      // pick from last 6 (6-11), assuming they'll be sorted by intensity
-      colorMap.aliveColor = G0l.returnColor((metadata.popDiff % 6) + 6);
-      colorMap.deadColor = "#ffffff";
+    colorMap.deadColor = "#ffffff";
+    colorMap.aliveColor = G0l.returnColor(metadata.times);
+
+    // handle birth's intensity
+    if (metadata.birthCount < 6){
+      colorMap.bornColor = G0l.returnColor(4);
+    } else if (metadata.birthCount < 12){
+      colorMap.bornColor = G0l.returnColor(5);
     } else {
-      // case 0: black & white?
-      colorMap.aliveColor = "#000000";
-      colorMap.deadColor = "#ffffff";
+      colorMap.bornColor = G0l.returnColor(6);
+    }
+
+    // handle death intensity
+    if (metadata.deathCount < 6){
+      colorMap.perishedColor = G0l.returnColor(7);
+    } else if (metadata.deathCount < 12){
+      colorMap.perishedColor = G0l.returnColor(8);
+    } else {
+      colorMap.perishedColor = G0l.returnColor(9);
     }
     
-    // if (metadata.populationDensity < 26){
-    //   // case: low population
-    //   // assign colors
-    //   colorMap.aliveColor = colors[4];
-    //   colorMap.deadColor = colors[0];
-    // } else if (metadata.populationDensity > 27){
-    //   // case: over population
-    //   // assign colors
-    //   colorMap.aliveColor = colors[7];
-    //   colorMap.deadColor = colors[0];
-    // } else {
-    //   // case: "normal" population
-    //   colorMap.aliveColor = colors[2];
-    //   colorMap.deadColor = colors[0];
-    // }
 
     return colorMap;
   }
@@ -363,10 +364,11 @@ contract YourCollectible is ERC721, Ownable {
     Structs.ColorMap memory colorMap) internal view returns (string memory){
     //
     string memory square;
-    string memory i_scale = Strings.toString(i * scale);
-    string memory j_scale = Strings.toString(j * scale);
+    string memory i_scale = Strings.toString(i * scale + 2);
+    string memory j_scale = Strings.toString(j * scale + 2);
     string memory i_scale_offset = Strings.toString((i * scale) + scale / 2);
     string memory j_scale_offset = Strings.toString((j * scale) + scale / 2);
+
 
     if (alive && !hasChanged){
           // was alive last round
@@ -385,19 +387,15 @@ contract YourCollectible is ERC721, Ownable {
           square = string(abi.encodePacked(
             '<g transform="translate(', i_scale , ',' , j_scale , ')">',
               '<rect width="',s_scale,'" height="',s_scale,'" ', 
-                // 'x="', 
-                // i_scale, 
-                // '" y="',
-                // j_scale,
-                // '"',
-                ' fill="',colorMap.aliveColor,'"', 
+                ' fill="',colorMap.bornColor,'"', 
               '/>',
               // '<text x="',
               // i_scale_offset, 
               // '" y="',
               // j_scale_offset,
               // '" font-family="Courier" font-size="14" fill="',colorMap.deadColor,'" dominant-baseline="middle" text-anchor="middle" font-weight="bold">O</text>',
-              G0l.renderBabySVG("0", "0", "36", 'foo'),
+              // G0l.renderBabySVG("0", "0", "36", 'foo'),
+              // '<polygon points="0,0 36,36 36,0" fill="green" />',
             '</g>'));
         } else if (!alive && !hasChanged){
           // case: didn't exist in previous round
@@ -416,11 +414,6 @@ contract YourCollectible is ERC721, Ownable {
           square = string(abi.encodePacked(
             '<g transform="translate(', i_scale , ',' , j_scale , ')">',
               '<rect width="',s_scale,'" height="',s_scale,'" ', 
-                // 'x="', 
-                // i_scale, 
-                // '" y="',
-                // j_scale,
-                // '"',
                 ' fill="',colorMap.deadColor,'"', 
               '/>',
               // '<text x="',
@@ -428,7 +421,8 @@ contract YourCollectible is ERC721, Ownable {
               // '" y="',
               // j_scale_offset,
               // '" font-family="Courier" font-size="14" fill="',colorMap.deadColor,'" dominant-baseline="middle" text-anchor="middle" font-weight="bold">O</text>',
-              G0l.renderZombieSVG(colorMap),
+              // G0l.renderZombieSVG(colorMap),
+              '<polygon points="0,36 36,36 0,0" fill="',colorMap.perishedColor,'" />',
             '</g>'));
         }
 
@@ -476,6 +470,8 @@ contract YourCollectible is ERC721, Ownable {
   // combine array of squares into single bytes array
 
     bytes memory output;
+    // add general svg, e.g. background
+    output = abi.encodePacked('<rect width="100%" height="100%" fill="','black','" />' );
     for (uint256 i = 0; i < squares.length; i += 1){
       output = abi.encodePacked(output, squares[i]);
     }

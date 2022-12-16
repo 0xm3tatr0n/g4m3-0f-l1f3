@@ -12,7 +12,8 @@ library Structs {
         string description;
         string generation;
         string trend;
-        string times;
+        uint8 times; // 0: stable, 1: prosperous, 2: bad
+
     }
 
     struct Trends {
