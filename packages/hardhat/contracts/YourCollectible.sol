@@ -330,26 +330,22 @@ contract YourCollectible is ERC721, Ownable {
     
     Structs.ColorMap memory colorMap;
 
-    colorMap.deadColor = "#ffffff";
-    colorMap.aliveColor = G0l.returnColor(metadata.times);
+    colorMap.aliveColor = G0l.returnColor(metadata.times, 1);
+    colorMap.deadColor = G0l.returnColor(metadata.times, 2);
 
     // handle birth's intensity
     if (metadata.birthCount < 6){
-      colorMap.bornColor = G0l.returnColor(4);
-    } else if (metadata.birthCount < 12){
-      colorMap.bornColor = G0l.returnColor(5);
-    } else {
-      colorMap.bornColor = G0l.returnColor(6);
-    }
+      colorMap.bornColor = G0l.returnColor(metadata.times, 3);
+    } else{
+      colorMap.bornColor = G0l.returnColor(metadata.times, 4);
+    } 
 
     // handle death intensity
     if (metadata.deathCount < 6){
-      colorMap.perishedColor = G0l.returnColor(7);
-    } else if (metadata.deathCount < 12){
-      colorMap.perishedColor = G0l.returnColor(8);
+      colorMap.perishedColor = G0l.returnColor(metadata.times, 5);
     } else {
-      colorMap.perishedColor = G0l.returnColor(9);
-    }
+      colorMap.perishedColor = G0l.returnColor(metadata.times, 6);
+    } 
     
 
     return colorMap;
