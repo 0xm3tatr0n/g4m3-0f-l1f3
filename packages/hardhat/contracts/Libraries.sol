@@ -38,11 +38,25 @@ library G0l {
         // 8-9: deaths
         // string[10] memory colorsRainbow = ["#1E62AB","#C5027D","#5A2681", "#34287E","#15A1C4", "#92B83C", "#469D45", "#FAED24" ,"#CF6018","#C7381D"];
 
-        string[7][4] memory colorPalettes = [
+        string[7][8] memory colorPalettes = [
+            // low density times / rural
+            // stable
             ["#EDEBD7","#E3B23C", "#423E37","#17BEBB", "#74A57F", "#FE6D73", "#7D5BA6"],
+            // good
             ["#071E22","#FF1053", "#251101","#5BC0EB", "#D2F898", "#495159", "#3D3522"],
+            // bad
+            ["#1C7C54","#A80874", "#E3D8F1","#86BBD8", "#33658A", "#FF7F11", "#F0F66E"],
+            // zero
+            ["#E6FDFF","#87FF65", "#C04CFD","#5E2BFF", "#D2F898", "#ED254E", "#EADEDA"],
+            // new ones, high density times // urban
+            // stable
             ["#EDEBD7","#E3B23C", "#423E37","#17BEBB", "#74A57F", "#FE6D73", "#7D5BA6"],
-            ["#071E22","#FF1053", "#251101","#5BC0EB", "#D2F898", "#495159", "#3D3522"]
+            // good
+            ["#071E22","#FF1053", "#251101","#5BC0EB", "#D2F898", "#495159", "#3D3522"],
+            // bad
+            ["#1C7C54","#A80874", "#E3D8F1","#86BBD8", "#33658A", "#FF7F11", "#F0F66E"],
+            // zero
+            ["#E6FDFF","#87FF65", "#C04CFD","#5E2BFF", "#D2F898", "#ED254E", "#EADEDA"]
         ];
         
         // original rainbow colors: ["#15A1C4", "#1E62AB", "#34287E", "#5A2681", "#C5027D", "#C7381D", "#CF6018", "#D88616", "#EDBB11", "#FAED24", "#92B83C", "#469D45" ]
