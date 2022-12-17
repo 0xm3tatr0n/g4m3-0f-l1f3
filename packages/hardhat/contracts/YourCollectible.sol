@@ -268,6 +268,8 @@ contract YourCollectible is ERC721, Ownable {
       timesName = 'good';
     } else if (metadata.times == 2){
       timesName = 'bad';
+    } else if (metadata.times == 3){
+      timesName = 'zero';
     }
     
     string memory attributeString = string(abi.encodePacked('", "attributes": [{"trait_type": "generation", "value": "#',
@@ -330,21 +332,24 @@ contract YourCollectible is ERC721, Ownable {
     
     Structs.ColorMap memory colorMap;
 
-    colorMap.aliveColor = G0l.returnColor(metadata.times, 1);
-    colorMap.deadColor = G0l.returnColor(metadata.times, 2);
+    uint256 selectedColorScheme = metadata.populationDensity < 29 ? metadata.times : metadata.times + 4;
+
+    colorMap.backgroundColor = G0l.returnColor(selectedColorScheme, 0);
+    colorMap.aliveColor = G0l.returnColor(selectedColorScheme, 1);
+    colorMap.deadColor = G0l.returnColor(selectedColorScheme, 2);
 
     // handle birth's intensity
     if (metadata.birthCount < 6){
-      colorMap.bornColor = G0l.returnColor(metadata.times, 3);
+      colorMap.bornColor = G0l.returnColor(selectedColorScheme, 3);
     } else{
-      colorMap.bornColor = G0l.returnColor(metadata.times, 4);
+      colorMap.bornColor = G0l.returnColor(selectedColorScheme, 4);
     } 
 
     // handle death intensity
     if (metadata.deathCount < 6){
-      colorMap.perishedColor = G0l.returnColor(metadata.times, 5);
+      colorMap.perishedColor = G0l.returnColor(selectedColorScheme, 5);
     } else {
-      colorMap.perishedColor = G0l.returnColor(metadata.times, 6);
+      colorMap.perishedColor = G0l.returnColor(selectedColorScheme, 6);
     } 
     
 
@@ -467,7 +472,7 @@ contract YourCollectible is ERC721, Ownable {
 
     bytes memory output;
     // add general svg, e.g. background
-    output = abi.encodePacked('<rect width="100%" height="100%" fill="','black','" />' );
+    output = abi.encodePacked('<rect width="100%" height="100%" fill="',colorMap.backgroundColor,'" />' );
     for (uint256 i = 0; i < squares.length; i += 1){
       output = abi.encodePacked(output, squares[i]);
     }

@@ -24,6 +24,7 @@ library Structs {
     }
 
     struct ColorMap {
+        string backgroundColor;
         string aliveColor;
         string deadColor;
         string bornColor;
