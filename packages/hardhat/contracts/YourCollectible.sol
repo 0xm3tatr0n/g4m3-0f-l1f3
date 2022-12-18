@@ -236,14 +236,14 @@ contract YourCollectible is ERC721, Ownable {
 
         if (populationTrends.up == 1){
           metadata.trend = 'up';
-          if (populationTrends.popDiff > 4){
+          if (populationTrends.popDiff > 2){
             metadata.times = 1;
           } else {
             metadata.times = 0;
           }
         } else if (populationTrends.up == 0){
           metadata.trend = 'down';
-          if (populationTrends.popDiff > 4){
+          if (populationTrends.popDiff > 2){
             metadata.times = 2;
           } else {
             metadata.times = 0;
@@ -332,7 +332,7 @@ contract YourCollectible is ERC721, Ownable {
     
     Structs.ColorMap memory colorMap;
 
-    uint256 selectedColorScheme = metadata.populationDensity < 29 ? metadata.times : metadata.times + 4;
+    uint256 selectedColorScheme = metadata.populationDensity < 25 ? metadata.times : metadata.times + 4;
 
     colorMap.backgroundColor = G0l.returnColor(selectedColorScheme, 0);
     colorMap.aliveColor = G0l.returnColor(selectedColorScheme, 1);
@@ -412,6 +412,7 @@ contract YourCollectible is ERC721, Ownable {
             '</g>'));
         } else if (!alive && hasChanged) {
           // case: died last round
+          // string memory duration = Strings.toString((8 * i + 8 * j) % 9);
           square = string(abi.encodePacked(
             '<g transform="translate(', i_scale , ',' , j_scale , ')">',
               '<rect width="',s_scale,'" height="',s_scale,'" ', 
@@ -423,7 +424,9 @@ contract YourCollectible is ERC721, Ownable {
               // j_scale_offset,
               // '" font-family="Courier" font-size="14" fill="',colorMap.deadColor,'" dominant-baseline="middle" text-anchor="middle" font-weight="bold">O</text>',
               // G0l.renderZombieSVG(colorMap),
-              '<polygon points="0,36 36,36 0,0" fill="',colorMap.perishedColor,'" />',
+              '<polygon points="0,36 36,36 0,0" fill="',colorMap.perishedColor,'">',
+              '<animate attributeType="XML" attributeName="fill" values="',colorMap.deadColor, ';' ,colorMap.perishedColor, ';', colorMap.deadColor, ';', colorMap.deadColor, '" dur="1.',Strings.toString((i*j) % 9),'s" repeatCount="indefinite"/>', 
+              '</polygon>',
             '</g>'));
         }
 

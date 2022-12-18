@@ -469,24 +469,27 @@ function App(props) {
 
             <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
               {isSigner ? (
-                <Button
-                  size="large"
-                  type="primary"
+                <button style={{
+                  margin: "30px", 
+                  color:"black", 
+                  padding: "10px 30px 10px 30px", 
+                  fontSize: "20px", 
+                  fontFamily: "monospace"}}
                   onClick={() => {
                     tx(writeContracts.YourCollectible.mintItem(address, { value: parseEther("0.001") }));
                   }}
-                  style={{ color: "#29af3f", backgroundColor: "#c3c3c3", border: "#29af3f", borderRadius: "5px" }}
-                >
-                  MINT 🌿
-                </Button>
+                  >mint</button>
+                
               ) : (
-                <Button
-                  type="primary"
+
+                <button style={{
+                  margin: "30px", 
+                  color:"black", 
+                  padding: "10px 30px 10px 30px", 
+                  fontSize: "20px", 
+                  fontFamily: "monospace"}}
                   onClick={loadWeb3Modal}
-                  style={{ color: "green", backgroundColor: "white", border: "green", borderRadius: "5px" }}
-                >
-                  CONNECT WALLET
-                </Button>
+                  >mint</button>
               )}
             </div>
 

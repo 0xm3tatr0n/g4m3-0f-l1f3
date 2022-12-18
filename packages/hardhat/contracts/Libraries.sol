@@ -33,12 +33,9 @@ library G0l {
 
 
     function returnColor(uint256 paletteNumber , uint256 colorPos) internal pure returns (string memory){
-        // 0-3: base colors
-        // 5-6: births
-        // 8-9: deaths
-        // string[10] memory colorsRainbow = ["#1E62AB","#C5027D","#5A2681", "#34287E","#15A1C4", "#92B83C", "#469D45", "#FAED24" ,"#CF6018","#C7381D"];
 
         string[7][8] memory colorPalettes = [
+            // background, live, dead, born0, born1, perished0, perished1 
             // low density times / rural
             // stable
             ["#EDEBD7","#E3B23C", "#423E37","#17BEBB", "#74A57F", "#FE6D73", "#7D5BA6"],
@@ -50,25 +47,15 @@ library G0l {
             ["#E6FDFF","#87FF65", "#C04CFD","#5E2BFF", "#D2F898", "#ED254E", "#EADEDA"],
             // new ones, high density times // urban
             // stable
-            ["#EDEBD7","#E3B23C", "#423E37","#17BEBB", "#74A57F", "#FE6D73", "#7D5BA6"],
+            ["#34287E","#1E62AB", "#423E37","#92B83C", "#469D45", "#FAED24", "#C7381D"],
             // good
-            ["#071E22","#FF1053", "#251101","#5BC0EB", "#D2F898", "#495159", "#3D3522"],
+            ["#ff206e","#fbff12", "#41ead4","#fbff12", "#fbff12", "#fbff12", "#fbff12"],
             // bad
-            ["#1C7C54","#A80874", "#E3D8F1","#86BBD8", "#33658A", "#FF7F11", "#F0F66E"],
+            ["#201335","#f78154", "#201335","#5fad56", "#4d9078", "#f78154", "#b4436c"],
             // zero
-            ["#E6FDFF","#87FF65", "#C04CFD","#5E2BFF", "#D2F898", "#ED254E", "#EADEDA"]
+            ["#212529","#f8f9fa", "#343a40","#dee2e6", "#dee2e6", "#495057", "#495057"]
         ];
         
-        // original rainbow colors: ["#15A1C4", "#1E62AB", "#34287E", "#5A2681", "#C5027D", "#C7381D", "#CF6018", "#D88616", "#EDBB11", "#FAED24", "#92B83C", "#469D45" ]
-        // 
-        // colors re-arranged, for later ["#15A1C4", "#469D45", "#1E62AB",]
-        // new color scheme ideas: 
-        // string[] example = [ "births0", "births1", "births2", "deaths0", "deaths1", "deaths2"];
-        // string[] rainbow = ["#1E62AB","#C5027D","#5A2681", "#34287E","#15A1C4", "#92B83C", "#469D45", "#FAED24" ,"#CF6018","#C7381D"]
-        // base alternatives remaining: ["#C5027D","#5A2681", "#34287E"]
-        // background, live, dead, born0, born1, perished0, perished1 
-        //  ["#EDEBD7","#E3B23C", "#423E37","#17BEBB", "#74A57F", "#FE6D73", "#7D5BA6"]
-        //  ["#071E22","#FF1053", "#251101","#5BC0EB", "#D2F898", "#495159", "#3D3522"]
 
           // return colorsRainbow[palettePos];
         return colorPalettes[paletteNumber][colorPos];
