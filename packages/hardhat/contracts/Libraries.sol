@@ -34,7 +34,7 @@ library G0l {
 
     function returnColor(uint256 paletteNumber , uint256 colorPos) internal pure returns (string memory){
 
-        string[7][8] memory colorPalettes = [
+        string[7][10] memory colorPalettes = [
             // background, live, dead, born0, born1, perished0, perished1 
             // low density times / rural
             // stable
@@ -53,12 +53,29 @@ library G0l {
             // bad
             ["#201335","#f78154", "#201335","#5fad56", "#4d9078", "#f78154", "#b4436c"],
             // zero
-            ["#212529","#f8f9fa", "#343a40","#dee2e6", "#dee2e6", "#495057", "#495057"]
+            ["#212529","#f8f9fa", "#343a40","#dee2e6", "#dee2e6", "#495057", "#495057"],
+            
+            // not in use yet:
+            // monochrome
+            ["#061A40", "#003559", "#B9D6F2", "#006DAA", "#B9D6F2", "#003559", "#BFD7EA"],
+            ["#ffadad", "#ffd6a5", "#fdffb6", "#caffbf", "#9bf6ff", "#a0c4ff", "#bdb2ff"],
+
+
         ];
         
 
           // return colorsRainbow[palettePos];
         return colorPalettes[paletteNumber][colorPos];
+    }
+
+    function returnPerishedAnimation(
+        Structs.ColorMap memory colorMap, 
+        uint i, 
+        uint j) internal pure returns (string memory){
+        // 
+        return string(abi.encodePacked(
+            '<animate attributeType="XML" attributeName="fill" values="',colorMap.deadColor, ';' ,colorMap.perishedColor, ';', colorMap.deadColor, ';', colorMap.deadColor, '" dur="1.',Strings.toString((i*j) % 9),'s" repeatCount="indefinite"/>'
+        ));
     }
 }
 
