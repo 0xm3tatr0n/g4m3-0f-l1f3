@@ -98,6 +98,10 @@ const deploy = async (contractName, _args = [], overrides = {}, libraries = {}) 
   if(deployed&&deployed.deployTransaction){
     const gasUsed = deployed.deployTransaction.gasLimit.mul(deployed.deployTransaction.gasPrice)
     extraGasInfo = `${utils.formatEther(gasUsed)} ETH, tx hash ${deployed.deployTransaction.hash}`
+
+
+    // mint a bunch at deploy time to have a collection right away
+    
   }
 
   console.log(

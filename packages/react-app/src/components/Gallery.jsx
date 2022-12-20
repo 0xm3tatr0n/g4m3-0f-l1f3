@@ -15,12 +15,12 @@ function Gallery(props) {
   } = props;
 
   return (
-    <div style={{ maxWidth: 820, margin: "auto", paddingBottom: 256, paddingLeft: "16px", paddingRight: "16px" }}>
+    <div style={{ maxWidth: 1020, margin: "auto", paddingBottom: 256, paddingLeft: "16px", paddingRight: "16px" }}>
       <Row gutter={[16, 16]}>
         {allCollectibles ? (
           allCollectibles.map((c, icx) => {
             return (
-              <Col xs={24} md={12} lg={12} key={`collectible-${icx}`}>
+              <Col xs={24} md={12} lg={8} key={`collectible-${icx}`}>
                 <ItemCard
                   item={c}
                   ensProvider={mainnetProvider}
