@@ -31,10 +31,8 @@ contract YourCollectible is ERC721, Ownable {
   }
 
   // constants
-  // string[] colors = ["#190c28", "#fef7ee", "#fb0002", "#fef000", "#1c82eb"];
-  string[] colors = ["#ffffff", "#000000","#29af3f", "#dcc729", "#26abd4", "#c3c3c3", "#404040", "#fb0002"];
-  // string[] colorsRainbow = ["#15A1C4", "#1E62AB", "#34287E", "#5A2681", "#C5027D", "#C7381D", "#CF6018", "#D88616", "#EDBB11", "#FAED24", "#92B83C", "#469D45" ];
-
+  uint256 constant public maxItems = 10;
+  uint256 constant public mintPrice = 0.01 ether;
   uint256 constant private dim = 8;
   uint256 constant scale = 40;
   string s_scale = Strings.toString(scale - 4);
@@ -176,7 +174,7 @@ contract YourCollectible is ERC721, Ownable {
       payable
       returns (uint256)
   {
-      require( msg.value >= 0.001 ether, "No such thing as a free mint!");
+      require( msg.value >= mintPrice, "No such thing as a free mint!");
       _tokenIds.increment();
 
       uint256 id = _tokenIds.current();
@@ -189,9 +187,30 @@ contract YourCollectible is ERC721, Ownable {
 
       return id;
   }
+
+  function mintMany(address mintTo, uint256 noItems) public payable {
+    require(noItems <= maxItems, "too many mints requested");
+    require(msg.value >= mintPrice * noItems, "not enough funds sent");
+
+    for (uint i = 0; i <= noItems; i++){
+      _tokenIds.increment();
+
+      uint256 id = _tokenIds.current();
+      _mint(mintTo, id);
+      _iterateState();
+
+      // store token states
+      tokenGridStatesInt[id] = gameStateInt;
+      tokenGeneration[id] = _currentGeneration.current();
+    }
+  }
   
 
-  function getTrends(uint256 bornCells, uint256 perishedCells) internal pure returns (Structs.Trends memory){
+  function getTrends(uint256 bornCells, uint256 perishedCells) 
+  internal 
+  pure 
+  returns (Structs.Trends memory)
+  {
     Structs.Trends memory trends;
     trends.births = bornCells;
     trends.deaths = perishedCells;
@@ -362,13 +381,14 @@ contract YourCollectible is ERC721, Ownable {
     bool hasChanged, 
     uint256 i,
     uint256 j,
-    Structs.ColorMap memory colorMap) internal view returns (string memory){
+    Structs.ColorMap memory colorMap) internal view returns (string memory)
+  {
     //
     string memory square;
     string memory i_scale = Strings.toString(i * scale + 2);
     string memory j_scale = Strings.toString(j * scale + 2);
-    string memory i_scale_offset = Strings.toString((i * scale) + scale / 2);
-    string memory j_scale_offset = Strings.toString((j * scale) + scale / 2);
+    // string memory i_scale_offset = Strings.toString((i * scale) + scale / 2);
+    // string memory j_scale_offset = Strings.toString((j * scale) + scale / 2);
 
 
     if (alive && !hasChanged){
@@ -425,7 +445,7 @@ contract YourCollectible is ERC721, Ownable {
               // '" font-family="Courier" font-size="14" fill="',colorMap.deadColor,'" dominant-baseline="middle" text-anchor="middle" font-weight="bold">O</text>',
               // G0l.renderZombieSVG(colorMap),
               '<polygon points="0,36 36,36 0,0" fill="',colorMap.perishedColor,'">',
-              '<animate attributeType="XML" attributeName="fill" values="',colorMap.deadColor, ';' ,colorMap.perishedColor, ';', colorMap.deadColor, ';', colorMap.deadColor, '" dur="1.',Strings.toString((i*j) % 9),'s" repeatCount="indefinite"/>', 
+              G0l.returnPerishedAnimation(colorMap, i, j), 
               '</polygon>',
             '</g>'));
         }
@@ -507,6 +527,17 @@ function gridToWord(bool[dim][dim] memory grid) view internal returns(uint256){
   }
   return word;
 }
+
+// viewer / helper functions
+// function showOwnedPieces(address user) public view returns (uint256[]){
+//   uint256[] tokens;
+//   for (uint i = 0; i < _tokenOwners[user].length; i++){
+//     uint token = _tokenOwners[user].at(i);
+//     tokens.push(token);
+//   }
+
+//   return tokens;
+// }
 
 
 }

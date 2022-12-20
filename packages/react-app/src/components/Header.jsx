@@ -5,14 +5,18 @@ import React from "react";
 
 const styles = {
   headerBox: {
-    margin: "30px",
+    margin: "auto",
     display: "flex",
     padding: "25px",
     flexDirection: "row",
+    // max-width: 820px; margin: 32px auto auto; padding-bottom: 32px;
+    maxWidth: "820px",
+    justifyContent: "center",
   },
   header: {
     fontSize: "30px",
     marginRight: "20px",
+    fontFamily: "monospace",
   },
   items: {
     fontSize: "20px",
@@ -22,6 +26,7 @@ const styles = {
   a: {
     color: "#26abd4", // "#ff4538",
     alignSelf: "flex-end",
+    fontFamily: "monospace",
   },
 };
 
@@ -29,7 +34,7 @@ export default function Header() {
   return (
     <>
       <div id="header" style={styles.headerBox}>
-        <div style={styles.header}>gam3 0f lif3</div>
+        <div style={styles.header}>g4m3 0f lif3</div>
         <div style={styles.items}>
           <a href="/" style={styles.a}>
             mint

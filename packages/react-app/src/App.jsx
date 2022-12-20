@@ -14,7 +14,19 @@ import Web3Modal from "web3modal";
 import "./App.css";
 // import assets from "./assets.js";
 import { BlockPicker } from "react-color";
-import { Account, Address, AddressInput, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch } from "./components";
+import {
+  Account,
+  Address,
+  AddressInput,
+  Contract,
+  Faucet,
+  GasGauge,
+  Header,
+  Ramp,
+  ThemeSwitch,
+  ItemCard,
+  Gallery,
+} from "./components";
 import { DAI_ABI, DAI_ADDRESS, INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
 import {
@@ -114,67 +126,6 @@ const web3Modal = new Web3Modal({
   },
 });
 
-// base for own card wrapper component
-
-function ItemCard(props) {
-  const { item, ensProvider, blockExplorer, transferToAddresses, setTransferToAddresses, writeContracts, address, tx } =
-    props;
-  const [isFront, setIsFront] = useState(true);
-  const flipCard = () => {
-    console.log(">>> flip item clicked");
-    setIsFront(!isFront);
-  };
-
-  return (
-    <div>
-      {isFront ? (
-        <Card
-          style={{ margin: "auto", borderRadius: "0", border: "2px solid #c3c3c3", overflow: "hidden", backgroundColor: "white" }}
-          onClick={flipCard}
-        >
-          <img src={item.image} alt="g0l" />
-        </Card>
-      ) : (
-        <Card
-          style={{ margin: "auto", borderRadius: "0", border: "2px solid #c3c3c3", overflow: "hidden" }}
-          onClick={flipCard}
-        >
-          <div style={{ width: "320px", height: "320px", margin: "auto" }}>
-            <div>{item.description}</div>
-            <div>owned by: {item.owner}</div>
-            <div>traits:</div>
-            {item.attributes.map((a, iax) => {
-              return (<div key={`attribute-${iax}`}>{a.trait_type} {a.value}</div>)
-            })}
-            <AddressInput
-              ensProvider={ensProvider}
-              placeholder="transfer to address"
-              value={transferToAddresses[item.id]}
-              onChange={newValue => {
-                // e.stopPropagation();
-                const update = {};
-                update[item.id] = newValue;
-                setTransferToAddresses({ ...transferToAddresses, ...update });
-              }}
-              onClick={e => {
-                e.stopPropagation();
-              }}
-            />
-            <Button
-              onClick={e => {
-                e.stopPropagation();
-                tx(writeContracts.YourCollectible.transferFrom(address, transferToAddresses[item.id], item.id));
-              }}
-            >
-              Transfer
-            </Button>
-          </div>
-        </Card>
-      )}
-    </div>
-  );
-}
-
 function App(props) {
   const mainnetProvider = scaffoldEthProvider && scaffoldEthProvider._network ? scaffoldEthProvider : mainnetInfura;
 
@@ -242,6 +193,9 @@ function App(props) {
   const balance = useContractReader(readContracts, "YourCollectible", "balanceOf", [address]);
   console.log("🤗 balance:", balance);
 
+  // track total supply
+  const totalSupply = useContractReader(readContracts, "YourCollectible", "totalSupply");
+
   // 📟 Listen for broadcast events
   const transferEvents = useEventListener(readContracts, "YourCollectible", "Transfer", localProvider, 1);
   console.log("📟 Transfer events:", transferEvents);
@@ -251,34 +205,9 @@ function App(props) {
   //
   const yourBalance = balance && balance.toNumber && balance.toNumber();
   const [yourCollectibles, setYourCollectibles] = useState();
+  const [fullGallery, setFullGallery] = useState();
 
   useEffect(() => {
-    const updateYourCollectibles = async () => {
-      const collectibleUpdate = [];
-      for (let tokenIndex = 0; tokenIndex < balance; tokenIndex++) {
-        try {
-          const tokenId = await readContracts.YourCollectible.tokenOfOwnerByIndex(address, tokenIndex);
-          const tokenURI = await readContracts.YourCollectible.tokenURI(tokenId);
-          const jsonManifestString = atob(tokenURI.substring(29));
-
-          
-          try {
-            console.log(JSON.stringify(tokenURI));
-            console.log(JSON.stringify(jsonManifestString));
-            const jsonManifest = JSON.parse(jsonManifestString);
-            console.log("jsonManifest", jsonManifest);
-            collectibleUpdate.push({ id: tokenId, uri: tokenURI, owner: address, ...jsonManifest });
-          } catch (e) {
-            console.log(e);
-          }
-        } catch (e) {
-          console.log(e);
-        }
-      }
-      setYourCollectibles(collectibleUpdate.reverse());
-    };
-    // updateYourCollectibles();
-
     // new update your collectibles approach in two steps: 1) get owner's token IDs, 2) get tokenURIs for all IDs
     const updateOwenersCollectibles = async () => {
       const collectibleIdPromises = [];
@@ -287,7 +216,6 @@ function App(props) {
       }
 
       const ids = await Promise.all(collectibleIdPromises);
-      console.log(">>> habemus ids: ", ids);
 
       // check if any collectibles owned
       if (ids.length > 0) {
@@ -297,7 +225,6 @@ function App(props) {
           uriPromises.push(readContracts.YourCollectible.tokenURI(e));
         });
 
-        console.log(">>> got uriPromises: ", uriPromises);
         const uris = await Promise.all(uriPromises);
         // console.log(">>> habemus URIs: ", uris);
 
@@ -320,6 +247,38 @@ function App(props) {
 
     updateOwenersCollectibles();
   }, [address, yourBalance]);
+
+  // load all tokens into state
+  useEffect(() => {
+    const updateGallery = async () => {
+      try {
+        //
+        const tokenUriPromises = [];
+        for (let i = 1; i <= totalSupply; i++) {
+          // push promises to array so they can be called together
+          tokenUriPromises.push(readContracts.YourCollectible.tokenURI(i));
+        }
+
+        const allURIs = await Promise.all(tokenUriPromises);
+        try {
+          // trying to parse URIs
+          const galleryUpdate = allURIs.map((u, idx) => {
+            const jsonManifestString = atob(u.substring(29));
+            const jsonManifest = JSON.parse(jsonManifestString);
+            return { id: idx, uri: u, owner: address, ...jsonManifest };
+          });
+          // commit to state
+          setFullGallery(galleryUpdate);
+        } catch (error) {
+          console.log("error updating your collectibles: ", error);
+        }
+      } catch (err) {
+        console.log("error updating gallery: ", err);
+      }
+    };
+
+    updateGallery();
+  }, [totalSupply]);
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -469,101 +428,35 @@ function App(props) {
 
             <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
               {isSigner ? (
-                <button style={{
-                  margin: "30px", 
-                  color:"black", 
-                  padding: "10px 30px 10px 30px", 
-                  fontSize: "20px", 
-                  fontFamily: "monospace"}}
+                <button
+                  style={{
+                    margin: "30px",
+                    color: "black",
+                    padding: "10px 30px 10px 30px",
+                    fontSize: "20px",
+                    fontFamily: "monospace",
+                  }}
                   onClick={() => {
                     tx(writeContracts.YourCollectible.mintItem(address, { value: parseEther("0.001") }));
                   }}
-                  >mint</button>
-                
+                >
+                  mint
+                </button>
               ) : (
-
-                <button style={{
-                  margin: "30px", 
-                  color:"black", 
-                  padding: "10px 30px 10px 30px", 
-                  fontSize: "20px", 
-                  fontFamily: "monospace"}}
+                <button
+                  style={{
+                    margin: "30px",
+                    color: "black",
+                    padding: "10px 30px 10px 30px",
+                    fontSize: "20px",
+                    fontFamily: "monospace",
+                  }}
                   onClick={loadWeb3Modal}
-                  >mint</button>
+                >
+                  mint
+                </button>
               )}
             </div>
-
-            {/* <div style={{ width: 820, margin: "auto", paddingBottom: 256 }}>
-              <List
-                bordered={false}
-                split={false}
-                dataSource={yourCollectibles}
-                renderItem={item => {
-                  const id = item.id.toNumber();
-                  let isFront = true;
-                  const toggleFront = () => {
-                    console.log(">>> toggle flip clicked");
-                    isFront = !isFront;
-                  };
-
-                  return (
-                    <List.Item key={id + "_" + item.uri + "_" + item.owner}>
-                      <Card
-                        // title={
-                        //   <div>
-                        //     <span style={{ fontSize: 18, marginRight: 8 }}>{item.name}</span>
-                        //   </div>
-                        // }
-                        style={{ margin: "auto" }}
-                        onClick={toggleFront}
-                      >
-                        <a
-                          href={
-                            "https://opensea.io/assets/" +
-                            (readContracts && readContracts.YourCollectible && readContracts.YourCollectible.address) +
-                            "/" +
-                            item.id
-                          }
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <img src={item.image} alt="NFT" />
-                        </a>
-                        <div>{item.description}</div>
-                        <div>
-                          owner:{" "}
-                          <Address
-                            address={item.owner}
-                            ensProvider={mainnetProvider}
-                            blockExplorer={blockExplorer}
-                            fontSize={16}
-                          />
-                          isFront: {isFront ? "true" : "false"}
-                          <AddressInput
-                            ensProvider={mainnetProvider}
-                            placeholder="transfer to address"
-                            value={transferToAddresses[id]}
-                            onChange={newValue => {
-                              const update = {};
-                              update[id] = newValue;
-                              setTransferToAddresses({ ...transferToAddresses, ...update });
-                            }}
-                          />
-                          <Button
-                            onClick={() => {
-                              console.log("writeContracts", writeContracts);
-                              tx(writeContracts.YourCollectible.transferFrom(address, transferToAddresses[id], id));
-                            }}
-                          >
-                            Transfer
-                          </Button>
-                        </div>
-                      </Card>
-                    </List.Item>
-                  );
-                }}
-              />
-            </div> */}
 
             <div
               style={{ maxWidth: 820, margin: "auto", paddingBottom: 256, paddingLeft: "16px", paddingRight: "16px" }}
@@ -587,7 +480,9 @@ function App(props) {
                     );
                   })
                 ) : (
-                  <Col span={24}>"no collectibles"</Col>
+                  <Col span={24} style={{ fontFamily: "monospace" }}>
+                    no collectibles
+                  </Col>
                 )}
               </Row>
             </div>
@@ -604,7 +499,16 @@ function App(props) {
             </div>
           </Route>
           <Route path="/gallery">
-            <div>gallery</div>
+            <Gallery
+              allCollectibles={fullGallery}
+              mainnetProvider={mainnetProvider}
+              blockExplorer={blockExplorer}
+              transferToAddresses={transferToAddresses}
+              setTranferToAddresses={setTransferToAddresses}
+              writeContracts={writeContracts}
+              tx={tx}
+              address={address}
+            />
           </Route>
           <Route path="/debug">
             <div style={{ padding: 32 }}>
