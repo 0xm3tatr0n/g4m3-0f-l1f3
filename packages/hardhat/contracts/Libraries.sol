@@ -34,7 +34,7 @@ library G0l {
 
     function returnColor(uint256 paletteNumber , uint256 colorPos) internal pure returns (string memory){
 
-        string[7][10] memory colorPalettes = [
+        string[7][12] memory colorPalettes = [
             // background, live, dead, born0, born1, perished0, perished1 
             // low density times / rural
             // stable
@@ -58,7 +58,9 @@ library G0l {
             // not in use yet:
             // monochrome
             ["#061A40", "#003559", "#B9D6F2", "#006DAA", "#B9D6F2", "#003559", "#BFD7EA"],
-            ["#ffadad", "#ffd6a5", "#fdffb6", "#caffbf", "#9bf6ff", "#a0c4ff", "#bdb2ff"]
+            ["#ffadad", "#ffd6a5", "#fdffb6", "#caffbf", "#9bf6ff", "#a0c4ff", "#bdb2ff"],
+            ["#FFFFFF", "#C2E812", "#BFCBC2", "#91F5AD", "#91F5AD", "#FF934F", "#FF934F"],
+            ["#6699CC", "#A23E48", "#FFF275", "#FF3C38", "#FF8C42", "#6699CC", "#6699CC"]
         ];
         
 

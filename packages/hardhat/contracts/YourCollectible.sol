@@ -239,6 +239,7 @@ contract YourCollectible is ERC721, Ownable {
 
       // "arbitrary" value to mix things up (not random because deterministic)
       uint256 arbitrary = uint256(keccak256(abi.encodePacked(metadata.generation, metadata.description)));
+      metadata.seed = arbitrary;
       uint256 arbitrarySelector = arbitrary % 13;
 
       if (arbitrarySelector < 1){
@@ -374,6 +375,11 @@ contract YourCollectible is ERC721, Ownable {
     Structs.ColorMap memory colorMap;
 
     uint256 selectedColorScheme = metadata.populationDensity < 25 ? metadata.times : metadata.times + 4;
+
+    // modify selected palette
+    if (metadata.seed % 42 < 7){
+      selectedColorScheme = selectedColorScheme + 4;
+    }
 
     colorMap.backgroundColor = G0l.returnColor(selectedColorScheme, 0);
     colorMap.aliveColor = G0l.returnColor(selectedColorScheme, 1);
