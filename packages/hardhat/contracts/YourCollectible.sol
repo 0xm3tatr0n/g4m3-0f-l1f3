@@ -192,7 +192,7 @@ contract YourCollectible is ERC721, Ownable {
     require(noItems <= maxItems, "too many mints requested");
     require(msg.value >= mintPrice * noItems, "not enough funds sent");
 
-    for (uint i = 0; i <= noItems; i++){
+    for (uint i = 0; i < noItems; i++){
       _tokenIds.increment();
 
       uint256 id = _tokenIds.current();
@@ -236,7 +236,18 @@ contract YourCollectible is ERC721, Ownable {
       metadata.name = string(abi.encodePacked('gam3 0f l1f3 #',id.toString()));
       metadata.description = string(abi.encodePacked('gam3 0f l1f3 #', id.toString()));
       metadata.generation = Strings.toString(tokenGeneration[id]);
-      
+
+      // "arbitrary" value to mix things up (not random because deterministic)
+      uint256 arbitrary = uint256(keccak256(abi.encodePacked(metadata.generation, metadata.description)));
+      uint256 arbitrarySelector = arbitrary % 13;
+
+      if (arbitrarySelector < 1){
+        metadata.representation = 0;
+      } else if (arbitrarySelector < 3){
+        metadata.representation = 1;
+      } else {
+        metadata.representation = 2;
+      }
       // get data for births & deaths
       uint256 stateDiff;
       if (id > 1){
@@ -290,6 +301,16 @@ contract YourCollectible is ERC721, Ownable {
     } else if (metadata.times == 3){
       timesName = 'zero';
     }
+
+    string memory representationName;
+
+    if (metadata.representation == 0){
+      representationName = 'raw';
+    } else if (metadata.representation == 1){
+      representationName = 'static';
+    } else if (metadata.representation == 2){
+      representationName = 'animated';
+    }
     
     string memory attributeString = string(abi.encodePacked('", "attributes": [{"trait_type": "generation", "value": "#',
         metadata.generation,
@@ -299,7 +320,8 @@ contract YourCollectible is ERC721, Ownable {
         '{"trait_type" : "deaths", "value": "', Strings.toString(metadata.deathCount), '"},' ,
         '{"trait_type" : "trend", "value": "', metadata.trend, '"},' ,
         '{"trait_type" : "population_difference", "value": "', Strings.toString(metadata.popDiff), '"},' ,
-        '{"trait_type" : "times", "value": "', timesName, '"}' ,
+        '{"trait_type" : "times", "value": "', timesName, '"},' ,
+        '{"trait_type" : "representation", "value": "', representationName, '"}' ,
         '],'));
     return attributeString;
   }

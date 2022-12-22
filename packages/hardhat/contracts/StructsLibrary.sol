@@ -13,7 +13,7 @@ library Structs {
         string generation;
         string trend;
         uint8 times; // 0: stable, 1: prosperous, 2: bad
-
+        uint8 representation; // 0: raw, 1: static, 2: animated
     }
 
     struct Trends {
