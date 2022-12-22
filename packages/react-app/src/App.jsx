@@ -232,7 +232,7 @@ function App(props) {
           // trying to parse URIs
           const collectibleUpdate = uris.map((u, idx) => {
             const jsonManifestString = atob(u.substring(29));
-            console.log(jsonManifestString);
+            // console.log(jsonManifestString);
             const jsonManifest = JSON.parse(jsonManifestString);
             return { id: ids[idx], uri: u, owner: address, ...jsonManifest };
           });

@@ -7,7 +7,6 @@ function ItemCard(props) {
     props;
   const [isFront, setIsFront] = useState(true);
   const flipCard = () => {
-    console.log(">>> flip item clicked");
     setIsFront(!isFront);
   };
 
@@ -21,10 +20,12 @@ function ItemCard(props) {
             border: "2px solid #c3c3c3",
             overflow: "hidden",
             backgroundColor: "white",
+            padding: "0px",
           }}
+          bodyStyle={{padding: "0"}}
           onClick={flipCard}
         >
-          <img src={item.image} alt="g0l" />
+          <img src={item.image} alt="g0l" style={{width: "100%", height: "100%"}}/>
         </Card>
       ) : (
         <Card
