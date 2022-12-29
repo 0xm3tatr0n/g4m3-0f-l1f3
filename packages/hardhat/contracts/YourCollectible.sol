@@ -5,6 +5,7 @@ import 'hardhat/console.sol';
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import 'base64-sol/base64.sol';
 
@@ -17,7 +18,7 @@ import './HexStrings.sol';
 import {G0l, BitOps} from './Libraries.sol';
 import {Structs} from './StructsLibrary.sol';
 
-contract YourCollectible is ERC721, Ownable {
+contract YourCollectible is ERC721, Pausable, Ownable {
 
   using Strings for uint256;
   using HexStrings for uint160;
@@ -29,6 +30,17 @@ contract YourCollectible is ERC721, Ownable {
   constructor() ERC721("gam3 0f l1f3", "g0l") {
     _initState();
   }
+
+  function pause() public onlyOwner {
+      _pause();
+  }
+
+  function unpause() public onlyOwner {
+      _unpause();
+  }
+
+  // events
+  event Withdrawal(address to, uint256 amount);
 
   // constants
   uint256 constant public maxItems = 10;
@@ -172,6 +184,7 @@ contract YourCollectible is ERC721, Ownable {
   function mintItem(address mintTo)
       public
       payable
+      whenNotPaused
       returns (uint256)
   {
       require( msg.value >= mintPrice, "No such thing as a free mint!");
@@ -188,7 +201,11 @@ contract YourCollectible is ERC721, Ownable {
       return id;
   }
 
-  function mintMany(address mintTo, uint256 noItems) public payable {
+  function mintMany(address mintTo, uint256 noItems) 
+    public 
+    payable 
+    whenNotPaused 
+  {
     require(noItems <= maxItems, "too many mints requested");
     require(msg.value >= mintPrice * noItems, "not enough funds sent");
 
@@ -576,16 +593,11 @@ function gridToWord(bool[dim][dim] memory grid) view internal returns(uint256){
   return word;
 }
 
-// viewer / helper functions
-// function showOwnedPieces(address user) public view returns (uint256[]){
-//   uint256[] tokens;
-//   for (uint i = 0; i < _tokenOwners[user].length; i++){
-//     uint token = _tokenOwners[user].at(i);
-//     tokens.push(token);
-//   }
-
-//   return tokens;
-// }
+function withdrawAmount(uint256 amount) public onlyOwner {
+  require(amount <= address(this).balance, "withdraw amnt too high");
+  msg.sender.transfer(amount);
+  emit Withdrawal(msg.sender, amount);
+}
 
 
 }

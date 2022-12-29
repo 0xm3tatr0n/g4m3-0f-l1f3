@@ -64,13 +64,33 @@ describe("My Dapp", function () {
       const ownedTokens = []
       for (let i = 0; i < userTokenBalance; i++){
         const tokenId = await myContract.tokenOfOwnerByIndex(owner.address, i)
-        // console.log(`token ${i}: ${tokenId}`)
         ownedTokens.push(tokenId.toString())
       }
+    })
 
-      // console.log('owned tokens: ')
-      // console.log(ownedTokens)
+    it("Should pause minting & let mint attempts fail", async function(){
+      const [ owner, addr1, addr2 ] = await ethers.getSigners()
+      await deployContract()
+      const pauseTx = await myContract.pause();
 
+      await expect(myContract.connect(addr1).mintItem(addr1.address, { value: ethers.utils.parseEther((0.01).toString())})).to.be.revertedWith('Pausable: paused')
+    })
+
+    it("Should mint a few & withdraw funds", async function(){
+      const [ owner, addr1, addr2 ] = await ethers.getSigners()
+      await deployContract()
+      const mintTx = await myContract.mintMany(owner.address, 10 , { value: ethers.utils.parseEther((0.01 * 10).toString()) });
+      const mintRc = await mintTx.wait()
+      const mintEv = mintRc.events.find(e => e.event === "Transfer")
+
+      // testing withdrawals
+      const amount = ethers.utils.parseEther((0.01 * 10).toString());
+
+      // withdraw as not owner: expected to fail
+      await expect(myContract.connect(addr1).withdrawAmount(amount)).to.be.revertedWith("Ownable: caller is not the owner");
+
+      // withdraw as owner: should succeed
+      await expect(myContract.withdrawAmount(amount));
 
     })
 
