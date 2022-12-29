@@ -377,7 +377,7 @@ contract YourCollectible is ERC721, Ownable {
     uint256 selectedColorScheme = metadata.populationDensity < 25 ? metadata.times : metadata.times + 4;
 
     // modify selected palette
-    if (metadata.seed % 42 < 7){
+    if (metadata.seed % 42 < 13){
       selectedColorScheme = selectedColorScheme + 4;
     }
 
@@ -405,19 +405,18 @@ contract YourCollectible is ERC721, Ownable {
 
 
   function renderGameSquare(
-    bool alive, 
-    bool hasChanged, 
-    uint256 i,
-    uint256 j,
-    Structs.ColorMap memory colorMap) internal view returns (string memory)
+      bool alive, 
+      bool hasChanged, 
+      uint256 i,
+      uint256 j,
+      Structs.ColorMap memory colorMap,
+      uint256 representation
+    ) internal view returns (string memory)
   {
     //
     string memory square;
     string memory i_scale = Strings.toString(i * scale + 2);
     string memory j_scale = Strings.toString(j * scale + 2);
-    // string memory i_scale_offset = Strings.toString((i * scale) + scale / 2);
-    // string memory j_scale_offset = Strings.toString((j * scale) + scale / 2);
-
 
     if (alive && !hasChanged){
           // was alive last round
@@ -448,34 +447,55 @@ contract YourCollectible is ERC721, Ownable {
             '</g>'));
         } else if (!alive && !hasChanged){
           // case: didn't exist in previous round
-          square = string(abi.encodePacked(
-            '<g>',
-              '<rect width="',s_scale,'" height="',s_scale,'" ', 
-                'x="', 
-                i_scale, 
-                '" y="',
-                j_scale,
-                '" fill="',colorMap.deadColor,'"', 
-              '/>',
-            '</g>'));
-        } else if (!alive && hasChanged) {
-          // case: died last round
-          // string memory duration = Strings.toString((8 * i + 8 * j) % 9);
-          square = string(abi.encodePacked(
-            '<g transform="translate(', i_scale , ',' , j_scale , ')">',
-              '<rect width="',s_scale,'" height="',s_scale,'" ', 
-                ' fill="',colorMap.deadColor,'"', 
-              '/>',
-              // '<text x="',
-              // i_scale_offset, 
-              // '" y="',
-              // j_scale_offset,
-              // '" font-family="Courier" font-size="14" fill="',colorMap.deadColor,'" dominant-baseline="middle" text-anchor="middle" font-weight="bold">O</text>',
-              // G0l.renderZombieSVG(colorMap),
-              '<polygon points="0,36 36,36 0,0" fill="',colorMap.perishedColor,'">',
-              G0l.returnPerishedAnimation(colorMap, i, j), 
-              '</polygon>',
-            '</g>'));
+            square = string(abi.encodePacked(
+              '<g>',
+                '<rect width="',s_scale,'" height="',s_scale,'" ', 
+                  'x="', 
+                  i_scale, 
+                  '" y="',
+                  j_scale,
+                  '" fill="',colorMap.deadColor,'"', 
+                '/>',
+              '</g>'));
+          } else if (!alive && hasChanged) {
+            // case: died this round
+            if (representation == 0){
+                square = string(abi.encodePacked(
+                  '<g transform="translate(', i_scale , ',' , j_scale , ')">',
+                    '<rect width="',s_scale,'" height="',s_scale,'" ', 
+                      ' fill="',colorMap.deadColor,'"', 
+                    '/>',
+                  '</g>'));
+
+            } else if (representation == 1){
+                square = string(abi.encodePacked(
+                  '<g transform="translate(', i_scale , ',' , j_scale , ')">',
+                    '<rect width="',s_scale,'" height="',s_scale,'" ', 
+                      ' fill="',colorMap.deadColor,'"', 
+                    '/>',
+                    '<polygon points="0,36 36,36 0,0" fill="',colorMap.perishedColor,'">',
+                    '</polygon>',
+                  '</g>'));
+
+            } else if (representation == 2){
+                square = string(abi.encodePacked(
+                  '<g transform="translate(', i_scale , ',' , j_scale , ')">',
+                    '<rect width="',s_scale,'" height="',s_scale,'" ', 
+                      ' fill="',colorMap.deadColor,'"', 
+                    '/>',
+                    // '<text x="',
+                    // i_scale_offset, 
+                    // '" y="',
+                    // j_scale_offset,
+                    // '" font-family="Courier" font-size="14" fill="',colorMap.deadColor,'" dominant-baseline="middle" text-anchor="middle" font-weight="bold">O</text>',
+                    // G0l.renderZombieSVG(colorMap),
+                    '<polygon points="0,36 36,36 0,0" fill="',colorMap.perishedColor,'">',
+                    G0l.returnPerishedAnimation(colorMap, i, j, representation), 
+                    '</polygon>',
+                  '</g>'));
+
+            }
+
         }
 
         return square;
@@ -512,7 +532,7 @@ contract YourCollectible is ERC721, Ownable {
 
         // check for stateDiff
         bool hasChanged = BitOps.getBooleanFromIndex(stateDiff, (i * dim + j));
-        square = renderGameSquare(alive, hasChanged,i, j, colorMap);
+        square = renderGameSquare(alive, hasChanged,i, j, colorMap, metaData.representation);
         
         squares[slotCounter] = square;
         slotCounter += 1;
