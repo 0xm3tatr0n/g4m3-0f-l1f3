@@ -1,12 +1,15 @@
-# 🏗 scaffold-eth - 🔵 Loogies SVG NFT
+# 👾 g4m3 0f l1f3
 
+On chain implementation of game of life with more colors & quirks than what you may be used to. 
+
+Project scaffolding from [scaffold-eth](https://github.com/austintgriffith/scaffold-eth.git) ❤️
 
 ```bash
-git clone https://github.com/austintgriffith/scaffold-eth.git loogies-svg-nft
+git clone git@github.com:0xm3tatr0n/g4m3-0f-l1f3.git g4m3-0f-l1f3
 
-cd loogies-svg-nft
+cd g4m3-0f-l1f3
 
-git checkout loogies-svg-nft
+git checkout svg-attempt
 ```
 
 ```bash
@@ -24,7 +27,7 @@ yarn start
 > in a second terminal window:
 
 ```bash
-cd loogies-svg-nft
+cd g4m3-0f-l1f3
 
 yarn chain
 
@@ -36,7 +39,7 @@ yarn chain
 
 
 ```bash
-cd loogies-svg-nft
+cd g4m3-0f-l1f3
 
 yarn deploy
 
