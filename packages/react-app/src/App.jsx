@@ -14,6 +14,7 @@ import Web3Modal from "web3modal";
 import "./App.css";
 // import assets from "./assets.js";
 import { BlockPicker } from "react-color";
+import create from "zustand";
 import {
   Account,
   Address,
@@ -40,6 +41,8 @@ import {
   useOnBlock,
   useUserProvider,
 } from "./hooks";
+
+import useGalleryStore from "./store";
 
 const { BufferList } = require("bl");
 // https://www.npmjs.com/package/ipfs-http-client
@@ -127,6 +130,7 @@ const web3Modal = new Web3Modal({
 });
 
 function App(props) {
+  console.log("App.jsx rendering", Date.now());
   const mainnetProvider = scaffoldEthProvider && scaffoldEthProvider._network ? scaffoldEthProvider : mainnetInfura;
 
   const logoutOfWeb3Modal = async () => {
@@ -194,11 +198,17 @@ function App(props) {
   console.log("🤗 balance:", balance);
 
   // track total supply
-  const totalSupply = useContractReader(readContracts, "YourCollectible", "totalSupply");
+  // const totalSupply = useContractReader(readContracts, "YourCollectible", "totalSupply");
 
   // 📟 Listen for broadcast events
   const transferEvents = useEventListener(readContracts, "YourCollectible", "Transfer", localProvider, 1);
   console.log("📟 Transfer events:", transferEvents);
+
+  // initialize global state
+  // const state = useGalleryStore((state) => state.fetchSupply(readContracts))
+
+  useGalleryStore(state => state.fetchSupply(readContracts));
+  useGalleryStore(state => state.fetchTokenUri(readContracts));
 
   //
   // 🧠 This effect will update yourCollectibles by polling when your balance changes
@@ -207,78 +217,78 @@ function App(props) {
   const [yourCollectibles, setYourCollectibles] = useState();
   const [fullGallery, setFullGallery] = useState();
 
-  useEffect(() => {
-    // new update your collectibles approach in two steps: 1) get owner's token IDs, 2) get tokenURIs for all IDs
-    const updateOwenersCollectibles = async () => {
-      const collectibleIdPromises = [];
-      for (let i = 0; i < balance; i++) {
-        collectibleIdPromises.push(readContracts.YourCollectible.tokenOfOwnerByIndex(address, i));
-      }
+  // useEffect(() => {
+  //   // new update your collectibles approach in two steps: 1) get owner's token IDs, 2) get tokenURIs for all IDs
+  //   const updateOwenersCollectibles = async () => {
+  //     const collectibleIdPromises = [];
+  //     for (let i = 0; i < balance; i++) {
+  //       collectibleIdPromises.push(readContracts.YourCollectible.tokenOfOwnerByIndex(address, i));
+  //     }
 
-      const ids = await Promise.all(collectibleIdPromises);
+  //     const ids = await Promise.all(collectibleIdPromises);
 
-      // check if any collectibles owned
-      if (ids.length > 0) {
-        // console.log(">>> trying to update collectibles now ");
-        const uriPromises = [];
-        ids.forEach(e => {
-          uriPromises.push(readContracts.YourCollectible.tokenURI(e));
-        });
+  //     // check if any collectibles owned
+  //     if (ids.length > 0) {
+  //       // console.log(">>> trying to update collectibles now ");
+  //       const uriPromises = [];
+  //       ids.forEach(e => {
+  //         uriPromises.push(readContracts.YourCollectible.tokenURI(e));
+  //       });
 
-        const uris = await Promise.all(uriPromises);
-        // console.log(">>> habemus URIs: ", uris);
+  //       const uris = await Promise.all(uriPromises);
+  //       // console.log(">>> habemus URIs: ", uris);
 
-        try {
-          // trying to parse URIs
-          const collectibleUpdate = uris.map((u, idx) => {
-            const jsonManifestString = atob(u.substring(29));
-            // console.log(jsonManifestString);
-            const jsonManifest = JSON.parse(jsonManifestString);
-            return { id: ids[idx], uri: u, owner: address, ...jsonManifest };
-          });
+  //       try {
+  //         // trying to parse URIs
+  //         const collectibleUpdate = uris.map((u, idx) => {
+  //           const jsonManifestString = atob(u.substring(29));
+  //           // console.log(jsonManifestString);
+  //           const jsonManifest = JSON.parse(jsonManifestString);
+  //           return { id: ids[idx], uri: u, owner: address, ...jsonManifest };
+  //         });
 
-          // console.log(">>> gonna update collectibles: ", collectibleUpdate);
-          setYourCollectibles(collectibleUpdate.reverse());
-        } catch (error) {
-          console.log("error updating your collectibles: ", error);
-        }
-      }
-    };
+  //         // console.log(">>> gonna update collectibles: ", collectibleUpdate);
+  //         setYourCollectibles(collectibleUpdate.reverse());
+  //       } catch (error) {
+  //         console.log("error updating your collectibles: ", error);
+  //       }
+  //     }
+  //   };
 
-    updateOwenersCollectibles();
-  }, [address, yourBalance]);
+  //   updateOwenersCollectibles();
+  // }, [address, yourBalance]);
 
-  // load all tokens into state
-  useEffect(() => {
-    const updateGallery = async () => {
-      try {
-        //
-        const tokenUriPromises = [];
-        for (let i = 1; i <= totalSupply; i++) {
-          // push promises to array so they can be called together
-          tokenUriPromises.push(readContracts.YourCollectible.tokenURI(i));
-        }
+  // // load all tokens into state
+  // useEffect(() => {
+  //   const updateGallery = async () => {
+  //     try {
+  //       //
+  //       const tokenUriPromises = [];
+  //       for (let i = 1; i <= totalSupply; i++) {
+  //         // push promises to array so they can be called together
+  //         tokenUriPromises.push(readContracts.YourCollectible.tokenURI(i));
+  //       }
 
-        const allURIs = await Promise.all(tokenUriPromises);
-        try {
-          // trying to parse URIs
-          const galleryUpdate = allURIs.map((u, idx) => {
-            const jsonManifestString = atob(u.substring(29));
-            const jsonManifest = JSON.parse(jsonManifestString);
-            return { id: idx, uri: u, owner: address, ...jsonManifest };
-          });
-          // commit to state
-          setFullGallery(galleryUpdate);
-        } catch (error) {
-          console.log("error updating your collectibles: ", error);
-        }
-      } catch (err) {
-        console.log("error updating gallery: ", err);
-      }
-    };
+  //       const allURIs = await Promise.all(tokenUriPromises);
+  //       try {
+  //         // trying to parse URIs
+  //         const galleryUpdate = allURIs.map((u, idx) => {
+  //           const jsonManifestString = atob(u.substring(29));
+  //           const jsonManifest = JSON.parse(jsonManifestString);
+  //           return { id: idx, uri: u, owner: address, ...jsonManifest };
+  //         });
+  //         // commit to state
+  //         setFullGallery(galleryUpdate);
+  //       } catch (error) {
+  //         console.log("error updating your collectibles: ", error);
+  //       }
+  //     } catch (err) {
+  //       console.log("error updating gallery: ", err);
+  //     }
+  //   };
 
-    updateGallery();
-  }, [totalSupply]);
+  //   updateGallery();
+  // }, [totalSupply]);
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
