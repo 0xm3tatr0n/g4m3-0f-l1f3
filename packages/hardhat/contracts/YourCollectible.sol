@@ -28,6 +28,7 @@ contract YourCollectible is ERC721, Pausable, Ownable {
   Counters.Counter private _currentGeneration;
 
   constructor() ERC721("gam3 0f l1f3", "g0l") {
+    createTime = block.timestamp;
     _initState();
   }
 
@@ -55,6 +56,8 @@ contract YourCollectible is ERC721, Pausable, Ownable {
   mapping(uint256 => uint256) private tokenGeneration;
 
   uint256 private gameStateInt;
+  uint256 private minted4free = 0;
+  uint256 private createTime;
 
   // return state convenience
   function showStateInt() public view returns (uint256){
@@ -597,6 +600,27 @@ function withdrawAmount(uint256 amount) public onlyOwner {
   require(amount <= address(this).balance, "withdraw amnt too high");
   msg.sender.transfer(amount);
   emit Withdrawal(msg.sender, amount);
+}
+
+function mintForFree(address mintTo, uint256 noItems) public onlyOwner {
+  // owner mint allocation of 1 item / day
+  uint256 currentAlloc = (block.timestamp - createTime) / (1 days);
+  require((minted4free + noItems) <= currentAlloc, "not enough free mints");
+
+  for (uint i = 0; i < noItems; i++){
+    _tokenIds.increment();
+
+    uint256 id = _tokenIds.current();
+    _mint(mintTo, id);
+    minted4free += 1;
+    _iterateState();
+
+    // store token states
+    tokenGridStatesInt[id] = gameStateInt;
+    tokenGeneration[id] = _currentGeneration.current();
+  }
+
+  
 }
 
 
