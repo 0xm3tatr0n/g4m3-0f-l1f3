@@ -71,11 +71,17 @@ library G0l {
     function returnPerishedAnimation(
         Structs.ColorMap memory colorMap, 
         uint i, 
-        uint j) internal pure returns (string memory){
+        uint j, 
+        uint representation
+        ) internal pure returns (string memory){
         // 
-        return string(abi.encodePacked(
-            '<animate attributeType="XML" attributeName="fill" values="',colorMap.deadColor, ';' ,colorMap.perishedColor, ';', colorMap.deadColor, ';', colorMap.deadColor, '" dur="1.',Strings.toString((i*j) % 9),'s" repeatCount="indefinite"/>'
-        ));
+        if (representation == 2){
+            return string(abi.encodePacked(
+                '<animate attributeType="XML" attributeName="fill" values="',colorMap.deadColor, ';' ,colorMap.perishedColor, ';', colorMap.deadColor, ';', colorMap.deadColor, '" dur="1.',Strings.toString((i*j) % 9),'s" repeatCount="indefinite"/>'
+            ));
+        } else  {
+            return '';
+        }
     }
 }
 

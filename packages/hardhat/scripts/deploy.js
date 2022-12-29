@@ -90,7 +90,7 @@ const main = async () => {
   );
 
     // mint a bunch at deploy time to have a collection right away
-    const MINTS_10 = 14; // how many times to mintMany, max 10 per transaction
+    const MINTS_10 = 12; // how many times to mintMany, max 10 per transaction
     for (let i = 0; i < MINTS_10; i++){
       const minted = await yourCollectible.mintMany("0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295", 10, { value: ethers.utils.parseEther((0.01 * 10).toString()) });
       await minted.wait(1)
