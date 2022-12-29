@@ -1,6 +1,7 @@
 const { ethers } = require("hardhat");
 const { use, expect } = require("chai");
 const { solidity } = require("ethereum-waffle");
+const helpers = require("@nomicfoundation/hardhat-network-helpers");
 
 const BN = require('bn.js');
 
@@ -91,6 +92,17 @@ describe("My Dapp", function () {
 
       // withdraw as owner: should succeed
       await expect(myContract.withdrawAmount(amount));
+
+    })
+
+    it("Should mint for free", async function(){
+      const [ owner, addr1, addr2 ] = await ethers.getSigners()
+      await deployContract()
+      // move 10 days into the future
+      await helpers.time.increase(60*60*24*10)
+
+      await expect(myContract.mintForFree(owner.address, 20)).to.be.revertedWith("not enough free mints")
+      await expect(myContract.mintForFree(owner.address, 10))
 
     })
 
