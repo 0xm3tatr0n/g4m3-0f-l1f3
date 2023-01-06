@@ -149,6 +149,8 @@ describe("My Dapp", function () {
       
       }
 
+      // save generated data to stats (to get an idea of avg gen length)
+
       console.log(`generation changed to ${nextGeneration} at tokenId ${latestToken}`)
 
     })
