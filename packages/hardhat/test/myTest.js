@@ -18,6 +18,15 @@ function decodeTokenURI(tokenURI64){
 
 }
 
+function generateArray(N, min=1, max=100) {
+	// generate arraay of N random integers between min & max
+  const diff = max - min;
+	const sample = Array.from({length: N}, () => (Math.floor(Math.random() * diff) + min ));
+  
+  return sample;
+
+}
+
 describe("My Dapp", function () {
   const gridDimensions = 8;
   let myContract;
@@ -140,7 +149,44 @@ describe("My Dapp", function () {
       
       }
 
+      // save generated data to stats (to get an idea of avg gen length)
+
       console.log(`generation changed to ${nextGeneration} at tokenId ${latestToken}`)
+
+    })
+
+    it("Should just track the length of tokenURIs (for now)", async function(){
+      const [owner] = await ethers.getSigners()
+      await deployContract()
+
+      // mint a sample of 100 tokens
+      for (let i = 0; i < 10; i++){
+        const mintTx = await myContract.mintMany(owner.address, 10 , { value: ethers.utils.parseEther((0.01 * 10).toString()) });
+        const mintRc = await mintTx.wait()
+        const mintEv = mintRc.events.find(e => e.event === "Transfer")
+      }
+
+      // check token balance
+      const userTokenBalance = await myContract.balanceOf(owner.address);
+
+      // select some random tokens out of the 100 minted
+      const sample = generateArray(10, 1, userTokenBalance);
+
+      const URIs = await Promise.all(sample.map(async (s) => {
+        const tokenURIraw = await myContract.tokenURI(s.toString());
+        const tokenURI = decodeTokenURI(tokenURIraw);
+        return tokenURI;
+      }))
+
+      const URIstats = URIs.map((e) => {
+        const uriLength = e.image.length;
+        return uriLength
+      })
+
+      var maxLength = Math.max.apply(Math, URIstats);
+      console.log("Max URI length ", maxLength);
+
+      await expect(Number(maxLength)).to.be.lessThan(10000);
 
     })
 
