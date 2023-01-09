@@ -130,7 +130,6 @@ contract YourCollectible is ERC721, Pausable, Ownable {
           if (total < 2 || total > 3){
               // todo: change this!
               newGameStateFromInt[i][j] = false;
-
           }
         } else {
           if (total ==3){
@@ -171,14 +170,32 @@ contract YourCollectible is ERC721, Pausable, Ownable {
     }
 
     // check if generation ended (no change between iteration)
+    // naming suboptimal: 
+    // gameStateIntOld --> old N-2
+    // gameStateInt --> old N-1
+    // gameStateIntNew --> current
     uint256 gameStateIntNew = gridToWord(newGameStateFromInt);
-
-    if (gameStateInt == gameStateIntNew){
-      // init new state
-      _initState();
+    
+    
+    if (_tokenIds.current() > 2){
+      // game advanced enough to look back 2 periods
+      uint256 gameStateIntOld = tokenGridStatesInt[_tokenIds.current()];
+      if (gameStateInt == gameStateIntNew || gameStateIntOld == gameStateIntNew){
+        // init new state
+        _initState();
+      } else {
+        gameStateInt = gameStateIntNew;
+      }
     } else {
-      gameStateInt = gameStateIntNew;
+      // we can't look back 2 periods yet..
+      if (gameStateInt == gameStateIntNew){
+        // init new state
+        _initState();
+      } else {
+        gameStateInt = gameStateIntNew;
+      }
     }
+
 
 
   }
