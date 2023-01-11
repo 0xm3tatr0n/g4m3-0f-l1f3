@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Alert, Button, Card, Col, Input, List, Menu, Row, InputNumber, Slider } from "antd";
 import { ItemCard } from ".";
 
-const defaultStats = { totalSupply: 0, latestGen: 'n/a' };
+const defaultStats = { totalSupply: 0, latestGen: "n/a" };
 
 // Stats component
 function Stats(props) {
@@ -14,26 +14,28 @@ function Stats(props) {
     // for now: single function to consolidate stats
     const generateStats = async () => {
       //
-      console.log('>>> generating fresh stats')
+      console.log(">>> generating fresh stats");
       const latestGen = collectibles.reduce((accumulator, currentValue) => {
         // console.log('>>> reducing: ', accumulator );
-        const attributes = currentValue.attributes
-        const genAttribute = attributes.find((e) => { return e.trait_type === 'generation'})
+        const attributes = currentValue.attributes;
+        const genAttribute = attributes.find(e => {
+          return e.trait_type === "generation";
+        });
         const gen = genAttribute ? Number(genAttribute.value.replace("#", "")) : 0;
-        return Math.max(gen, accumulator)
+        return Math.max(gen, accumulator);
       }, 0);
       // stats object
       const newStats = {
         totalSupply: collectibles.length,
         latestGen,
       };
-      console.log('>>> new stats: ', newStats);
+      console.log(">>> new stats: ", newStats);
       setStats(newStats);
     };
 
     if (collectibles && collectibles.length > 0) {
       // only generate stats if there are collectibles
-      console.log('>>> should generate new stats:')
+      console.log(">>> should generate new stats:");
       generateStats();
     }
   }, [collectibles]);
