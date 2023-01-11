@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Alert, Button, Card, Col, Input, List, Menu, Row, InputNumber, Slider } from "antd";
+import { Alert, Button, Card, Col, Input, List, Menu, Row, InputNumber, Slider, Pagination } from "antd";
 import { ItemCard } from ".";
 
 const defaultStats = { totalSupply: 0, latestGen: "n/a" };
@@ -55,21 +55,58 @@ function Stats(props) {
 
 // Controls component
 function GalleryControl(props) {
-  const { zoomLevel, setZoomLevel } = props;
+  const { zoomLevel, setZoomLevel, totalSupply, setGalleryLoadRange } = props;
 
-  const onChange = newValue => {
+  const [paginationCurrent, setPaginationCurrent] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  useEffect(() => {
+    // handle data loading when params change
+    const loadTokens = async () => {
+      // change galleryLoadRange
+      // new range
+      const rangeMin = (paginationCurrent - 1) * pageSize + 1;
+      const rangeMax = paginationCurrent * pageSize;
+      console.log(`>>>> changing range. current: ${paginationCurrent}. size: ${pageSize}`);
+      console.log(`>>>> range min: ${rangeMin}, range max: ${rangeMax}`);
+      setGalleryLoadRange([rangeMin, rangeMax]);
+    };
+
+    loadTokens();
+  }, [paginationCurrent, pageSize]);
+
+  const onChangeZoom = newValue => {
     setZoomLevel(newValue);
+  };
+
+  const onChangePage = page => {
+    // do something
+    console.log(`setting pagination index to ${page}`);
+    setPaginationCurrent(page);
+  };
+
+  const onShowSizeChange = (current, newPageSize) => {
+    console.log(`page size changed current: ${current}, pageSize: ${newPageSize}`);
+    setPageSize(newPageSize);
   };
 
   return (
     <>
       <Col span={4}>
-        <Slider min={1} max={5} onChange={onChange} value={typeof zoomLevel === "number" ? zoomLevel : 0} />
+        <Slider min={1} max={5} onChange={onChangeZoom} value={typeof zoomLevel === "number" ? zoomLevel : 0} />
+      </Col>
+      <Col span={12}>
+        <Pagination
+          defaultCurrent={paginationCurrent}
+          defaultPageSize={50}
+          total={totalSupply}
+          onChange={onChangePage}
+          onShowSizeChange={onShowSizeChange}
+        />
       </Col>
     </>
   );
 }
-
 function Gallery(props) {
   const {
     allCollectibles,
@@ -80,6 +117,8 @@ function Gallery(props) {
     writeContracts,
     tx,
     address,
+    totalSupply,
+    setGalleryLoadRange,
   } = props;
 
   const [zoomLevel, setZoomLevel] = useState(3);
@@ -99,7 +138,12 @@ function Gallery(props) {
   return (
     <div style={{ maxWidth: 1020, margin: "auto", paddingBottom: 256, paddingLeft: "16px", paddingRight: "16px" }}>
       <Row>
-        <GalleryControl zoomLevel={zoomLevel} setZoomLevel={setZoomLevel} />
+        <GalleryControl
+          zoomLevel={zoomLevel}
+          setZoomLevel={setZoomLevel}
+          totalSupply={totalSupply}
+          setGalleryLoadRange={setGalleryLoadRange}
+        />
       </Row>
       <Row>
         <Stats collectibles={allCollectibles} />

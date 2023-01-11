@@ -206,6 +206,7 @@ function App(props) {
   const yourBalance = balance && balance.toNumber && balance.toNumber();
   const [yourCollectibles, setYourCollectibles] = useState();
   const [fullGallery, setFullGallery] = useState();
+  const [galleryLoadRange, setGalleryLoadRange] = useState([1, 10]);
 
   useEffect(() => {
     // new update your collectibles approach in two steps: 1) get owner's token IDs, 2) get tokenURIs for all IDs
@@ -251,10 +252,11 @@ function App(props) {
   // load all tokens into state
   useEffect(() => {
     const updateGallery = async () => {
+      console.log(`new range to query: ${galleryLoadRange[0]}-${galleryLoadRange[1]}`);
       try {
         //
         const tokenUriPromises = [];
-        for (let i = 1; i <= totalSupply; i++) {
+        for (let i = galleryLoadRange[0]; i <= galleryLoadRange[1]; i++) {
           // push promises to array so they can be called together
           tokenUriPromises.push(readContracts.YourCollectible.tokenURI(i));
         }
@@ -278,7 +280,7 @@ function App(props) {
     };
 
     updateGallery();
-  }, [totalSupply]);
+  }, [totalSupply, galleryLoadRange]);
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -388,26 +390,6 @@ function App(props) {
   const [transferToAddresses, setTransferToAddresses] = useState({});
 
   const [loadedAssets, setLoadedAssets] = useState();
-  /* useEffect(() => {
-    const updateYourCollectibles = async () => {
-      const assetUpdate = [];
-      for (const a in assets) {
-        try {
-          const forSale = await readContracts.YourCollectible.forSale(utils.id(a));
-          let owner;
-          if (!forSale) {
-            const tokenId = await readContracts.YourCollectible.uriToTokenId(utils.id(a));
-            owner = await readContracts.YourCollectible.ownerOf(tokenId);
-          }
-          assetUpdate.push({ id: a, ...assets[a], forSale, owner });
-        } catch (e) {
-          console.log(e);
-        }
-      }
-      setLoadedAssets(assetUpdate);
-    };
-    if (readContracts && readContracts.YourCollectible) updateYourCollectibles();
-  }, [assets, readContracts, transferEvents]); */
 
   const galleryList = [];
 
@@ -508,6 +490,8 @@ function App(props) {
               writeContracts={writeContracts}
               tx={tx}
               address={address}
+              totalSupply={totalSupply}
+              setGalleryLoadRange={setGalleryLoadRange}
             />
           </Route>
           <Route path="/debug">
