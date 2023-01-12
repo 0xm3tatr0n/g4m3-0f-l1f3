@@ -10,6 +10,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import 'base64-sol/base64.sol';
 
 import './HexStrings.sol';
+import './G4m3.sol';
 // import './ToColor.sol';
 //learn more: https://docs.openzeppelin.com/contracts/3.x/erc721 16631332
 
@@ -18,14 +19,11 @@ import './HexStrings.sol';
 import {G0l, BitOps} from './Libraries.sol';
 import {Structs} from './StructsLibrary.sol';
 
-contract YourCollectible is ERC721, Pausable, Ownable {
+contract YourCollectible is ERC721, Pausable, Ownable, G4m3 {
 
   using Strings for uint256;
   using HexStrings for uint160;
   // using ToColor for bytes3;
-  using Counters for Counters.Counter;
-  Counters.Counter private _tokenIds;
-  Counters.Counter private _currentGeneration;
 
   constructor() ERC721("gam3 0f l1f3", "g0l") {
     createTime = block.timestamp;
@@ -46,159 +44,15 @@ contract YourCollectible is ERC721, Pausable, Ownable {
   // constants
   uint256 constant public maxItems = 10;
   uint256 constant public mintPrice = 0.01 ether;
-  uint256 constant private dim = 8;
-  uint256 constant scale = 40;
-  string s_scale = Strings.toString(scale - 4);
+
 
   // variables
-  // new implementation
-  mapping(uint256 => uint256) private tokenGridStatesInt;
-  mapping(uint256 => uint256) private tokenGeneration;
-
-  uint256 private gameStateInt;
   uint256 private minted4free = 0;
   uint256 private createTime;
 
-  // return state convenience
-  function showStateInt() public view returns (uint256){
-    return gameStateInt;
-  }
-
-  function _initState() internal {
-
-    // set generation
-    _currentGeneration.increment();
-
-    // temporary storage
-    bool[dim][dim] memory results;
-
-    // generate some "randomness"
-    bytes32 seedBytes = keccak256(abi.encodePacked(address(this) ,_currentGeneration.current(), "bar", blockhash(block.number - 1), block.timestamp));
-
-    uint256 r = uint256(seedBytes);
-    // uint256[] memory b;
-    uint256 gridInt = r;
-    for (uint256 i = 0; i < dim; i += 1){
-      uint8 m = uint8( r >> i * 8);
-
-      for (uint256 j = 0; j < dim; j += 1){
-        // generate row seed
-        uint256 s = uint256(keccak256(abi.encodePacked(Strings.toString(m), address(this))));
-
-        uint8 n = uint8( s >> j * 8);
-        bool result;
-        if (n > 125){
-          result = true;
-        } else {
-          result = false;
-        }
-
-        results[i][j] = result;
-        gridInt = BitOps.setBooleaOnIndex(gridInt, (i * dim) + j, result);
-      }
-    }
-
-    gameStateInt = gridInt;
-
-  }
-
-  function _b2u(bool input) private pure returns(uint){
-    return input ? 1 : 0;
-  }
-
-  function _iterateState() private {
-    // play game of life
-    uint256 N = dim;
-
-    bool[dim][dim] memory oldGameStateFromInt = wordToGrid(gameStateInt);
-    bool[dim][dim] memory newGameStateFromInt = oldGameStateFromInt;
-
-    for (uint256 i = 0; i < dim; i += 1){
-      for (uint256 j = 0; j < dim; j += 1){
-        uint256 total = uint(
-          _b2u(oldGameStateFromInt[uint((i - 1) % N)][uint((j-1) % N)]) +
-          _b2u(oldGameStateFromInt[uint((i - 1) % N)][j]) +
-          _b2u(oldGameStateFromInt[uint((i - 1) % N)][uint((j+1) % N)]) +
-          _b2u(oldGameStateFromInt[i][uint((j+1) % N)]) +
-          _b2u(oldGameStateFromInt[uint((i + 1) % N)][uint((j+1) % N)]) +
-          _b2u(oldGameStateFromInt[uint((i + 1) % N)][j]) +
-          _b2u(oldGameStateFromInt[uint((i + 1) % N)][uint((j-1) % N)]) +
-          _b2u(oldGameStateFromInt[i][uint((j-1) % N)])
-        );
-
-        if (oldGameStateFromInt[i][j] == true){
-          if (total < 2 || total > 3){
-              // todo: change this!
-              newGameStateFromInt[i][j] = false;
-          }
-        } else {
-          if (total ==3){
-            // todo: change this!
-            newGameStateFromInt[i][j] = true;
-          }
-        }
-
-
-          // grid total. pyhton example: 
-          // copy grid since we require 8 neighbors
-          // for calculation and we go line by line
-          // newGrid = grid.copy()
-          // for i in range(N):
-          //     for j in range(N):
-      
-          //         # compute 8-neighbor sum
-          //         # using toroidal boundary conditions - x and y wrap around
-          //         # so that the simulation takes place on a toroidal surface.
-          //         total = int((grid[i, (j-1)%N] + grid[i, (j+1)%N] +
-          //                      grid[(i-1)%N, j] + grid[(i+1)%N, j] +
-          //                      grid[(i-1)%N, (j-1)%N] + grid[(i-1)%N, (j+1)%N] +
-          //                      grid[(i+1)%N, (j-1)%N] + grid[(i+1)%N, (j+1)%N])/255)
-      
-          //         # apply Conway's rules
-          //         if grid[i, j]  == ON:
-          //             if (total < 2) or (total > 3):
-          //                 newGrid[i, j] = OFF
-          //         else:
-          //             if total == 3:
-          //                 newGrid[i, j] = ON
-      
-          // # update data
-          // img.set_data(newGrid)
-          // grid[:] = newGrid[:]
-          // return img,
-      }      
-    }
-
-    // check if generation ended (no change between iteration)
-    // naming suboptimal: 
-    // gameStateIntOld --> old N-2
-    // gameStateInt --> old N-1
-    // gameStateIntNew --> current
-    uint256 gameStateIntNew = gridToWord(newGameStateFromInt);
-    
-    
-    if (_tokenIds.current() > 2){
-      // game advanced enough to look back 2 periods
-      uint256 gameStateIntOld = tokenGridStatesInt[_tokenIds.current()];
-      if (gameStateInt == gameStateIntNew || gameStateIntOld == gameStateIntNew){
-        // init new state
-        _initState();
-      } else {
-        gameStateInt = gameStateIntNew;
-      }
-    } else {
-      // we can't look back 2 periods yet..
-      if (gameStateInt == gameStateIntNew){
-        // init new state
-        _initState();
-      } else {
-        gameStateInt = gameStateIntNew;
-      }
-    }
 
 
 
-  }
 
 
   function mintItem(address mintTo)
