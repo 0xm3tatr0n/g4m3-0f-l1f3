@@ -22,13 +22,7 @@ contract G4m3 {
     mapping(uint256 => uint256) internal tokenGeneration;
     uint256 internal gameStateInt;
 
-    // state view functions
-    function showStateInt() public view returns (uint256){
-        return gameStateInt;
-    }
-
-    // state muting functions
-
+    // counter handling functions
     // workaround since _tokenIds.increment() doesn't work in YourCollectibles..abi
     function tokenIdsIncrement() internal {
         _tokenIds.increment();
@@ -46,6 +40,13 @@ contract G4m3 {
         return _currentGeneration.current();
     }
 
+
+    // g4m3 state view functions
+    function showStateInt() public view returns (uint256){
+        return gameStateInt;
+    }
+
+    // state muting functions
     function _initState() internal {
         // set generation
         _currentGeneration.increment();
@@ -176,7 +177,7 @@ contract G4m3 {
   }
 
 
-    // data render functions
+    // data render functions (state viewing functions, strictly speaking)
 
 
     // utility functions
