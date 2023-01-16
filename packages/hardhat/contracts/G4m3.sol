@@ -371,6 +371,39 @@ contract G4m3 {
     return colorMap;
   }
 
+  function renderDefs(Structs.ColorMap memory colorMap) internal view returns (bytes memory) {
+    // render defs for: live, dead
+
+    bytes memory defs;
+
+    defs = abi.encodePacked('<defs>');
+    // add live
+    defs = abi.encodePacked(
+      defs,
+      '<rect id="i0" width="',
+      s_scale,
+      '" height="',
+      s_scale,
+      '" fill="',
+      colorMap.aliveColor,
+      '"></rect>'
+    );
+    // add dead
+    defs = abi.encodePacked(
+      defs,
+      '<rect id="d0" width="',
+      s_scale,
+      '" height="',
+      s_scale,
+      '" fill="',
+      colorMap.deadColor,
+      '"></rect>'
+    );
+    defs = abi.encodePacked(defs, '</defs>');
+
+    return defs;
+  }
+
   function renderGameSquare(
     bool alive,
     bool hasChanged,
@@ -576,7 +609,9 @@ contract G4m3 {
 
     bytes memory output;
     // add general svg, e.g. background
+    output = renderDefs(colorMap);
     output = abi.encodePacked(
+      output,
       '<rect width="100%" height="100%" fill="',
       colorMap.backgroundColor,
       '" />'
