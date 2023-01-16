@@ -28,6 +28,24 @@ contract G4m3 {
     }
 
     // state muting functions
+
+    // workaround since _tokenIds.increment() doesn't work in YourCollectibles..abi
+    function tokenIdsIncrement() internal {
+        _tokenIds.increment();
+    }
+
+    function tokenIdsCurrent() internal view returns (uint256) {
+        return _tokenIds.current();
+    }
+
+    function generationIncrement() internal {
+        _currentGeneration.increment();
+    }
+
+    function generationCurrent() internal view returns (uint256) {
+        return _currentGeneration.current();
+    }
+
     function _initState() internal {
         // set generation
         _currentGeneration.increment();
