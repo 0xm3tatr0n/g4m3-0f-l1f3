@@ -50,11 +50,6 @@ contract YourCollectible is ERC721, Pausable, Ownable, G4m3 {
   uint256 private minted4free = 0;
   uint256 private createTime;
 
-
-
-
-
-
   function mintItem(address mintTo)
       public
       payable
@@ -62,15 +57,15 @@ contract YourCollectible is ERC721, Pausable, Ownable, G4m3 {
       returns (uint256)
   {
       require( msg.value >= mintPrice, "No such thing as a free mint!");
-      _tokenIds.increment();
+      tokenIdsIncrement();
 
-      uint256 id = _tokenIds.current();
+      uint256 id = tokenIdsCurrent();
       _mint(mintTo, id);
       _iterateState();
 
       // store token states
       tokenGridStatesInt[id] = gameStateInt;
-      tokenGeneration[id] = _currentGeneration.current();
+      tokenGeneration[id] = generationCurrent();
 
       return id;
   }
@@ -84,15 +79,15 @@ contract YourCollectible is ERC721, Pausable, Ownable, G4m3 {
     require(msg.value >= mintPrice * noItems, "not enough funds sent");
 
     for (uint i = 0; i < noItems; i++){
-      _tokenIds.increment();
+      tokenIdsIncrement();
 
-      uint256 id = _tokenIds.current();
+      uint256 id = tokenIdsCurrent();
       _mint(mintTo, id);
       _iterateState();
 
       // store token states
       tokenGridStatesInt[id] = gameStateInt;
-      tokenGeneration[id] = _currentGeneration.current();
+      tokenGeneration[id] = generationCurrent();
     }
   }
   
@@ -443,30 +438,6 @@ contract YourCollectible is ERC721, Pausable, Ownable, G4m3 {
 
   }
 
-function wordToGrid(uint256 word) pure internal returns ( bool[dim][dim] memory){
-  // convert word to bool[][] (prior to iterate state)
-  bool[dim][dim] memory grid;
-  for (uint256 i = 0; i < dim; i += 1){
-    for (uint256 j = 0; j < dim; j += 1){
-      //
-      grid[i][j] = BitOps.getBooleanFromIndex(word, (i * dim + j));
-    }
-  }
-
-  return grid;
-}
-
-function gridToWord(bool[dim][dim] memory grid) view internal returns(uint256){
-  // convert bool[][] to word (after completing iterating state)
-  uint256 word;
-  for (uint256 i = 0; i < dim; i += 1){
-    for (uint256 j = 0; j < dim; j += 1){
-      word = BitOps.setBooleaOnIndex(word, (i * dim + j), grid[i][j]);
-    }
-  }
-  return word;
-}
-
 function withdrawAmount(uint256 amount) public onlyOwner {
   require(amount <= address(this).balance, "withdraw amnt too high");
   msg.sender.transfer(amount);
@@ -479,16 +450,16 @@ function mintForFree(address mintTo, uint256 noItems) public onlyOwner {
   require((minted4free + noItems) <= currentAlloc, "not enough free mints");
 
   for (uint i = 0; i < noItems; i++){
-    _tokenIds.increment();
+    tokenIdsIncrement();
 
-    uint256 id = _tokenIds.current();
+    uint256 id = tokenIdsCurrent();
     _mint(mintTo, id);
     minted4free += 1;
     _iterateState();
 
     // store token states
     tokenGridStatesInt[id] = gameStateInt;
-    tokenGeneration[id] = _currentGeneration.current();
+    tokenGeneration[id] = generationCurrent();
   }
 
   
