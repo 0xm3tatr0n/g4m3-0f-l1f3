@@ -14,7 +14,7 @@ function Stats(props) {
     // for now: single function to consolidate stats
     const generateStats = async () => {
       //
-      console.log(">>> generating fresh stats");
+      // console.log(">>> generating fresh stats");
       const latestGen = collectibles.reduce((accumulator, currentValue) => {
         // console.log('>>> reducing: ', accumulator );
         const attributes = currentValue.attributes;
@@ -29,13 +29,13 @@ function Stats(props) {
         totalSupply: collectibles.length,
         latestGen,
       };
-      console.log(">>> new stats: ", newStats);
+      // console.log(">>> new stats: ", newStats);
       setStats(newStats);
     };
 
     if (collectibles && collectibles.length > 0) {
       // only generate stats if there are collectibles
-      console.log(">>> should generate new stats:");
+      // console.log(">>> should generate new stats:");
       generateStats();
     }
   }, [collectibles]);
@@ -67,8 +67,8 @@ function GalleryControl(props) {
       // new range
       const rangeMin = (paginationCurrent - 1) * pageSize + 1;
       const rangeMax = paginationCurrent * pageSize;
-      console.log(`>>>> changing range. current: ${paginationCurrent}. size: ${pageSize}`);
-      console.log(`>>>> range min: ${rangeMin}, range max: ${rangeMax}`);
+      // console.log(`>>>> changing range. current: ${paginationCurrent}. size: ${pageSize}`);
+      // console.log(`>>>> range min: ${rangeMin}, range max: ${rangeMax}`);
       setGalleryLoadRange([rangeMin, rangeMax]);
     };
 
@@ -81,12 +81,12 @@ function GalleryControl(props) {
 
   const onChangePage = page => {
     // do something
-    console.log(`setting pagination index to ${page}`);
+    // console.log(`setting pagination index to ${page}`);
     setPaginationCurrent(page);
   };
 
   const onShowSizeChange = (current, newPageSize) => {
-    console.log(`page size changed current: ${current}, pageSize: ${newPageSize}`);
+    // console.log(`page size changed current: ${current}, pageSize: ${newPageSize}`);
     setPageSize(newPageSize);
   };
 
@@ -98,7 +98,7 @@ function GalleryControl(props) {
       <Col span={12}>
         <Pagination
           defaultCurrent={paginationCurrent}
-          defaultPageSize={50}
+          defaultPageSize={10}
           total={totalSupply}
           onChange={onChangePage}
           onShowSizeChange={onShowSizeChange}

@@ -325,7 +325,7 @@ contract G4m3 {
     // get token gameState as int, convert to grid
     string memory svg = string(
       abi.encodePacked(
-        '<svg width="320" height="320" xmlns="http://www.w3.org/2000/svg" onload="init()">',
+        '<svg width="320" height="320" xmlns="http://www.w3.org/2000/svg">',
         renderGameGrid(id),
         '</svg>'
       )
@@ -553,7 +553,6 @@ contract G4m3 {
     }
 
     // determine color map
-    // uint256 density = BitOps.getCountOfOnBits(tokenGridStatesInt[id]);
     Structs.MetaData memory metaData = generateMetadata(id);
     Structs.ColorMap memory colorMap = generateColorMap(metaData);
 
