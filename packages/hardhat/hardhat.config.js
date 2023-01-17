@@ -7,6 +7,7 @@ require('@tenderly/hardhat-tenderly');
 
 require('@nomiclabs/hardhat-etherscan');
 require('hardhat-gas-reporter');
+require('hardhat-contract-sizer');
 require('@nomicfoundation/hardhat-network-helpers');
 
 const { isAddress, getAddress, formatUnits, parseUnits } = utils;
@@ -41,6 +42,9 @@ function mnemonic() {
 module.exports = {
   defaultNetwork,
   // allowUnlimitedContractSize: true,
+  contractSizer: {
+    runOnCompile: true,
+  },
 
   // don't forget to set your provider like:
   // REACT_APP_PROVIDER=https://dai.poa.network in packages/react-app/.env
