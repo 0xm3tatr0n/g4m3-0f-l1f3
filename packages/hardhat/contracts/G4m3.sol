@@ -422,19 +422,12 @@ contract G4m3 {
       square = string(
         abi.encodePacked(
           '<g>',
-          '<rect width="',
-          s_scale,
-          '" height="',
-          s_scale,
-          '" ',
+          '<use href="#l0"  ',
           'x="',
           i_scale,
           '" y="',
           j_scale,
-          '" fill="',
-          colorMap.aliveColor,
-          '"',
-          '/>'
+          '" />',
           '</g>'
         )
       );
