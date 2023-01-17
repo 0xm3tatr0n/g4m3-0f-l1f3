@@ -371,7 +371,11 @@ contract G4m3 {
     return colorMap;
   }
 
-  function renderDefs(Structs.ColorMap memory colorMap) internal view returns (bytes memory) {
+  function renderDefs(Structs.ColorMap memory colorMap, uint256 representation)
+    internal
+    view
+    returns (bytes memory)
+  {
     // render defs for: live, dead
 
     bytes memory defs;
@@ -464,19 +468,12 @@ contract G4m3 {
       square = string(
         abi.encodePacked(
           '<g>',
-          '<rect width="',
-          s_scale,
-          '" height="',
-          s_scale,
-          '" ',
+          '<use href="#d0" ',
           'x="',
           i_scale,
           '" y="',
           j_scale,
-          '" fill="',
-          colorMap.deadColor,
-          '"',
-          '/>',
+          '" />',
           '</g>'
         )
       );
@@ -602,7 +599,7 @@ contract G4m3 {
 
     bytes memory output;
     // add general svg, e.g. background
-    output = renderDefs(colorMap);
+    output = renderDefs(colorMap, metaData.representation);
     output = abi.encodePacked(
       output,
       '<rect width="100%" height="100%" fill="',
