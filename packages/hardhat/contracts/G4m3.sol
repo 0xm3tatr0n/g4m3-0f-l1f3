@@ -404,18 +404,32 @@ contract G4m3 {
       '"></rect>'
     );
 
-    // if (representation == 1) {
-    //   defs = abi.encodePacked(
-    //     defs,
-    //     '<rect id="p0" width="',
-    //     s_scale,
-    //     '" height="',
-    //     s_scale,
-    //     '" fill="',
-    //     colorMap.deadColor,
-    //     '"></rect>'
-    //   );
-    // }
+    if (representation == 1) {
+      // case: static
+      // add perished fields
+      defs = abi.encodePacked(
+        defs,
+        '<rect id="p0" width="',
+        s_scale,
+        '" height="',
+        s_scale,
+        '" fill="',
+        colorMap.deadColor,
+        '"></rect>'
+      );
+
+      // add born fields
+      defs = abi.encodePacked(
+        defs,
+        '<rect id="b0" width="',
+        s_scale,
+        '" height="',
+        s_scale,
+        '" fill="',
+        colorMap.deadColor,
+        '"></rect>'
+      );
+    }
 
     defs = abi.encodePacked(defs, '</defs>');
 
@@ -487,15 +501,7 @@ contract G4m3 {
             ',',
             j_scale,
             ')">',
-            '<rect width="',
-            s_scale,
-            '" height="',
-            s_scale,
-            '" ',
-            ' fill="',
-            colorMap.deadColor,
-            '"',
-            '/>',
+            '<use href="#d0" />'
             '<polygon points="0,36 36,36 0,0" fill="',
             colorMap.perishedColor,
             '">',
@@ -511,16 +517,7 @@ contract G4m3 {
             ',',
             j_scale,
             ')">',
-            // '<rect width="',
-            // s_scale,
-            // '" height="',
-            // s_scale,
-            // '" ',
-            // ' fill="',
-            // colorMap.deadColor,
-            // '"',
-            // '/>',
-            '<use href="#d0" />'
+            '<use href="#d0" />',
             // '<text x="',
             // i_scale_offset,
             // '" y="',
