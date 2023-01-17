@@ -40,6 +40,7 @@ function mnemonic() {
 
 module.exports = {
   defaultNetwork,
+  // allowUnlimitedContractSize: true,
 
   // don't forget to set your provider like:
   // REACT_APP_PROVIDER=https://dai.poa.network in packages/react-app/.env
@@ -140,7 +141,6 @@ module.exports = {
   mocha: {
     timeout: 100000000,
   },
-  allowUnlimitedContractSize: true,
 };
 
 const DEBUG = false;

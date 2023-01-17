@@ -380,7 +380,7 @@ contract G4m3 {
     // add live
     defs = abi.encodePacked(
       defs,
-      '<rect id="i0" width="',
+      '<rect id="l0" width="',
       s_scale,
       '" height="',
       s_scale,
