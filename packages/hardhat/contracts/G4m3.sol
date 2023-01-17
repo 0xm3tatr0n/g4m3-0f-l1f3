@@ -403,6 +403,20 @@ contract G4m3 {
       colorMap.deadColor,
       '"></rect>'
     );
+
+    // if (representation == 1) {
+    //   defs = abi.encodePacked(
+    //     defs,
+    //     '<rect id="p0" width="',
+    //     s_scale,
+    //     '" height="',
+    //     s_scale,
+    //     '" fill="',
+    //     colorMap.deadColor,
+    //     '"></rect>'
+    //   );
+    // }
+
     defs = abi.encodePacked(defs, '</defs>');
 
     return defs;
@@ -424,16 +438,7 @@ contract G4m3 {
     if (alive && !hasChanged) {
       // was alive last round
       square = string(
-        abi.encodePacked(
-          '<g>',
-          '<use href="#l0"  ',
-          'x="',
-          i_scale,
-          '" y="',
-          j_scale,
-          '" />',
-          '</g>'
-        )
+        abi.encodePacked('<use href="#l0"  ', 'x="', i_scale, '" y="', j_scale, '" />')
       );
     } else if (alive && hasChanged) {
       // case: new born
@@ -466,38 +471,13 @@ contract G4m3 {
     } else if (!alive && !hasChanged) {
       // case: didn't exist in previous round
       square = string(
-        abi.encodePacked(
-          '<g>',
-          '<use href="#d0" ',
-          'x="',
-          i_scale,
-          '" y="',
-          j_scale,
-          '" />',
-          '</g>'
-        )
+        abi.encodePacked('<use href="#d0" ', 'x="', i_scale, '" y="', j_scale, '" />')
       );
     } else if (!alive && hasChanged) {
       // case: died this round
       if (representation == 0) {
         square = string(
-          abi.encodePacked(
-            '<g transform="translate(',
-            i_scale,
-            ',',
-            j_scale,
-            ')">',
-            '<rect width="',
-            s_scale,
-            '" height="',
-            s_scale,
-            '" ',
-            ' fill="',
-            colorMap.deadColor,
-            '"',
-            '/>',
-            '</g>'
-          )
+          abi.encodePacked('<use href="#d0" ', 'x="', i_scale, '" y="', j_scale, '" />')
         );
       } else if (representation == 1) {
         square = string(
