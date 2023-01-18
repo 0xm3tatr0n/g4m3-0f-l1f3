@@ -452,36 +452,37 @@ contract G4m3 {
     if (alive && !hasChanged) {
       // was alive last round
       square = string(
-        abi.encodePacked('<use href="#l0"  ', 'x="', i_scale, '" y="', j_scale, '" />')
+        abi.encodePacked('<use href="#l0" ', 'x="', i_scale, '" y="', j_scale, '" />')
       );
     } else if (alive && hasChanged) {
       // case: new born
-      square = string(
-        abi.encodePacked(
-          '<g transform="translate(',
-          i_scale,
-          ',',
-          j_scale,
-          ')">',
-          '<rect width="',
-          s_scale,
-          '" height="',
-          s_scale,
-          '" ',
-          ' fill="',
-          colorMap.bornColor,
-          '"',
-          '/>',
-          // '<text x="',
-          // i_scale_offset,
-          // '" y="',
-          // j_scale_offset,
-          // '" font-family="Courier" font-size="14" fill="',colorMap.deadColor,'" dominant-baseline="middle" text-anchor="middle" font-weight="bold">O</text>',
-          // G0l.renderBabySVG("0", "0", "36", 'foo'),
-          // '<polygon points="0,0 36,36 36,0" fill="green" />',
-          '</g>'
-        )
-      );
+      if (representation == 0) {
+        // raw
+        square = string(
+          abi.encodePacked('<use href="#l0" ', 'x="', i_scale, '" y="', j_scale, '" />')
+        );
+      } else if (representation == 1 || representation == 2) {
+        // static
+        square = string(
+          abi.encodePacked(
+            '<g transform="translate(',
+            i_scale,
+            ',',
+            j_scale,
+            ')">',
+            '<rect width="',
+            s_scale,
+            '" height="',
+            s_scale,
+            '" ',
+            ' fill="',
+            colorMap.bornColor,
+            '"',
+            '/>',
+            '</g>'
+          )
+        );
+      }
     } else if (!alive && !hasChanged) {
       // case: didn't exist in previous round
       square = string(
@@ -518,12 +519,6 @@ contract G4m3 {
             j_scale,
             ')">',
             '<use href="#d0" />',
-            // '<text x="',
-            // i_scale_offset,
-            // '" y="',
-            // j_scale_offset,
-            // '" font-family="Courier" font-size="14" fill="',colorMap.deadColor,'" dominant-baseline="middle" text-anchor="middle" font-weight="bold">O</text>',
-            // G0l.renderZombieSVG(colorMap),
             '<polygon points="0,36 36,36 0,0" fill="',
             colorMap.perishedColor,
             '">',
