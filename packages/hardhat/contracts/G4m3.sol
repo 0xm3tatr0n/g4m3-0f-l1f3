@@ -7,6 +7,9 @@ import '@openzeppelin/contracts/utils/Counters.sol';
 import {G0l, BitOps} from './Libraries.sol';
 import {Structs} from './StructsLibrary.sol';
 
+// just for testing external libraries
+// import './Foo.sol';
+
 contract G4m3 {
   using Counters for Counters.Counter;
   using Strings for uint256;
@@ -180,28 +183,28 @@ contract G4m3 {
   }
 
   // data render functions (state viewing functions, strictly speaking)
-  function getTrends(uint256 bornCells, uint256 perishedCells)
-    internal
-    pure
-    returns (Structs.Trends memory)
-  {
-    Structs.Trends memory trends;
-    trends.births = bornCells;
-    trends.deaths = perishedCells;
+  // function getTrends(uint256 bornCells, uint256 perishedCells)
+  //   internal
+  //   pure
+  //   returns (Structs.Trends memory)
+  // {
+  //   Structs.Trends memory trends;
+  //   trends.births = bornCells;
+  //   trends.deaths = perishedCells;
 
-    if (bornCells > perishedCells) {
-      trends.up = 1;
-      trends.popDiff = bornCells - perishedCells;
-    } else if (bornCells < perishedCells) {
-      trends.up = 0;
-      trends.popDiff = uint256(-int256(bornCells - perishedCells));
-    } else {
-      trends.up = 99;
-      trends.popDiff = 0;
-    }
+  //   if (bornCells > perishedCells) {
+  //     trends.up = 1;
+  //     trends.popDiff = bornCells - perishedCells;
+  //   } else if (bornCells < perishedCells) {
+  //     trends.up = 0;
+  //     trends.popDiff = uint256(-int256(bornCells - perishedCells));
+  //   } else {
+  //     trends.up = 99;
+  //     trends.popDiff = 0;
+  //   }
 
-    return trends;
-  }
+  //   return trends;
+  // }
 
   function generateMetadata(uint256 id) internal view returns (Structs.MetaData memory) {
     Structs.MetaData memory metadata;
@@ -235,7 +238,7 @@ contract G4m3 {
       metadata.birthCount = bornCells;
       metadata.deathCount = perishedCells;
 
-      Structs.Trends memory populationTrends = getTrends(bornCells, perishedCells);
+      Structs.Trends memory populationTrends = G0l.getTrends(bornCells, perishedCells);
 
       // determine prosperity levels
       metadata.popDiff = populationTrends.popDiff;
@@ -263,63 +266,63 @@ contract G4m3 {
     return metadata;
   }
 
-  function generateAttributeString(Structs.MetaData memory metadata)
-    internal
-    pure
-    returns (string memory)
-  {
-    string memory timesName;
-    if (metadata.times == 0) {
-      timesName = 'stable';
-    } else if (metadata.times == 1) {
-      timesName = 'good';
-    } else if (metadata.times == 2) {
-      timesName = 'bad';
-    } else if (metadata.times == 3) {
-      timesName = 'zero';
-    }
+  // function generateAttributeString(Structs.MetaData memory metadata)
+  //   internal
+  //   pure
+  //   returns (string memory)
+  // {
+  //   string memory timesName;
+  //   if (metadata.times == 0) {
+  //     timesName = 'stable';
+  //   } else if (metadata.times == 1) {
+  //     timesName = 'good';
+  //   } else if (metadata.times == 2) {
+  //     timesName = 'bad';
+  //   } else if (metadata.times == 3) {
+  //     timesName = 'zero';
+  //   }
 
-    string memory representationName;
+  //   string memory representationName;
 
-    if (metadata.representation == 0) {
-      representationName = 'raw';
-    } else if (metadata.representation == 1) {
-      representationName = 'static';
-    } else if (metadata.representation == 2) {
-      representationName = 'animated';
-    }
+  //   if (metadata.representation == 0) {
+  //     representationName = 'raw';
+  //   } else if (metadata.representation == 1) {
+  //     representationName = 'static';
+  //   } else if (metadata.representation == 2) {
+  //     representationName = 'animated';
+  //   }
 
-    string memory attributeString = string(
-      abi.encodePacked(
-        '", "attributes": [{"trait_type": "generation", "value": "#',
-        metadata.generation,
-        '"},',
-        '{"trait_type" : "density", "value": "',
-        Strings.toString(metadata.populationDensity),
-        '"},',
-        '{"trait_type" : "births", "value": "',
-        Strings.toString(metadata.birthCount),
-        '"},',
-        '{"trait_type" : "deaths", "value": "',
-        Strings.toString(metadata.deathCount),
-        '"},',
-        '{"trait_type" : "trend", "value": "',
-        metadata.trend,
-        '"},',
-        '{"trait_type" : "population_difference", "value": "',
-        Strings.toString(metadata.popDiff),
-        '"},',
-        '{"trait_type" : "times", "value": "',
-        timesName,
-        '"},',
-        '{"trait_type" : "representation", "value": "',
-        representationName,
-        '"}',
-        '],'
-      )
-    );
-    return attributeString;
-  }
+  //   string memory attributeString = string(
+  //     abi.encodePacked(
+  //       '", "attributes": [{"trait_type": "generation", "value": "#',
+  //       metadata.generation,
+  //       '"},',
+  //       '{"trait_type" : "density", "value": "',
+  //       Strings.toString(metadata.populationDensity),
+  //       '"},',
+  //       '{"trait_type" : "births", "value": "',
+  //       Strings.toString(metadata.birthCount),
+  //       '"},',
+  //       '{"trait_type" : "deaths", "value": "',
+  //       Strings.toString(metadata.deathCount),
+  //       '"},',
+  //       '{"trait_type" : "trend", "value": "',
+  //       metadata.trend,
+  //       '"},',
+  //       '{"trait_type" : "population_difference", "value": "',
+  //       Strings.toString(metadata.popDiff),
+  //       '"},',
+  //       '{"trait_type" : "times", "value": "',
+  //       timesName,
+  //       '"},',
+  //       '{"trait_type" : "representation", "value": "',
+  //       representationName,
+  //       '"}',
+  //       '],'
+  //     )
+  //   );
+  //   return attributeString;
+  // }
 
   function generateSVGofTokenById(uint256 id) internal view returns (string memory) {
     // get token gameState as int, convert to grid
@@ -409,14 +412,12 @@ contract G4m3 {
       // add perished fields
       defs = abi.encodePacked(
         defs,
-        '<rect id="p0" width="',
-        s_scale,
-        '" height="',
-        s_scale,
-        '" fill="',
-        colorMap.deadColor,
-        '"></rect>'
+        '<polygon id="pp" points="0,36 36,36 0,0" fill="',
+        colorMap.perishedColor,
+        '" />'
       );
+
+      defs = abi.encodePacked(defs, '<g id="p0"><use href="#d0" /> <use href="#pp" /></g>');
 
       // add born fields
       defs = abi.encodePacked(
@@ -426,7 +427,7 @@ contract G4m3 {
         '" height="',
         s_scale,
         '" fill="',
-        colorMap.deadColor,
+        colorMap.bornColor,
         '"></rect>'
       );
     }
@@ -461,7 +462,11 @@ contract G4m3 {
         square = string(
           abi.encodePacked('<use href="#l0" ', 'x="', i_scale, '" y="', j_scale, '" />')
         );
-      } else if (representation == 1 || representation == 2) {
+      } else if (representation == 1) {
+        square = string(
+          abi.encodePacked('<use href="#b0" ', 'x="', i_scale, '" y="', j_scale, '" />')
+        );
+      } else if (representation == 2) {
         // static
         square = string(
           abi.encodePacked(
@@ -496,19 +501,7 @@ contract G4m3 {
         );
       } else if (representation == 1) {
         square = string(
-          abi.encodePacked(
-            '<g transform="translate(',
-            i_scale,
-            ',',
-            j_scale,
-            ')">',
-            '<use href="#d0" />'
-            '<polygon points="0,36 36,36 0,0" fill="',
-            colorMap.perishedColor,
-            '">',
-            '</polygon>',
-            '</g>'
-          )
+          abi.encodePacked('<use href="#p0" transform="translate(', i_scale, ',', j_scale, ')" />')
         );
       } else if (representation == 2) {
         square = string(

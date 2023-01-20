@@ -99,7 +99,7 @@ contract YourCollectible is ERC721, Pausable, Ownable, G4m3 {
                 metadata.description,
                 '", "external_url":"https://burnyboys.com/token/',
                 id.toString(),
-                generateAttributeString(metadata),
+                G0l.generateAttributeString(metadata),
                 '"owner":"',
                 (uint160(ownerOf(id))).toHexString(20),
                 '", "image": "',
