@@ -1,4 +1,5 @@
 pragma solidity >=0.7.0 <0.8.0;
+pragma abicoder v2;
 //SPDX-License-Identifier: MIT
 
 // imports
@@ -337,42 +338,42 @@ contract G4m3 {
     return svg;
   }
 
-  function generateColorMap(Structs.MetaData memory metadata)
-    internal
-    pure
-    returns (Structs.ColorMap memory)
-  {
-    Structs.ColorMap memory colorMap;
+  // function generateColorMap(Structs.MetaData memory metadata)
+  //   internal
+  //   pure
+  //   returns (Structs.ColorMap memory)
+  // {
+  //   Structs.ColorMap memory colorMap;
 
-    uint256 selectedColorScheme = metadata.populationDensity < 25
-      ? metadata.times
-      : metadata.times + 4;
+  //   uint256 selectedColorScheme = metadata.populationDensity < 25
+  //     ? metadata.times
+  //     : metadata.times + 4;
 
-    // modify selected palette
-    if (metadata.seed % 42 < 13) {
-      selectedColorScheme = selectedColorScheme + 4;
-    }
+  //   // modify selected palette
+  //   if (metadata.seed % 42 < 13) {
+  //     selectedColorScheme = selectedColorScheme + 4;
+  //   }
 
-    colorMap.backgroundColor = G0l.returnColor(selectedColorScheme, 0);
-    colorMap.aliveColor = G0l.returnColor(selectedColorScheme, 1);
-    colorMap.deadColor = G0l.returnColor(selectedColorScheme, 2);
+  //   colorMap.backgroundColor = G0l.returnColor(selectedColorScheme, 0);
+  //   colorMap.aliveColor = G0l.returnColor(selectedColorScheme, 1);
+  //   colorMap.deadColor = G0l.returnColor(selectedColorScheme, 2);
 
-    // handle birth's intensity
-    if (metadata.birthCount < 6) {
-      colorMap.bornColor = G0l.returnColor(selectedColorScheme, 3);
-    } else {
-      colorMap.bornColor = G0l.returnColor(selectedColorScheme, 4);
-    }
+  //   // handle birth's intensity
+  //   if (metadata.birthCount < 6) {
+  //     colorMap.bornColor = G0l.returnColor(selectedColorScheme, 3);
+  //   } else {
+  //     colorMap.bornColor = G0l.returnColor(selectedColorScheme, 4);
+  //   }
 
-    // handle death intensity
-    if (metadata.deathCount < 6) {
-      colorMap.perishedColor = G0l.returnColor(selectedColorScheme, 5);
-    } else {
-      colorMap.perishedColor = G0l.returnColor(selectedColorScheme, 6);
-    }
+  //   // handle death intensity
+  //   if (metadata.deathCount < 6) {
+  //     colorMap.perishedColor = G0l.returnColor(selectedColorScheme, 5);
+  //   } else {
+  //     colorMap.perishedColor = G0l.returnColor(selectedColorScheme, 6);
+  //   }
 
-    return colorMap;
-  }
+  //   return colorMap;
+  // }
 
   function renderDefs(Structs.ColorMap memory colorMap, uint256 representation)
     internal
@@ -543,7 +544,7 @@ contract G4m3 {
 
     // determine color map
     Structs.MetaData memory metaData = generateMetadata(id);
-    Structs.ColorMap memory colorMap = generateColorMap(metaData);
+    Structs.ColorMap memory colorMap = G0l.generateColorMap(metaData);
 
     for (uint256 i = 0; i < grid.length; i += 1) {
       //

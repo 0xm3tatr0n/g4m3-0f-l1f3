@@ -1,4 +1,5 @@
 pragma solidity >=0.7.0 <0.8.0;
+pragma abicoder v2;
 //SPDX-License-Identifier: MIT
 // externalized elements specifically for G0l
 import '@openzeppelin/contracts/utils/Strings.sol';
@@ -36,7 +37,7 @@ library G0l {
   //   }
 
   function returnColor(uint256 paletteNumber, uint256 colorPos)
-    internal
+    public
     pure
     returns (string memory)
   {
@@ -77,7 +78,7 @@ library G0l {
     uint256 i,
     uint256 j,
     uint256 representation
-  ) internal pure returns (string memory) {
+  ) public pure returns (string memory) {
     //
     if (representation == 2) {
       return
@@ -102,7 +103,7 @@ library G0l {
   }
 
   function getTrends(uint256 bornCells, uint256 perishedCells)
-    internal
+    public
     pure
     returns (Structs.Trends memory)
   {
@@ -125,7 +126,7 @@ library G0l {
   }
 
   function generateAttributeString(Structs.MetaData memory metadata)
-    internal
+    public
     pure
     returns (string memory)
   {
@@ -180,6 +181,43 @@ library G0l {
       )
     );
     return attributeString;
+  }
+
+  function generateColorMap(Structs.MetaData memory metadata)
+    public
+    pure
+    returns (Structs.ColorMap memory)
+  {
+    Structs.ColorMap memory colorMap;
+
+    uint256 selectedColorScheme = metadata.populationDensity < 25
+      ? metadata.times
+      : metadata.times + 4;
+
+    // modify selected palette
+    if (metadata.seed % 42 < 13) {
+      selectedColorScheme = selectedColorScheme + 4;
+    }
+
+    colorMap.backgroundColor = returnColor(selectedColorScheme, 0);
+    colorMap.aliveColor = returnColor(selectedColorScheme, 1);
+    colorMap.deadColor = returnColor(selectedColorScheme, 2);
+
+    // handle birth's intensity
+    if (metadata.birthCount < 6) {
+      colorMap.bornColor = returnColor(selectedColorScheme, 3);
+    } else {
+      colorMap.bornColor = returnColor(selectedColorScheme, 4);
+    }
+
+    // handle death intensity
+    if (metadata.deathCount < 6) {
+      colorMap.perishedColor = returnColor(selectedColorScheme, 5);
+    } else {
+      colorMap.perishedColor = returnColor(selectedColorScheme, 6);
+    }
+
+    return colorMap;
   }
 }
 
