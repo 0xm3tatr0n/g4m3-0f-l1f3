@@ -100,6 +100,87 @@ library G0l {
       return '';
     }
   }
+
+  function getTrends(uint256 bornCells, uint256 perishedCells)
+    internal
+    pure
+    returns (Structs.Trends memory)
+  {
+    Structs.Trends memory trends;
+    trends.births = bornCells;
+    trends.deaths = perishedCells;
+
+    if (bornCells > perishedCells) {
+      trends.up = 1;
+      trends.popDiff = bornCells - perishedCells;
+    } else if (bornCells < perishedCells) {
+      trends.up = 0;
+      trends.popDiff = uint256(-int256(bornCells - perishedCells));
+    } else {
+      trends.up = 99;
+      trends.popDiff = 0;
+    }
+
+    return trends;
+  }
+
+  function generateAttributeString(Structs.MetaData memory metadata)
+    internal
+    pure
+    returns (string memory)
+  {
+    string memory timesName;
+    if (metadata.times == 0) {
+      timesName = 'stable';
+    } else if (metadata.times == 1) {
+      timesName = 'good';
+    } else if (metadata.times == 2) {
+      timesName = 'bad';
+    } else if (metadata.times == 3) {
+      timesName = 'zero';
+    }
+
+    string memory representationName;
+
+    if (metadata.representation == 0) {
+      representationName = 'raw';
+    } else if (metadata.representation == 1) {
+      representationName = 'static';
+    } else if (metadata.representation == 2) {
+      representationName = 'animated';
+    }
+
+    string memory attributeString = string(
+      abi.encodePacked(
+        '", "attributes": [{"trait_type": "generation", "value": "#',
+        metadata.generation,
+        '"},',
+        '{"trait_type" : "density", "value": "',
+        Strings.toString(metadata.populationDensity),
+        '"},',
+        '{"trait_type" : "births", "value": "',
+        Strings.toString(metadata.birthCount),
+        '"},',
+        '{"trait_type" : "deaths", "value": "',
+        Strings.toString(metadata.deathCount),
+        '"},',
+        '{"trait_type" : "trend", "value": "',
+        metadata.trend,
+        '"},',
+        '{"trait_type" : "population_difference", "value": "',
+        Strings.toString(metadata.popDiff),
+        '"},',
+        '{"trait_type" : "times", "value": "',
+        timesName,
+        '"},',
+        '{"trait_type" : "representation", "value": "',
+        representationName,
+        '"}',
+        '],'
+      )
+    );
+    return attributeString;
+  }
 }
 
 library BitOps {
