@@ -5,7 +5,9 @@ pragma abicoder v2;
 // imports
 import '@openzeppelin/contracts/utils/Strings.sol';
 import '@openzeppelin/contracts/utils/Counters.sol';
-import {G0l, BitOps} from './Libraries.sol';
+// import {G0l, BitOps} from './Libraries.sol';
+import './Libraries/G0l.sol';
+import './Libraries/BitOps.sol';
 import {Structs} from './StructsLibrary.sol';
 
 // just for testing external libraries

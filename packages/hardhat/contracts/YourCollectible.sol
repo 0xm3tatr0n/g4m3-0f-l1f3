@@ -17,7 +17,10 @@ import './G4m3.sol';
 
 // GET LISTED ON OPENSEA: https://testnets.opensea.io/get-listed/step-two
 
-import {G0l, BitOps} from './Libraries.sol';
+// import {G0l, BitOps} from './Libraries.sol';
+
+import './Libraries/G0l.sol';
+import './Libraries/BitOps.sol';
 import {Structs} from './StructsLibrary.sol';
 
 contract YourCollectible is ERC721, Pausable, Ownable, G4m3 {
