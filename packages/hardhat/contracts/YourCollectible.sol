@@ -15,9 +15,7 @@ import './G4m3.sol';
 //learn more: https://docs.openzeppelin.com/contracts/3.x/erc721 16631332
 
 // GET LISTED ON OPENSEA: https://testnets.opensea.io/get-listed/step-two
-
-import {G0l, BitOps} from './Libraries.sol';
-import {Structs} from './StructsLibrary.sol';
+import {Structs} from './Libraries/Structs.sol';
 
 contract YourCollectible is ERC721, Pausable, Ownable, G4m3 {
   using Strings for uint256;
