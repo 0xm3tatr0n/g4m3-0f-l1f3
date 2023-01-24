@@ -4,8 +4,9 @@ pragma solidity >=0.7.0 <0.8.0;
 // imports
 import '@openzeppelin/contracts/utils/Strings.sol';
 import '@openzeppelin/contracts/utils/Counters.sol';
-import {G0l, BitOps} from './Libraries.sol';
-import {Structs} from './StructsLibrary.sol';
+import './Libraries/G0l.sol';
+import './Libraries/BitOps.sol';
+import {Structs} from './Libraries/Structs.sol';
 
 // just for testing external libraries
 // import './Foo.sol';
@@ -96,20 +97,20 @@ contract G4m3 {
     // play game of life
     uint256 N = 8;
 
-    bool[8][8] memory oldGameStateFromInt = wordToGrid(gameStateInt);
+    bool[8][8] memory oldGameStateFromInt = BitOps.wordToGrid(gameStateInt);
     bool[8][8] memory newGameStateFromInt = oldGameStateFromInt;
 
     for (uint256 i = 0; i < 8; i += 1) {
       for (uint256 j = 0; j < 8; j += 1) {
         uint256 total = uint256(
-          _b2u(oldGameStateFromInt[uint256((i - 1) % N)][uint256((j - 1) % N)]) +
-            _b2u(oldGameStateFromInt[uint256((i - 1) % N)][j]) +
-            _b2u(oldGameStateFromInt[uint256((i - 1) % N)][uint256((j + 1) % N)]) +
-            _b2u(oldGameStateFromInt[i][uint256((j + 1) % N)]) +
-            _b2u(oldGameStateFromInt[uint256((i + 1) % N)][uint256((j + 1) % N)]) +
-            _b2u(oldGameStateFromInt[uint256((i + 1) % N)][j]) +
-            _b2u(oldGameStateFromInt[uint256((i + 1) % N)][uint256((j - 1) % N)]) +
-            _b2u(oldGameStateFromInt[i][uint256((j - 1) % N)])
+          BitOps._b2u(oldGameStateFromInt[uint256((i - 1) % N)][uint256((j - 1) % N)]) +
+            BitOps._b2u(oldGameStateFromInt[uint256((i - 1) % N)][j]) +
+            BitOps._b2u(oldGameStateFromInt[uint256((i - 1) % N)][uint256((j + 1) % N)]) +
+            BitOps._b2u(oldGameStateFromInt[i][uint256((j + 1) % N)]) +
+            BitOps._b2u(oldGameStateFromInt[uint256((i + 1) % N)][uint256((j + 1) % N)]) +
+            BitOps._b2u(oldGameStateFromInt[uint256((i + 1) % N)][j]) +
+            BitOps._b2u(oldGameStateFromInt[uint256((i + 1) % N)][uint256((j - 1) % N)]) +
+            BitOps._b2u(oldGameStateFromInt[i][uint256((j - 1) % N)])
         );
 
         if (oldGameStateFromInt[i][j] == true) {
@@ -159,7 +160,7 @@ contract G4m3 {
     // gameStateIntOld --> old N-2
     // gameStateInt --> old N-1
     // gameStateIntNew --> current
-    uint256 gameStateIntNew = gridToWord(newGameStateFromInt);
+    uint256 gameStateIntNew = BitOps.gridToWord(newGameStateFromInt);
 
     if (_tokenIds.current() > 2) {
       // game advanced enough to look back 2 periods
@@ -180,30 +181,6 @@ contract G4m3 {
       }
     }
   }
-
-  // data render functions (state viewing functions, strictly speaking)
-  // function getTrends(uint256 bornCells, uint256 perishedCells)
-  //   internal
-  //   pure
-  //   returns (Structs.Trends memory)
-  // {
-  //   Structs.Trends memory trends;
-  //   trends.births = bornCells;
-  //   trends.deaths = perishedCells;
-
-  //   if (bornCells > perishedCells) {
-  //     trends.up = 1;
-  //     trends.popDiff = bornCells - perishedCells;
-  //   } else if (bornCells < perishedCells) {
-  //     trends.up = 0;
-  //     trends.popDiff = uint256(-int256(bornCells - perishedCells));
-  //   } else {
-  //     trends.up = 99;
-  //     trends.popDiff = 0;
-  //   }
-
-  //   return trends;
-  // }
 
   function generateMetadata(uint256 id) internal view returns (Structs.MetaData memory) {
     Structs.MetaData memory metadata;
@@ -261,64 +238,6 @@ contract G4m3 {
 
     return metadata;
   }
-
-  // function generateAttributeString(Structs.MetaData memory metadata)
-  //   internal
-  //   pure
-  //   returns (string memory)
-  // {
-  //   string memory timesName;
-  //   if (metadata.times == 0) {
-  //     timesName = 'stable';
-  //   } else if (metadata.times == 1) {
-  //     timesName = 'good';
-  //   } else if (metadata.times == 2) {
-  //     timesName = 'bad';
-  //   } else if (metadata.times == 3) {
-  //     timesName = 'zero';
-  //   }
-
-  //   string memory representationName;
-
-  //   if (metadata.representation == 0) {
-  //     representationName = 'raw';
-  //   } else if (metadata.representation == 1) {
-  //     representationName = 'static';
-  //   } else if (metadata.representation == 2) {
-  //     representationName = 'animated';
-  //   }
-
-  //   string memory attributeString = string(
-  //     abi.encodePacked(
-  //       '", "attributes": [{"trait_type": "generation", "value": "#',
-  //       metadata.generation,
-  //       '"},',
-  //       '{"trait_type" : "density", "value": "',
-  //       Strings.toString(metadata.populationDensity),
-  //       '"},',
-  //       '{"trait_type" : "births", "value": "',
-  //       Strings.toString(metadata.birthCount),
-  //       '"},',
-  //       '{"trait_type" : "deaths", "value": "',
-  //       Strings.toString(metadata.deathCount),
-  //       '"},',
-  //       '{"trait_type" : "trend", "value": "',
-  //       metadata.trend,
-  //       '"},',
-  //       '{"trait_type" : "population_difference", "value": "',
-  //       Strings.toString(metadata.popDiff),
-  //       '"},',
-  //       '{"trait_type" : "times", "value": "',
-  //       timesName,
-  //       '"},',
-  //       '{"trait_type" : "representation", "value": "',
-  //       representationName,
-  //       '"}',
-  //       '],'
-  //     )
-  //   );
-  //   return attributeString;
-  // }
 
   function generateSVGofTokenById(uint256 id) internal view returns (string memory) {
     // get token gameState as int, convert to grid
@@ -524,7 +443,7 @@ contract G4m3 {
 
   function renderGameGrid(uint256 id) public view returns (string memory) {
     // render that thing
-    bool[8][8] memory grid = wordToGrid(tokenGridStatesInt[id]);
+    bool[8][8] memory grid = BitOps.wordToGrid(tokenGridStatesInt[id]);
     string[] memory squares = new string[](8 * 8);
     uint256 slotCounter = 0;
     uint256 stateDiff;
@@ -576,31 +495,31 @@ contract G4m3 {
   }
 
   // utility functions
-  function _b2u(bool input) internal pure returns (uint256) {
-    return input ? 1 : 0;
-  }
+  // function _b2u(bool input) internal pure returns (uint256) {
+  //   return input ? 1 : 0;
+  // }
 
-  function gridToWord(bool[8][8] memory grid) internal pure returns (uint256) {
-    // convert bool[][] to word (after completing iterating state)
-    uint256 word;
-    for (uint256 i = 0; i < 8; i += 1) {
-      for (uint256 j = 0; j < 8; j += 1) {
-        word = BitOps.setBooleaOnIndex(word, (i * 8 + j), grid[i][j]);
-      }
-    }
-    return word;
-  }
+  // function gridToWord(bool[8][8] memory grid) internal pure returns (uint256) {
+  //   // convert bool[][] to word (after completing iterating state)
+  //   uint256 word;
+  //   for (uint256 i = 0; i < 8; i += 1) {
+  //     for (uint256 j = 0; j < 8; j += 1) {
+  //       word = BitOps.setBooleaOnIndex(word, (i * 8 + j), grid[i][j]);
+  //     }
+  //   }
+  //   return word;
+  // }
 
-  function wordToGrid(uint256 word) internal pure returns (bool[8][8] memory) {
-    // convert word to bool[][] (prior to iterate state)
-    bool[8][8] memory grid;
-    for (uint256 i = 0; i < 8; i += 1) {
-      for (uint256 j = 0; j < 8; j += 1) {
-        //
-        grid[i][j] = BitOps.getBooleanFromIndex(word, (i * 8 + j));
-      }
-    }
+  // function wordToGrid(uint256 word) internal pure returns (bool[8][8] memory) {
+  //   // convert word to bool[][] (prior to iterate state)
+  //   bool[8][8] memory grid;
+  //   for (uint256 i = 0; i < 8; i += 1) {
+  //     for (uint256 j = 0; j < 8; j += 1) {
+  //       //
+  //       grid[i][j] = BitOps.getBooleanFromIndex(word, (i * 8 + j));
+  //     }
+  //   }
 
-    return grid;
-  }
+  //   return grid;
+  // }
 }
