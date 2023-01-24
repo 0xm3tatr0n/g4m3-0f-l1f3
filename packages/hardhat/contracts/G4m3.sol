@@ -14,7 +14,7 @@ contract G4m3 {
   using Counters for Counters.Counter;
   using Strings for uint256;
   // constants
-  uint256 internal constant dim = 8;
+  // uint256 internal constant dim = 8;
   uint256 internal constant scale = 40;
   string s_scale = Strings.toString(scale - 4);
 
@@ -54,14 +54,13 @@ contract G4m3 {
     _currentGeneration.increment();
 
     // temporary storage
-    bool[dim][dim] memory results;
+    bool[8][8] memory results;
 
     // generate some "randomness"
     bytes32 seedBytes = keccak256(
       abi.encodePacked(
         address(this),
         _currentGeneration.current(),
-        'bar',
         blockhash(block.number - 1),
         block.timestamp
       )
@@ -70,10 +69,10 @@ contract G4m3 {
     uint256 r = uint256(seedBytes);
     // uint256[] memory b;
     uint256 gridInt = r;
-    for (uint256 i = 0; i < dim; i += 1) {
+    for (uint256 i = 0; i < 8; i += 1) {
       uint8 m = uint8(r >> (i * 8));
 
-      for (uint256 j = 0; j < dim; j += 1) {
+      for (uint256 j = 0; j < 8; j += 1) {
         // generate row seed
         uint256 s = uint256(keccak256(abi.encodePacked(Strings.toString(m), address(this))));
 
@@ -86,7 +85,7 @@ contract G4m3 {
         }
 
         results[i][j] = result;
-        gridInt = BitOps.setBooleaOnIndex(gridInt, (i * dim) + j, result);
+        gridInt = BitOps.setBooleaOnIndex(gridInt, (i * 8) + j, result);
       }
     }
 
@@ -95,13 +94,13 @@ contract G4m3 {
 
   function _iterateState() internal {
     // play game of life
-    uint256 N = dim;
+    uint256 N = 8;
 
-    bool[dim][dim] memory oldGameStateFromInt = wordToGrid(gameStateInt);
-    bool[dim][dim] memory newGameStateFromInt = oldGameStateFromInt;
+    bool[8][8] memory oldGameStateFromInt = wordToGrid(gameStateInt);
+    bool[8][8] memory newGameStateFromInt = oldGameStateFromInt;
 
-    for (uint256 i = 0; i < dim; i += 1) {
-      for (uint256 j = 0; j < dim; j += 1) {
+    for (uint256 i = 0; i < 8; i += 1) {
+      for (uint256 j = 0; j < 8; j += 1) {
         uint256 total = uint256(
           _b2u(oldGameStateFromInt[uint256((i - 1) % N)][uint256((j - 1) % N)]) +
             _b2u(oldGameStateFromInt[uint256((i - 1) % N)][j]) +
@@ -528,8 +527,8 @@ contract G4m3 {
 
   function renderGameGrid(uint256 id) public view returns (string memory) {
     // render that thing
-    bool[dim][dim] memory grid = wordToGrid(tokenGridStatesInt[id]);
-    string[] memory squares = new string[](dim * dim);
+    bool[8][8] memory grid = wordToGrid(tokenGridStatesInt[id]);
+    string[] memory squares = new string[](8 * 8);
     uint256 slotCounter = 0;
     uint256 stateDiff;
 
@@ -547,13 +546,13 @@ contract G4m3 {
 
     for (uint256 i = 0; i < grid.length; i += 1) {
       //
-      bool[dim] memory row = grid[i];
+      bool[8] memory row = grid[i];
       for (uint256 j = 0; j < row.length; j += 1) {
         bool alive = grid[i][j];
         string memory square;
 
         // check for stateDiff
-        bool hasChanged = BitOps.getBooleanFromIndex(stateDiff, (i * dim + j));
+        bool hasChanged = BitOps.getBooleanFromIndex(stateDiff, (i * 8 + j));
         square = renderGameSquare(alive, hasChanged, i, j, colorMap, metaData.representation);
 
         squares[slotCounter] = square;
@@ -584,24 +583,24 @@ contract G4m3 {
     return input ? 1 : 0;
   }
 
-  function gridToWord(bool[dim][dim] memory grid) internal pure returns (uint256) {
+  function gridToWord(bool[8][8] memory grid) internal pure returns (uint256) {
     // convert bool[][] to word (after completing iterating state)
     uint256 word;
-    for (uint256 i = 0; i < dim; i += 1) {
-      for (uint256 j = 0; j < dim; j += 1) {
-        word = BitOps.setBooleaOnIndex(word, (i * dim + j), grid[i][j]);
+    for (uint256 i = 0; i < 8; i += 1) {
+      for (uint256 j = 0; j < 8; j += 1) {
+        word = BitOps.setBooleaOnIndex(word, (i * 8 + j), grid[i][j]);
       }
     }
     return word;
   }
 
-  function wordToGrid(uint256 word) internal pure returns (bool[dim][dim] memory) {
+  function wordToGrid(uint256 word) internal pure returns (bool[8][8] memory) {
     // convert word to bool[][] (prior to iterate state)
-    bool[dim][dim] memory grid;
-    for (uint256 i = 0; i < dim; i += 1) {
-      for (uint256 j = 0; j < dim; j += 1) {
+    bool[8][8] memory grid;
+    for (uint256 i = 0; i < 8; i += 1) {
+      for (uint256 j = 0; j < 8; j += 1) {
         //
-        grid[i][j] = BitOps.getBooleanFromIndex(word, (i * dim + j));
+        grid[i][j] = BitOps.getBooleanFromIndex(word, (i * 8 + j));
       }
     }
 
