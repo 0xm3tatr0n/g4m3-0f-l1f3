@@ -44,11 +44,6 @@ contract G4m3 {
     return _currentGeneration.current();
   }
 
-  // // g4m3 state view functions
-  // function showStateInt() public view returns (uint256) {
-  //   return gameStateInt;
-  // }
-
   // state muting functions
   function _initState() internal {
     // set generation
