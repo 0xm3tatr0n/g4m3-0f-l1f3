@@ -9,7 +9,7 @@ import '@openzeppelin/contracts/utils/Pausable.sol';
 import '@openzeppelin/contracts/utils/Strings.sol';
 import 'base64-sol/base64.sol';
 
-import './HexStrings.sol';
+import './Libraries/HexStrings.sol';
 import './G4m3.sol';
 // import './ToColor.sol';
 //learn more: https://docs.openzeppelin.com/contracts/3.x/erc721 16631332
