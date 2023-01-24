@@ -43,10 +43,10 @@ contract G4m3 {
     return _currentGeneration.current();
   }
 
-  // g4m3 state view functions
-  function showStateInt() public view returns (uint256) {
-    return gameStateInt;
-  }
+  // // g4m3 state view functions
+  // function showStateInt() public view returns (uint256) {
+  //   return gameStateInt;
+  // }
 
   // state muting functions
   function _initState() internal {
@@ -213,11 +213,8 @@ contract G4m3 {
     metadata.generation = Strings.toString(tokenGeneration[id]);
 
     // "arbitrary" value to mix things up (not random because deterministic)
-    uint256 arbitrary = uint256(
-      keccak256(abi.encodePacked(metadata.generation, metadata.description))
-    );
-    metadata.seed = arbitrary;
-    uint256 arbitrarySelector = arbitrary % 13;
+    metadata.seed = uint256(keccak256(abi.encodePacked(metadata.generation, metadata.description)));
+    uint256 arbitrarySelector = metadata.seed % 13;
 
     if (arbitrarySelector < 1) {
       metadata.representation = 0;

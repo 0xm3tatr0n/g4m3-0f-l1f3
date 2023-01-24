@@ -209,13 +209,14 @@ describe('My Dapp', function () {
       await expect(Number(maxLength)).to.be.lessThan(10000);
     });
 
-    it('Should render a grid 8x8', async function () {
-      const [owner] = await ethers.getSigners();
-      await deployContract();
-      const gameState = await myContract.showStateInt();
-      // const gameGridRender = await myContract.renderGameGrid(gameState)
-      // expect(gameState).to.be.an('array').with.length(8)
-      // todo: better test here..
-    });
+    // it('Should render a grid 8x8', async function () {
+    //   // function showStateInt() deprecated
+    //   const [owner] = await ethers.getSigners();
+    //   await deployContract();
+    //   const gameState = await myContract.showStateInt();
+    //   // const gameGridRender = await myContract.renderGameGrid(gameState)
+    //   // expect(gameState).to.be.an('array').with.length(8)
+    //   // todo: better test here..
+    // });
   });
 });
