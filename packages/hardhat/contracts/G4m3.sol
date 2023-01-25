@@ -1,15 +1,11 @@
 pragma solidity >=0.7.0 <0.8.0;
 //SPDX-License-Identifier: MIT
-
 // imports
 import '@openzeppelin/contracts/utils/Strings.sol';
 import '@openzeppelin/contracts/utils/Counters.sol';
 import './Libraries/G0l.sol';
 import './Libraries/BitOps.sol';
 import {Structs} from './Libraries/Structs.sol';
-
-// just for testing external libraries
-// import './Foo.sol';
 
 contract G4m3 {
   using Counters for Counters.Counter;
@@ -347,6 +343,7 @@ contract G4m3 {
     return defs;
   }
 
+  // todo: pure function
   function renderGameSquare(
     bool alive,
     bool hasChanged,
