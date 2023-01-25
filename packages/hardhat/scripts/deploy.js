@@ -26,7 +26,7 @@ const main = async () => {
 
   // deploy the contract with all the artworks forSale
   const yourCollectible = await deploy(
-    'YourCollectible',
+    'G4m3',
     [],
     {},
     {
