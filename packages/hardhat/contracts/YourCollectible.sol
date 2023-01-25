@@ -23,7 +23,7 @@ contract YourCollectible is ERC721, Pausable, Ownable, G4m3 {
 
   // using ToColor for bytes3;
 
-  constructor() ERC721('gam3 0f l1f3', 'g0l') {
+  constructor() ERC721('g4m3 0f l1f3', 'g0l') {
     createTime = block.timestamp;
     _initState();
   }
@@ -48,7 +48,7 @@ contract YourCollectible is ERC721, Pausable, Ownable, G4m3 {
   uint256 private createTime;
 
   function mintItem(address mintTo) public payable whenNotPaused returns (uint256) {
-    require(msg.value >= mintPrice, 'No such thing as a free mint!');
+    require(msg.value >= mintPrice, 'funds');
     tokenIdsIncrement();
 
     uint256 id = tokenIdsCurrent();
@@ -63,8 +63,8 @@ contract YourCollectible is ERC721, Pausable, Ownable, G4m3 {
   }
 
   function mintMany(address mintTo, uint256 noItems) public payable whenNotPaused {
-    require(noItems <= maxItems, 'too many mints requested');
-    require(msg.value >= mintPrice * noItems, 'not enough funds sent');
+    require(noItems <= maxItems, 'too many mints');
+    require(msg.value >= mintPrice * noItems, 'funds');
 
     for (uint256 i = 0; i < noItems; i++) {
       tokenIdsIncrement();
@@ -80,7 +80,7 @@ contract YourCollectible is ERC721, Pausable, Ownable, G4m3 {
   }
 
   function tokenURI(uint256 id) public view override returns (string memory) {
-    require(_exists(id), 'token does not exist');
+    require(_exists(id), 'no token');
     string memory image = Base64.encode(bytes(generateSVGofTokenById(id)));
     Structs.MetaData memory metadata = generateMetadata(id);
 
