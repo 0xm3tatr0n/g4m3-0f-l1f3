@@ -115,34 +115,6 @@ contract G4m3 {
             newGameStateFromInt[i][j] = true;
           }
         }
-
-        // grid total. pyhton example:
-        // copy grid since we require 8 neighbors
-        // for calculation and we go line by line
-        // newGrid = grid.copy()
-        // for i in range(N):
-        //     for j in range(N):
-
-        //         # compute 8-neighbor sum
-        //         # using toroidal boundary conditions - x and y wrap around
-        //         # so that the simulation takes place on a toroidal surface.
-        //         total = int((grid[i, (j-1)%N] + grid[i, (j+1)%N] +
-        //                      grid[(i-1)%N, j] + grid[(i+1)%N, j] +
-        //                      grid[(i-1)%N, (j-1)%N] + grid[(i-1)%N, (j+1)%N] +
-        //                      grid[(i+1)%N, (j-1)%N] + grid[(i+1)%N, (j+1)%N])/255)
-
-        //         # apply Conway's rules
-        //         if grid[i, j]  == ON:
-        //             if (total < 2) or (total > 3):
-        //                 newGrid[i, j] = OFF
-        //         else:
-        //             if total == 3:
-        //                 newGrid[i, j] = ON
-
-        // # update data
-        // img.set_data(newGrid)
-        // grid[:] = newGrid[:]
-        // return img,
       }
     }
 
@@ -485,33 +457,4 @@ contract G4m3 {
 
     return string(output);
   }
-
-  // utility functions
-  // function _b2u(bool input) internal pure returns (uint256) {
-  //   return input ? 1 : 0;
-  // }
-
-  // function gridToWord(bool[8][8] memory grid) internal pure returns (uint256) {
-  //   // convert bool[][] to word (after completing iterating state)
-  //   uint256 word;
-  //   for (uint256 i = 0; i < 8; i += 1) {
-  //     for (uint256 j = 0; j < 8; j += 1) {
-  //       word = BitOps.setBooleaOnIndex(word, (i * 8 + j), grid[i][j]);
-  //     }
-  //   }
-  //   return word;
-  // }
-
-  // function wordToGrid(uint256 word) internal pure returns (bool[8][8] memory) {
-  //   // convert word to bool[][] (prior to iterate state)
-  //   bool[8][8] memory grid;
-  //   for (uint256 i = 0; i < 8; i += 1) {
-  //     for (uint256 j = 0; j < 8; j += 1) {
-  //       //
-  //       grid[i][j] = BitOps.getBooleanFromIndex(word, (i * 8 + j));
-  //     }
-  //   }
-
-  //   return grid;
-  // }
 }
