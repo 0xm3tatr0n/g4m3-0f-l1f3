@@ -48,7 +48,7 @@ library G0l {
     uint256 representation
   ) internal pure returns (string memory) {
     //
-    if (representation == 2) {
+    if (representation >= 2) {
       return
         string(
           abi.encodePacked(
@@ -77,7 +77,7 @@ library G0l {
     uint256 representation
   ) internal pure returns (string memory) {
     //
-    if (representation == 2) {
+    if (representation >= 2) {
       return
         string(
           abi.encodePacked(
@@ -146,6 +146,8 @@ library G0l {
       representationName = 'static';
     } else if (metadata.representation == 2) {
       representationName = 'animated';
+    } else if (metadata.representation == 3) {
+      representationName = 'circle';
     }
 
     string memory attributeString = string(
@@ -178,5 +180,125 @@ library G0l {
       )
     );
     return attributeString;
+  }
+
+  function renderGameSquare(
+    bool alive,
+    bool hasChanged,
+    uint256 i,
+    uint256 j,
+    Structs.ColorMap memory colorMap,
+    uint256 representation,
+    uint256 unitScale
+  ) internal pure returns (string memory) {
+    //
+    string memory square;
+    string memory i_scale = Strings.toString(i * unitScale + 2);
+    string memory j_scale = Strings.toString(j * unitScale + 2);
+
+    if (alive && !hasChanged) {
+      // was alive last round
+      square = string(
+        abi.encodePacked('<use href="#l0" ', 'x="', i_scale, '" y="', j_scale, '" />')
+      );
+    } else if (alive && hasChanged) {
+      // case: new born
+      if (representation == 0) {
+        // raw
+        square = string(
+          abi.encodePacked('<use href="#l0" ', 'x="', i_scale, '" y="', j_scale, '" />')
+        );
+      } else if (representation == 1) {
+        square = string(
+          abi.encodePacked('<use href="#b0" ', 'x="', i_scale, '" y="', j_scale, '" />')
+        );
+      } else if (representation == 2) {
+        square = string(
+          abi.encodePacked(
+            '<g transform="translate(',
+            i_scale,
+            ',',
+            j_scale,
+            ')">',
+            '<use href="#l0" />',
+            '<polygon points="36,0 36,36 0,0" fill="',
+            colorMap.bornColor,
+            '">',
+            G0l.returnBornAnimation(colorMap, i, j, representation),
+            '</polygon>',
+            '</g>'
+          )
+        );
+      } else if (representation == 3) {
+        square = string(
+          abi.encodePacked(
+            '<g transform="translate(',
+            i_scale,
+            ',',
+            j_scale,
+            ')">',
+            '<use href="#l0" />',
+            '<polygon points="0,0 0,36 36,36 36,0" fill="',
+            colorMap.bornColor,
+            '">',
+            G0l.returnBornAnimation(colorMap, i, j, representation),
+            '</polygon>',
+            '</g>'
+          )
+        );
+      }
+    } else if (!alive && !hasChanged) {
+      // case: didn't exist in previous round
+      square = string(
+        abi.encodePacked('<use href="#d0" ', 'x="', i_scale, '" y="', j_scale, '" />')
+      );
+    } else if (!alive && hasChanged) {
+      // case: died this round
+      if (representation == 0) {
+        square = string(
+          abi.encodePacked('<use href="#d0" ', 'x="', i_scale, '" y="', j_scale, '" />')
+        );
+      } else if (representation == 1) {
+        square = string(
+          abi.encodePacked('<use href="#p0" transform="translate(', i_scale, ',', j_scale, ')" />')
+        );
+      } else if (representation == 2) {
+        square = string(
+          abi.encodePacked(
+            '<g transform="translate(',
+            i_scale,
+            ',',
+            j_scale,
+            ')">',
+            '<use href="#d0" />',
+            '<polygon points="0,36 36,36 0,0" fill="',
+            colorMap.perishedColor,
+            '">',
+            G0l.returnPerishedAnimation(colorMap, i, j, representation),
+            '</polygon>',
+            '</g>'
+          )
+        );
+      } else if (representation == 3) {
+        square = string(
+          abi.encodePacked(
+            '<g transform="translate(',
+            i_scale,
+            ',',
+            j_scale,
+            ')">',
+            '<use href="#d0" />',
+            '<polygon points="0,0 0,36 36,36 36,0" fill="',
+            colorMap.perishedColor,
+            '">',
+            G0l.returnPerishedAnimation(colorMap, i, j, representation),
+            '</polygon>',
+            '</g>'
+          )
+        );
+      }
+    }
+
+    return square;
   }
 }
