@@ -1,14 +1,11 @@
 pragma solidity >=0.7.0 <0.8.0;
+// pragma abicoder v2;
 import '@openzeppelin/contracts/utils/Strings.sol';
 import {Structs} from './Structs.sol';
 
 library G0l {
-  //   function foo() external pure returns (uint256) {
-  //     return 42;
-  //   }
-
   function returnColor(uint256 paletteNumber, uint256 colorPos)
-    internal
+    external
     pure
     returns (string memory)
   {
@@ -63,6 +60,35 @@ library G0l {
             colorMap.deadColor,
             ';',
             colorMap.deadColor,
+            '" dur="1.',
+            Strings.toString((i * j) % 9),
+            's" repeatCount="indefinite"/>'
+          )
+        );
+    } else {
+      return '';
+    }
+  }
+
+  function returnBornAnimation(
+    Structs.ColorMap memory colorMap,
+    uint256 i,
+    uint256 j,
+    uint256 representation
+  ) internal pure returns (string memory) {
+    //
+    if (representation == 2) {
+      return
+        string(
+          abi.encodePacked(
+            '<animate attributeType="XML" attributeName="fill" values="',
+            colorMap.aliveColor,
+            ';',
+            colorMap.bornColor,
+            ';',
+            colorMap.aliveColor,
+            ';',
+            colorMap.aliveColor,
             '" dur="1.',
             Strings.toString((i * j) % 9),
             's" repeatCount="indefinite"/>'
