@@ -33,7 +33,7 @@ describe('My Dapp', function () {
     // const G0lLib = await ethers.getContractFactory('G0l');
     // G0l = await G0lLib.deploy();
 
-    const YourContract = await ethers.getContractFactory('YourCollectible', {
+    const YourContract = await ethers.getContractFactory('G4m3', {
       // libraries: {
       //   G0l: G0l.address,
       // },
