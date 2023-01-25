@@ -11,6 +11,8 @@ import 'base64-sol/base64.sol';
 
 import './Libraries/HexStrings.sol';
 import './G4m3.sol';
+
+import './Libraries/G0l.sol';
 // import './ToColor.sol';
 //learn more: https://docs.openzeppelin.com/contracts/3.x/erc721 16631332
 
@@ -24,6 +26,8 @@ contract YourCollectible is ERC721, Pausable, Ownable, G4m3 {
   // using ToColor for bytes3;
 
   constructor() ERC721('g4m3 0f l1f3', 'g0l') {
+    // just for testing: todo: remove
+    G0l.foo();
     createTime = block.timestamp;
     _initState();
   }

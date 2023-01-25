@@ -26,11 +26,18 @@ function generateArray(N, min = 1, max = 100) {
 }
 
 describe('My Dapp', function () {
-  const gridDimensions = 8;
+  let G0l;
   let myContract;
 
   async function deployContract() {
-    const YourContract = await ethers.getContractFactory('YourCollectible');
+    const G0lLib = await ethers.getContractFactory('G0l');
+    G0l = await G0lLib.deploy();
+
+    const YourContract = await ethers.getContractFactory('YourCollectible', {
+      libraries: {
+        G0l: G0l.address,
+      },
+    });
     myContract = await YourContract.deploy();
   }
 
