@@ -21,8 +21,8 @@ const main = async () => {
   }
   console.log(" \n")*/
   // linking libraries
-  const G0lLib = await deploy('G0l');
-  // console.log(`deploying G0l at: ${G0lLib.address}`);
+  // const G0lLib = await deploy('G0l');
+  // // console.log(`deploying G0l at: ${G0lLib.address}`);
 
   // deploy the contract with all the artworks forSale
   const yourCollectible = await deploy(
@@ -30,7 +30,7 @@ const main = async () => {
     [],
     {},
     {
-      G0l: G0lLib.address,
+      // G0l: G0lLib.address,
     }
   ); // <-- add in constructor args like line 19 vvvv
 
