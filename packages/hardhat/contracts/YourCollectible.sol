@@ -26,8 +26,6 @@ contract YourCollectible is ERC721, Pausable, Ownable, G4m3 {
   // using ToColor for bytes3;
 
   constructor() ERC721('g4m3 0f l1f3', 'g0l') {
-    // just for testing: todo: remove
-    G0l.foo();
     createTime = block.timestamp;
     _initState();
   }
