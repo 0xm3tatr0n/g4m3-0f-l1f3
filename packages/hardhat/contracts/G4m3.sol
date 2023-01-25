@@ -1,4 +1,5 @@
 pragma solidity >=0.7.0 <0.8.0;
+pragma abicoder v2;
 //SPDX-License-Identifier: MIT
 
 import 'hardhat/console.sol';
@@ -366,91 +367,6 @@ contract G4m3 is ERC721, Pausable, Ownable {
     return defs;
   }
 
-  function renderGameSquare(
-    bool alive,
-    bool hasChanged,
-    uint256 i,
-    uint256 j,
-    Structs.ColorMap memory colorMap,
-    uint256 representation
-  ) internal view returns (string memory) {
-    //
-    string memory square;
-    string memory i_scale = Strings.toString(i * scale + 2);
-    string memory j_scale = Strings.toString(j * scale + 2);
-
-    if (alive && !hasChanged) {
-      // was alive last round
-      square = string(
-        abi.encodePacked('<use href="#l0" ', 'x="', i_scale, '" y="', j_scale, '" />')
-      );
-    } else if (alive && hasChanged) {
-      // case: new born
-      if (representation == 0) {
-        // raw
-        square = string(
-          abi.encodePacked('<use href="#l0" ', 'x="', i_scale, '" y="', j_scale, '" />')
-        );
-      } else if (representation == 1) {
-        square = string(
-          abi.encodePacked('<use href="#b0" ', 'x="', i_scale, '" y="', j_scale, '" />')
-        );
-      } else if (representation == 2) {
-        square = string(
-          abi.encodePacked(
-            '<g transform="translate(',
-            i_scale,
-            ',',
-            j_scale,
-            ')">',
-            '<use href="#l0" />',
-            '<polygon points="36,0 36,36 0,0" fill="',
-            colorMap.bornColor,
-            '">',
-            G0l.returnBornAnimation(colorMap, i, j, representation),
-            '</polygon>',
-            '</g>'
-          )
-        );
-      }
-    } else if (!alive && !hasChanged) {
-      // case: didn't exist in previous round
-      square = string(
-        abi.encodePacked('<use href="#d0" ', 'x="', i_scale, '" y="', j_scale, '" />')
-      );
-    } else if (!alive && hasChanged) {
-      // case: died this round
-      if (representation == 0) {
-        square = string(
-          abi.encodePacked('<use href="#d0" ', 'x="', i_scale, '" y="', j_scale, '" />')
-        );
-      } else if (representation == 1) {
-        square = string(
-          abi.encodePacked('<use href="#p0" transform="translate(', i_scale, ',', j_scale, ')" />')
-        );
-      } else if (representation == 2) {
-        square = string(
-          abi.encodePacked(
-            '<g transform="translate(',
-            i_scale,
-            ',',
-            j_scale,
-            ')">',
-            '<use href="#d0" />',
-            '<polygon points="0,36 36,36 0,0" fill="',
-            colorMap.perishedColor,
-            '">',
-            G0l.returnPerishedAnimation(colorMap, i, j, representation),
-            '</polygon>',
-            '</g>'
-          )
-        );
-      }
-    }
-
-    return square;
-  }
-
   function renderGameGrid(uint256 id) public view returns (string memory) {
     // render that thing
     bool[8][8] memory grid = BitOps.wordToGrid(tokenGridStatesInt[id]);
@@ -479,7 +395,15 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
         // check for stateDiff
         bool hasChanged = BitOps.getBooleanFromIndex(stateDiff, (i * 8 + j));
-        square = renderGameSquare(alive, hasChanged, i, j, colorMap, metaData.representation);
+        square = G0l.renderGameSquare(
+          alive,
+          hasChanged,
+          i,
+          j,
+          colorMap,
+          metaData.representation,
+          scale
+        );
 
         squares[slotCounter] = square;
         slotCounter += 1;
