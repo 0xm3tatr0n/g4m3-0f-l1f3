@@ -190,14 +190,14 @@ function App(props) {
   ]); */
 
   // keep track of a variable from the contract in the local React state:
-  const balance = useContractReader(readContracts, "YourCollectible", "balanceOf", [address]);
+  const balance = useContractReader(readContracts, "G4m3", "balanceOf", [address]);
   console.log("🤗 balance:", balance);
 
   // track total supply
-  const totalSupply = useContractReader(readContracts, "YourCollectible", "totalSupply");
+  const totalSupply = useContractReader(readContracts, "G4m3", "totalSupply");
 
   // 📟 Listen for broadcast events
-  const transferEvents = useEventListener(readContracts, "YourCollectible", "Transfer", localProvider, 1);
+  const transferEvents = useEventListener(readContracts, "G4m3", "Transfer", localProvider, 1);
   console.log("📟 Transfer events:", transferEvents);
 
   //
@@ -213,7 +213,7 @@ function App(props) {
     const updateOwenersCollectibles = async () => {
       const collectibleIdPromises = [];
       for (let i = 0; i < balance; i++) {
-        collectibleIdPromises.push(readContracts.YourCollectible.tokenOfOwnerByIndex(address, i));
+        collectibleIdPromises.push(readContracts.G4m3.tokenOfOwnerByIndex(address, i));
       }
 
       const ids = await Promise.all(collectibleIdPromises);
@@ -223,7 +223,7 @@ function App(props) {
         // console.log(">>> trying to update collectibles now ");
         const uriPromises = [];
         ids.forEach(e => {
-          uriPromises.push(readContracts.YourCollectible.tokenURI(e));
+          uriPromises.push(readContracts.G4m3.tokenURI(e));
         });
 
         const uris = await Promise.all(uriPromises);
@@ -258,7 +258,7 @@ function App(props) {
         const tokenUriPromises = [];
         for (let i = galleryLoadRange[0]; i <= galleryLoadRange[1]; i++) {
           // push promises to array so they can be called together
-          tokenUriPromises.push(readContracts.YourCollectible.tokenURI(i));
+          tokenUriPromises.push(readContracts.G4m3.tokenURI(i));
         }
 
         const allURIs = await Promise.all(tokenUriPromises);
@@ -419,7 +419,7 @@ function App(props) {
                     fontFamily: "monospace",
                   }}
                   onClick={() => {
-                    tx(writeContracts.YourCollectible.mintItem(address, { value: parseEther("0.001") }));
+                    tx(writeContracts.G4m3.mintItem(address, { value: parseEther("0.001") }));
                   }}
                 >
                   mint
@@ -496,13 +496,11 @@ function App(props) {
           </Route>
           <Route path="/debug">
             <div style={{ padding: 32 }}>
-              <Address
-                value={readContracts && readContracts.YourCollectible && readContracts.YourCollectible.address}
-              />
+              <Address value={readContracts && readContracts.G4m3 && readContracts.G4m3.address} />
             </div>
 
             <Contract
-              name="YourCollectible"
+              name="G4m3"
               signer={userProvider.getSigner()}
               provider={localProvider}
               address={address}

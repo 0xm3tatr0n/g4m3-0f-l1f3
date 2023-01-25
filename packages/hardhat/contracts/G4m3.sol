@@ -20,7 +20,7 @@ import './Libraries/BitOps.sol';
 // GET LISTED ON OPENSEA: https://testnets.opensea.io/get-listed/step-two
 import {Structs} from './Libraries/Structs.sol';
 
-contract YourCollectible is ERC721, Pausable, Ownable {
+contract G4m3 is ERC721, Pausable, Ownable {
   using Strings for uint256;
   using HexStrings for uint160;
   using Counters for Counters.Counter;
@@ -397,6 +397,25 @@ contract YourCollectible is ERC721, Pausable, Ownable {
         );
       } else if (representation == 2) {
         // static
+        // square = string(
+        //   abi.encodePacked(
+        //     '<g transform="translate(',
+        //     i_scale,
+        //     ',',
+        //     j_scale,
+        //     ')">',
+        //     '<rect width="',
+        //     s_scale,
+        //     '" height="',
+        //     s_scale,
+        //     '" ',
+        //     ' fill="',
+        //     colorMap.bornColor,
+        //     '"',
+        //     '/>',
+        //     '</g>'
+        //   )
+        // );
         square = string(
           abi.encodePacked(
             '<g transform="translate(',
@@ -404,15 +423,12 @@ contract YourCollectible is ERC721, Pausable, Ownable {
             ',',
             j_scale,
             ')">',
-            '<rect width="',
-            s_scale,
-            '" height="',
-            s_scale,
-            '" ',
-            ' fill="',
+            '<use href="#l0" />',
+            '<polygon points="0,36 36,36 0,0" fill="',
             colorMap.bornColor,
-            '"',
-            '/>',
+            '">',
+            G0l.returnBornAnimation(colorMap, i, j, representation),
+            '</polygon>',
             '</g>'
           )
         );

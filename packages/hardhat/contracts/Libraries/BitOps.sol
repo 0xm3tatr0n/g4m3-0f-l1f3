@@ -5,7 +5,7 @@ import {Structs} from './Structs.sol';
 
 library BitOps {
   function getBooleanFromIndex(uint256 _packedBools, uint256 _boolNumber)
-    internal
+    public
     pure
     returns (bool)
   {
@@ -18,13 +18,13 @@ library BitOps {
     uint256 _packedBools,
     uint256 _boolNumber,
     bool _value
-  ) internal pure returns (uint256) {
+  ) public pure returns (uint256) {
     // set bool value on integer word at position _bolNumber
     if (_value) return _packedBools | (uint256(1) << _boolNumber);
     else return _packedBools & ~(uint256(1) << _boolNumber);
   }
 
-  function getCountOfOnBits(uint256 boolsUint) internal pure returns (uint256) {
+  function getCountOfOnBits(uint256 boolsUint) public pure returns (uint256) {
     // count all the on bits in boolsUint
     uint256 boolsUintCopy = boolsUint;
     uint8 _count = 0;

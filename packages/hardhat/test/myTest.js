@@ -30,13 +30,17 @@ describe('My Dapp', function () {
   let myContract;
 
   async function deployContract() {
-    // const G0lLib = await ethers.getContractFactory('G0l');
-    // G0l = await G0lLib.deploy();
+    const G0lLib = await ethers.getContractFactory('G0l');
+    G0l = await G0lLib.deploy();
+
+    const BitOpsLib = await ethers.getContractFactory('BitOps');
+    BitOps = await BitOpsLib.deploy();
 
     const YourContract = await ethers.getContractFactory('G4m3', {
-      // libraries: {
-      //   G0l: G0l.address,
-      // },
+      libraries: {
+        G0l: G0l.address,
+        BitOps: BitOps.address,
+      },
     });
     myContract = await YourContract.deploy();
   }
