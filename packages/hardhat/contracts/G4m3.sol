@@ -396,26 +396,6 @@ contract G4m3 is ERC721, Pausable, Ownable {
           abi.encodePacked('<use href="#b0" ', 'x="', i_scale, '" y="', j_scale, '" />')
         );
       } else if (representation == 2) {
-        // static
-        // square = string(
-        //   abi.encodePacked(
-        //     '<g transform="translate(',
-        //     i_scale,
-        //     ',',
-        //     j_scale,
-        //     ')">',
-        //     '<rect width="',
-        //     s_scale,
-        //     '" height="',
-        //     s_scale,
-        //     '" ',
-        //     ' fill="',
-        //     colorMap.bornColor,
-        //     '"',
-        //     '/>',
-        //     '</g>'
-        //   )
-        // );
         square = string(
           abi.encodePacked(
             '<g transform="translate(',
@@ -424,7 +404,7 @@ contract G4m3 is ERC721, Pausable, Ownable {
             j_scale,
             ')">',
             '<use href="#l0" />',
-            '<polygon points="0,36 36,36 0,0" fill="',
+            '<polygon points="36,0 36,36 0,0" fill="',
             colorMap.bornColor,
             '">',
             G0l.returnBornAnimation(colorMap, i, j, representation),
@@ -536,10 +516,19 @@ contract G4m3 is ERC721, Pausable, Ownable {
     uint256 arbitrarySelector = metadata.seed % 13;
 
     if (arbitrarySelector < 1) {
+      // raw
       metadata.representation = 0;
     } else if (arbitrarySelector < 3) {
+      // static
       metadata.representation = 1;
+    } else if (arbitrarySelector < 9) {
+      // animated I
+      metadata.representation = 2;
+    } else if (arbitrarySelector < 11) {
+      // animated II
+      metadata.representation = 3;
     } else {
+      // animated generic
       metadata.representation = 2;
     }
     // get data for births & deaths
