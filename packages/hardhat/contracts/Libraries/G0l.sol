@@ -3,6 +3,10 @@ import '@openzeppelin/contracts/utils/Strings.sol';
 import {Structs} from './Structs.sol';
 
 library G0l {
+  function foo() external pure returns (uint256) {
+    return 42;
+  }
+
   function returnColor(uint256 paletteNumber, uint256 colorPos)
     internal
     pure
