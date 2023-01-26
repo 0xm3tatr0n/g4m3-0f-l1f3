@@ -145,8 +145,12 @@ library G0l {
     } else if (metadata.representation == 1) {
       representationName = 'static';
     } else if (metadata.representation == 2) {
-      representationName = 'animated';
+      representationName = 'arrows';
     } else if (metadata.representation == 3) {
+      representationName = 'blocks';
+    } else if (metadata.representation == 4) {
+      representationName = 'pixel';
+    } else if (metadata.representation == 5) {
       representationName = 'circle';
     }
 
@@ -196,7 +200,7 @@ library G0l {
     string memory i_scale;
     string memory j_scale;
 
-    if (representation < 4) {
+    if (representation < 5) {
       // rectangle case
       i_scale = Strings.toString(i * unitScale + 2);
       j_scale = Strings.toString(j * unitScale + 2);
@@ -265,6 +269,23 @@ library G0l {
             j_scale,
             ')">',
             '<use href="#l0" />',
+            '<polygon points="0,36 18,36 18,0 36,0 36,18 0,18" fill="',
+            colorMap.bornColor,
+            '">',
+            G0l.returnBornAnimation(colorMap, i, j, representation),
+            '</polygon>',
+            '</g>'
+          )
+        );
+      } else if (representation == 5) {
+        square = string(
+          abi.encodePacked(
+            '<g transform="translate(',
+            i_scale,
+            ',',
+            j_scale,
+            ')">',
+            '<use href="#l0" />',
             '<circle r="18" fill="',
             colorMap.bornColor,
             '">',
@@ -324,6 +345,23 @@ library G0l {
           )
         );
       } else if (representation == 4) {
+        square = string(
+          abi.encodePacked(
+            '<g transform="translate(',
+            i_scale,
+            ',',
+            j_scale,
+            ')">',
+            '<use href="#d0" />',
+            '<polygon points="0,36 18,36 18,0 36,0 36,18 0,18" fill="',
+            colorMap.perishedColor,
+            '">',
+            G0l.returnPerishedAnimation(colorMap, i, j, representation),
+            '</polygon>',
+            '</g>'
+          )
+        );
+      } else if (representation == 5) {
         square = string(
           abi.encodePacked(
             '<g transform="translate(',
