@@ -193,8 +193,18 @@ library G0l {
   ) internal pure returns (string memory) {
     //
     string memory square;
-    string memory i_scale = Strings.toString(i * unitScale + 2);
-    string memory j_scale = Strings.toString(j * unitScale + 2);
+    string memory i_scale;
+    string memory j_scale;
+
+    if (representation < 4) {
+      // rectangle case
+      i_scale = Strings.toString(i * unitScale + 2);
+      j_scale = Strings.toString(j * unitScale + 2);
+    } else {
+      // circle case
+      i_scale = Strings.toString(i * unitScale + 20);
+      j_scale = Strings.toString(j * unitScale + 20);
+    }
 
     if (alive && !hasChanged) {
       // was alive last round
