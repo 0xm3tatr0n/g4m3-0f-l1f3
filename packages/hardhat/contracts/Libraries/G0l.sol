@@ -246,6 +246,23 @@ library G0l {
             '</g>'
           )
         );
+      } else if (representation == 4) {
+        square = string(
+          abi.encodePacked(
+            '<g transform="translate(',
+            i_scale,
+            ',',
+            j_scale,
+            ')">',
+            '<use href="#l0" />',
+            '<circle cx="18" cy="18" r="18" fill="',
+            colorMap.bornColor,
+            '">',
+            G0l.returnBornAnimation(colorMap, i, j, representation),
+            '</circle>',
+            '</g>'
+          )
+        );
       }
     } else if (!alive && !hasChanged) {
       // case: didn't exist in previous round
@@ -293,6 +310,23 @@ library G0l {
             '">',
             G0l.returnPerishedAnimation(colorMap, i, j, representation),
             '</polygon>',
+            '</g>'
+          )
+        );
+      } else if (representation == 4) {
+        square = string(
+          abi.encodePacked(
+            '<g transform="translate(',
+            i_scale,
+            ',',
+            j_scale,
+            ')">',
+            '<use href="#d0" />',
+            '<circle cx="18" cy="18" r="18" fill="',
+            colorMap.perishedColor,
+            '">',
+            G0l.returnPerishedAnimation(colorMap, i, j, representation),
+            '</circle>',
             '</g>'
           )
         );

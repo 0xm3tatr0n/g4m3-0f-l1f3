@@ -315,27 +315,45 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
     defs = abi.encodePacked('<defs>');
     // add live
-    defs = abi.encodePacked(
-      defs,
-      '<rect id="l0" width="',
-      s_scale,
-      '" height="',
-      s_scale,
-      '" fill="',
-      colorMap.aliveColor,
-      '"></rect>'
-    );
-    // add dead
-    defs = abi.encodePacked(
-      defs,
-      '<rect id="d0" width="',
-      s_scale,
-      '" height="',
-      s_scale,
-      '" fill="',
-      colorMap.deadColor,
-      '"></rect>'
-    );
+
+    if (representation < 4) {
+      defs = abi.encodePacked(
+        defs,
+        '<rect id="l0" width="',
+        s_scale,
+        '" height="',
+        s_scale,
+        '" fill="',
+        colorMap.aliveColor,
+        '"></rect>'
+      );
+      // add dead
+      defs = abi.encodePacked(
+        defs,
+        '<rect id="d0" width="',
+        s_scale,
+        '" height="',
+        s_scale,
+        '" fill="',
+        colorMap.deadColor,
+        '"></rect>'
+      );
+    } else {
+      // circle
+      defs = abi.encodePacked(
+        defs,
+        '<circle id="l0" r="18" fill="',
+        colorMap.aliveColor,
+        '"></circle>'
+      );
+      // add dead
+      defs = abi.encodePacked(
+        defs,
+        '<circle id="d0" r="18" fill="',
+        colorMap.deadColor,
+        '"></circle>'
+      );
+    }
 
     if (representation == 1) {
       // case: static
@@ -452,8 +470,8 @@ contract G4m3 is ERC721, Pausable, Ownable {
       // animated II
       metadata.representation = 3;
     } else {
-      // animated generic
-      metadata.representation = 2;
+      // animated circle
+      metadata.representation = 4;
     }
     // get data for births & deaths
     uint256 stateDiff;
