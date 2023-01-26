@@ -316,7 +316,7 @@ contract G4m3 is ERC721, Pausable, Ownable {
     defs = abi.encodePacked('<defs>');
     // add live
 
-    if (representation < 4) {
+    if (representation < 5) {
       defs = abi.encodePacked(
         defs,
         '<rect id="l0" width="',
@@ -464,14 +464,17 @@ contract G4m3 is ERC721, Pausable, Ownable {
       // static
       metadata.representation = 1;
     } else if (arbitrarySelector < 9) {
-      // animated I
+      // animated arrows
       metadata.representation = 2;
     } else if (arbitrarySelector < 11) {
-      // animated II
+      // animated blocks
       metadata.representation = 3;
+    } else if (arbitrarySelector < 12) {
+      // animated pixel
+      metadata.representation = 4;
     } else {
       // animated circle
-      metadata.representation = 4;
+      metadata.representation = 5;
     }
     // get data for births & deaths
     uint256 stateDiff;
