@@ -209,12 +209,12 @@ library G0l {
 
     if (representation < 5) {
       // rectangle case
-      i_scale = Strings.toString(i * unitScale + 2);
-      j_scale = Strings.toString(j * unitScale + 2);
+      i_scale = Strings.toString(i * unitScale + 2 + 20);
+      j_scale = Strings.toString(j * unitScale + 2 + 20);
     } else {
       // circle case
-      i_scale = Strings.toString(i * unitScale + 20);
-      j_scale = Strings.toString(j * unitScale + 20);
+      i_scale = Strings.toString(i * unitScale + 20 + 20);
+      j_scale = Strings.toString(j * unitScale + 20 + 20);
     }
 
     if (alive && !hasChanged) {
