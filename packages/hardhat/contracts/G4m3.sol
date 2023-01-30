@@ -258,7 +258,7 @@ contract G4m3 is ERC721, Pausable, Ownable {
     // get token gameState as int, convert to grid
     string memory svg = string(
       abi.encodePacked(
-        '<svg width="320" height="320" xmlns="http://www.w3.org/2000/svg">',
+        '<svg width="360" height="360" xmlns="http://www.w3.org/2000/svg">',
         renderGameGrid(id),
         '</svg>'
       )
