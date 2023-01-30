@@ -105,6 +105,12 @@ module.exports = {
         mnemonic: mnemonic(),
       },
     },
+    polygon_mumbai: {
+      url: 'https://rpc-mumbai.maticvigil.com',
+      accounts: {
+        mnemonic: mnemonic(),
+      },
+    },
   },
   solidity: {
     compilers: [
