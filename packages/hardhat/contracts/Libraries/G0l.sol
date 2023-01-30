@@ -5,7 +5,7 @@ import {Structs} from './Structs.sol';
 
 library G0l {
   function returnColor(uint256 paletteNumber, uint256 colorPos)
-    external
+    public
     pure
     returns (string memory)
   {
@@ -122,37 +122,44 @@ library G0l {
     return trends;
   }
 
+  function generateRepresentationName(uint256 representation) public pure returns (string memory) {
+    if (representation == 0) {
+      return 'raw';
+    } else if (representation == 1) {
+      return 'static';
+    } else if (representation == 2) {
+      return 'arrows';
+    } else if (representation == 3) {
+      return 'blocks';
+    } else if (representation == 4) {
+      return 'pixel';
+    } else if (representation == 5) {
+      return 'circle';
+    }
+  }
+
+  function generateTimesName(uint256 times) public pure returns (string memory) {
+    string memory timesName;
+    if (times == 0) {
+      timesName = 'stable';
+    } else if (times == 1) {
+      timesName = 'good';
+    } else if (times == 2) {
+      timesName = 'bad';
+    } else if (times == 3) {
+      timesName = 'zero';
+    }
+
+    return timesName;
+  }
+
   function generateAttributeString(Structs.MetaData memory metadata)
     internal
     pure
     returns (string memory)
   {
-    string memory timesName;
-    if (metadata.times == 0) {
-      timesName = 'stable';
-    } else if (metadata.times == 1) {
-      timesName = 'good';
-    } else if (metadata.times == 2) {
-      timesName = 'bad';
-    } else if (metadata.times == 3) {
-      timesName = 'zero';
-    }
-
-    string memory representationName;
-
-    if (metadata.representation == 0) {
-      representationName = 'raw';
-    } else if (metadata.representation == 1) {
-      representationName = 'static';
-    } else if (metadata.representation == 2) {
-      representationName = 'arrows';
-    } else if (metadata.representation == 3) {
-      representationName = 'blocks';
-    } else if (metadata.representation == 4) {
-      representationName = 'pixel';
-    } else if (metadata.representation == 5) {
-      representationName = 'circle';
-    }
+    string memory timesName = generateTimesName(metadata.times);
+    string memory representationName = generateRepresentationName(metadata.representation);
 
     string memory attributeString = string(
       abi.encodePacked(
