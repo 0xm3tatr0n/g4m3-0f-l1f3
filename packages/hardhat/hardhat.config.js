@@ -105,7 +105,7 @@ module.exports = {
         mnemonic: mnemonic(),
       },
     },
-    polygon_mumbai: {
+    polygonMumbai: {
       url: 'https://rpc-mumbai.maticvigil.com',
       accounts: {
         mnemonic: mnemonic(),
@@ -146,7 +146,11 @@ module.exports = {
   etherscan: {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
-    apiKey: 'PSW8C433Q667DVEX5BCRMGNAH9FSGFZ7Q8',
+    // apiKey: 'PSW8C433Q667DVEX5BCRMGNAH9FSGFZ7Q8',
+    apiKey: {
+      mainnet: '1Q4SS4A66YIHZNMTUEYMTUAY9DC9WIFNFQ',
+      polygonMumbai: '6FBQSDUDJAJXT13SMTDNZ6ZJCS3Z33DJ9G',
+    },
   },
   mocha: {
     timeout: 100000000,

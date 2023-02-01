@@ -5,9 +5,10 @@ const { config, ethers, tenderly, run } = require('hardhat');
 const { utils } = require('ethers');
 const R = require('ramda');
 const helpers = require('@nomicfoundation/hardhat-network-helpers');
+require('@nomiclabs/hardhat-etherscan');
 
 const main = async () => {
-  console.log(chalk.red('main is running'));
+  // console.log(chalk.red('main is running'));
   console.log('\n\n 📡 Deploying...\n');
 
   // read in all the assets to get their IPFS hash...
@@ -22,7 +23,9 @@ const main = async () => {
   console.log(" \n")*/
   // linking libraries
   const G0lLib = await deploy('G0l');
+  // await G0lLib.wait();
   const BitOpsLib = await deploy('BitOps');
+  // await BitOpsLib.wait();
 
   // deploy the contract with all the artworks forSale
   const yourCollectible = await deploy(
@@ -44,17 +47,17 @@ const main = async () => {
   // const examplePriceOracle = await deploy("ExamplePriceOracle")
   // const smartContractWallet = await deploy("SmartContractWallet",[exampleToken.address,examplePriceOracle.address])
 
-  //If you want to send value to an address from the deployer
-  const deployerWallet = ethers.provider.getSigner();
-  await deployerWallet.sendTransaction({
-    to: '0x5B310560815EaF364E5876908574b4a9c6eC1B7e',
-    value: ethers.utils.parseEther('10'),
-  });
+  // //If you want to send value to an address from the deployer
+  // const deployerWallet = ethers.provider.getSigner();
+  // await deployerWallet.sendTransaction({
+  //   to: '0x5B310560815EaF364E5876908574b4a9c6eC1B7e',
+  //   value: ethers.utils.parseEther('10'),
+  // });
 
-  await deployerWallet.sendTransaction({
-    to: '0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295',
-    value: ethers.utils.parseEther('10'),
-  });
+  // await deployerWallet.sendTransaction({
+  //   to: '0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295',
+  //   value: ethers.utils.parseEther('10'),
+  // });
 
   /*
   //If you want to send some ETH to a contract on deploy (make your constructor payable!)
@@ -80,13 +83,12 @@ const main = async () => {
   */
 
   // If you want to verify your contract on etherscan
-  /*
-  console.log(chalk.blue('verifying on etherscan'))
-  await run("verify:verify", {
-    address: yourContract.address,
+
+  console.log(chalk.blue('verifying on etherscan'));
+  await run('verify:verify', {
+    address: yourCollectible.address,
     // constructorArguments: args // If your contract has constructor arguments, you can pass them as an array
-  })
-  */
+  });
 
   console.log(
     ' 💾  Artifacts (address, abi, and args) saved to: ',
@@ -94,21 +96,21 @@ const main = async () => {
     '\n\n'
   );
 
-  // mint a bunch at deploy time to have a collection right away
-  const MINTS_10 = 4; // how many times to mintMany, max 10 per transaction
-  for (let i = 0; i < MINTS_10; i++) {
-    const minted = await yourCollectible.mintMany(
-      '0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295',
-      10,
-      { value: ethers.utils.parseEther((0.01 * 10).toString()) }
-    );
-    await minted.wait(1);
-    console.log(minted);
-  }
+  // // mint a bunch at deploy time to have a collection right away
+  // const MINTS_10 = 4; // how many times to mintMany, max 10 per transaction
+  // for (let i = 0; i < MINTS_10; i++) {
+  //   const minted = await yourCollectible.mintMany(
+  //     '0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295',
+  //     10,
+  //     { value: ethers.utils.parseEther((0.01 * 10).toString()) }
+  //   );
+  //   await minted.wait(1);
+  //   console.log(minted);
+  // }
 };
 
 const deploy = async (contractName, _args = [], overrides = {}, libraries = {}) => {
-  console.log(chalk.red('deploy is running'));
+  // console.log(chalk.red('deploy is running'));
   console.log(` 🛰  Deploying: ${contractName}`);
 
   const contractArgs = _args || [];
