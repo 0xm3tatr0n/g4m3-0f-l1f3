@@ -23,9 +23,9 @@ const main = async () => {
   console.log(" \n")*/
   // linking libraries
   const G0lLib = await deploy('G0l');
-  // await G0lLib.wait();
+  await G0lLib.deployTransaction.wait(6);
   const BitOpsLib = await deploy('BitOps');
-  // await BitOpsLib.wait();
+  await BitOpsLib.deployTransaction.wait(6);
 
   // deploy the contract with all the artworks forSale
   const yourCollectible = await deploy(
