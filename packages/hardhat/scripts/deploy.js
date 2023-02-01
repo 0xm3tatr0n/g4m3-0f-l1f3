@@ -38,7 +38,7 @@ const main = async () => {
     }
   ); // <-- add in constructor args like line 19 vvvv
 
-  await yourCollectible.deployTransaction.wait(3);
+  await yourCollectible.deployTransaction.wait(10);
 
   await yourCollectible.transferOwnership('0x5B310560815EaF364E5876908574b4a9c6eC1B7e');
 
