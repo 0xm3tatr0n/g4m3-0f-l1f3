@@ -31,7 +31,7 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
   constructor() ERC721('g4m3 0f l1f3', 'g0l') {
     createTime = block.timestamp;
-    _initState();
+    // _initState();
   }
 
   function pause() public onlyOwner {
