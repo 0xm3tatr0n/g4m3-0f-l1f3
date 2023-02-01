@@ -38,7 +38,9 @@ const main = async () => {
     }
   ); // <-- add in constructor args like line 19 vvvv
 
-  yourCollectible.transferOwnership('0x5B310560815EaF364E5876908574b4a9c6eC1B7e');
+  await yourCollectible.deployTransaction.wait(3);
+
+  await yourCollectible.transferOwnership('0x5B310560815EaF364E5876908574b4a9c6eC1B7e');
 
   //const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
   //const secondContract = await deploy("SecondContract")
