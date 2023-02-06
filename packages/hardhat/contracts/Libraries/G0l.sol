@@ -13,40 +13,70 @@ library G0l {
     // console.log('palette no, pos: ', paletteNumber, colorPos);
     string[7][22] memory colorPalettes = [
       // background, live, dead, born0, born1, perished0, perished1
-      // low density times / rural
-      // stable
+      // 0 0/0: bad. rural, shrinking slowly
+      // 1 0/1: bad. rural, shrinking slowly
+      // 2 1/0: bad. rural, shrinking rapidly
+      // 3 1/1: bad. rural, shrinking rapidly
+      // 4 2/0: good. urban, shrinking slowly
+      // 5 2/1: good. urban, shrinking slowly
+      // 6 3/0: good. urban, shrinking rapidly
+      // 7 3/1: good. urban, shrinking rapidly
+      // 8 4/0: good. rural, growing slowly
+      // 9 4/1: good. rural, growing slowly
+      // 10 5/0: good. rural, growing rapidly
+      // 11 5/1: good. rural, growing rapidly
+      // 12 6/0: bad: urban, growing slowly
+      // 13 6/1: bad: urban, growing slowly
+      // 14 7/0: bad: urban, growing rapidly
+      // 15 7/1: bad: urban, growing rapidly
+      // 16 8/0: urban. zero net change.
+      // 17 8/1: urban. zero net change.
+      // 18 9/0: rural. zero net change.
+      // 19 9/1: rural. zero net change.
+
+      // 0: bad. rural, shrinking slowly
       ['#EDEBD7', '#E3B23C', '#423E37', '#17BEBB', '#74A57F', '#FE6D73', '#7D5BA6'],
-      // good
+      // 1: bad. rural, shrinking rapidly
       ['#071E22', '#FF1053', '#251101', '#5BC0EB', '#D2F898', '#495159', '#3D3522'],
-      // bad
+      // 2: good. urban, shrinking slowly
       ['#1C7C54', '#A80874', '#E3D8F1', '#86BBD8', '#33658A', '#FF7F11', '#F0F66E'],
-      // zero
+      // 3: good. urban, shrinking rapidly
       ['#E6FDFF', '#87FF65', '#C04CFD', '#5E2BFF', '#D2F898', '#ED254E', '#EADEDA'],
-      // new ones, high density times // urban
-      // stable
+      // 4: good. rural, growing slowly
       ['#34287E', '#1E62AB', '#423E37', '#92B83C', '#469D45', '#FAED24', '#C7381D'],
-      // good
+      // 5: good. rural, growing rapidly
       ['#ff206e', '#fbff12', '#41ead4', '#fbff12', '#fbff12', '#fbff12', '#fbff12'],
-      // bad
+      // 6: bad: urban, growing slowly
       ['#201335', '#f78154', '#201335', '#5fad56', '#4d9078', '#f78154', '#b4436c'],
-      // zero
+      // 7: bad: urban, growing rapidly
       ['#212529', '#f8f9fa', '#343a40', '#dee2e6', '#dee2e6', '#495057', '#495057'],
-      // not in use yet:
-      // monochrome
+      // 8: urban. zero net change.
       ['#061A40', '#003559', '#B9D6F2', '#006DAA', '#B9D6F2', '#003559', '#BFD7EA'],
+      // 9: rural. zero net change.
       ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#a0c4ff', '#bdb2ff'],
+      // 10
       ['#FFFFFF', '#C2E812', '#BFCBC2', '#91F5AD', '#91F5AD', '#FF934F', '#FF934F'],
+      // 11
       ['#6699CC', '#A23E48', '#FFF275', '#FF3C38', '#FF8C42', '#6699CC', '#6699CC'],
-      // monochrome
+      // 12
       ['#061A40', '#003559', '#B9D6F2', '#006DAA', '#B9D6F2', '#003559', '#BFD7EA'],
+      // 13
       ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#a0c4ff', '#bdb2ff'],
+      // 14
       ['#FFFFFF', '#C2E812', '#BFCBC2', '#91F5AD', '#91F5AD', '#FF934F', '#FF934F'],
+      // 15
       ['#6699CC', '#A23E48', '#FFF275', '#FF3C38', '#FF8C42', '#6699CC', '#6699CC'],
+      // 16
       ['#FFFFFF', '#C2E812', '#BFCBC2', '#91F5AD', '#91F5AD', '#FF934F', '#FF934F'],
+      // 17
       ['#6699CC', '#A23E48', '#FFF275', '#FF3C38', '#FF8C42', '#6699CC', '#6699CC'],
+      // 18
       ['#6699CC', '#A23E48', '#FFF275', '#FF3C38', '#FF8C42', '#6699CC', '#6699CC'],
+      // 19
       ['#FFFFFF', '#C2E812', '#BFCBC2', '#91F5AD', '#91F5AD', '#FF934F', '#FF934F'],
+      // 20
       ['#6699CC', '#A23E48', '#FFF275', '#FF3C38', '#FF8C42', '#6699CC', '#6699CC'],
+      // 21
       ['#6699CC', '#A23E48', '#FFF275', '#FF3C38', '#FF8C42', '#6699CC', '#6699CC']
     ];
 
