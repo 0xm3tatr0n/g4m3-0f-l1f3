@@ -2,6 +2,7 @@ pragma solidity >=0.7.0 <0.8.0;
 // pragma abicoder v2;
 import '@openzeppelin/contracts/utils/Strings.sol';
 import {Structs} from './Structs.sol';
+import 'hardhat/console.sol';
 
 library G0l {
   function returnColor(uint256 paletteNumber, uint256 colorPos)
@@ -9,7 +10,8 @@ library G0l {
     pure
     returns (string memory)
   {
-    string[7][12] memory colorPalettes = [
+    // console.log('palette no, pos: ', paletteNumber, colorPos);
+    string[7][22] memory colorPalettes = [
       // background, live, dead, born0, born1, perished0, perished1
       // low density times / rural
       // stable
@@ -34,10 +36,20 @@ library G0l {
       ['#061A40', '#003559', '#B9D6F2', '#006DAA', '#B9D6F2', '#003559', '#BFD7EA'],
       ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#a0c4ff', '#bdb2ff'],
       ['#FFFFFF', '#C2E812', '#BFCBC2', '#91F5AD', '#91F5AD', '#FF934F', '#FF934F'],
+      ['#6699CC', '#A23E48', '#FFF275', '#FF3C38', '#FF8C42', '#6699CC', '#6699CC'],
+      // monochrome
+      ['#061A40', '#003559', '#B9D6F2', '#006DAA', '#B9D6F2', '#003559', '#BFD7EA'],
+      ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#a0c4ff', '#bdb2ff'],
+      ['#FFFFFF', '#C2E812', '#BFCBC2', '#91F5AD', '#91F5AD', '#FF934F', '#FF934F'],
+      ['#6699CC', '#A23E48', '#FFF275', '#FF3C38', '#FF8C42', '#6699CC', '#6699CC'],
+      ['#FFFFFF', '#C2E812', '#BFCBC2', '#91F5AD', '#91F5AD', '#FF934F', '#FF934F'],
+      ['#6699CC', '#A23E48', '#FFF275', '#FF3C38', '#FF8C42', '#6699CC', '#6699CC'],
+      ['#6699CC', '#A23E48', '#FFF275', '#FF3C38', '#FF8C42', '#6699CC', '#6699CC'],
+      ['#FFFFFF', '#C2E812', '#BFCBC2', '#91F5AD', '#91F5AD', '#FF934F', '#FF934F'],
+      ['#6699CC', '#A23E48', '#FFF275', '#FF3C38', '#FF8C42', '#6699CC', '#6699CC'],
       ['#6699CC', '#A23E48', '#FFF275', '#FF3C38', '#FF8C42', '#6699CC', '#6699CC']
     ];
 
-    // return colorsRainbow[palettePos];
     return colorPalettes[paletteNumber][colorPos];
   }
 
@@ -138,6 +150,63 @@ library G0l {
     }
   }
 
+  function generateTimesNumber(
+    // individual variables to make function public
+    uint256 popUp,
+    uint256 popDiff,
+    uint256 seed,
+    uint256 density
+  ) public pure returns (uint256) {
+    // (replicating current state to get started somewhere. better would be better.)
+    // should commit to final number of pallettes: 24?
+    // trying to figure out dramaturgy of times
+    bool densityThreshold = density >= 25;
+
+    // determin if population difference is above threshold
+    bool diffThreshold = popDiff > 3;
+
+    // initialize times variable
+    uint256 times = 0;
+    // change times depending on population evolution vs. previous round
+    if (popUp == 0 && densityThreshold) {
+      // population low & shrinking
+      // rural
+      // bad times
+      times = diffThreshold ? 1 : 0; // rapid change : slow change
+    } else if (popUp == 0 && densityThreshold) {
+      // population high & shrinking
+      // urban
+      // good times
+      times = diffThreshold ? 3 : 2; // rapid change : slow change
+    } else if (popUp == 1 && densityThreshold) {
+      // population low & growing
+      // rural
+      // good time
+      times = diffThreshold ? 5 : 4; // rapid change : slow change
+    } else if (popUp == 1 && densityThreshold) {
+      // population high & growing
+      // urban
+      // bad time
+      times = diffThreshold ? 7 : 6; // rapid change : slow change
+    } else if (popUp == 99) {
+      // population remained constant
+      // low probability
+      if (densityThreshold) {
+        //
+        times = 8;
+      } else {
+        //
+        times = 9;
+      }
+    }
+
+    // shift "randomly"
+
+    times = (times * 2) + ((seed % 2));
+
+    return times;
+  }
+
   function generateTimesName(uint256 times) public pure returns (string memory) {
     string memory timesName;
     if (times == 0) {
@@ -163,7 +232,7 @@ library G0l {
 
     string memory attributeString = string(
       abi.encodePacked(
-        '", "attributes": [{"trait_type": "generation", "value": "#',
+        ' "attributes": [{"trait_type": "generation", "value": "#',
         metadata.generation,
         '"},',
         '{"trait_type" : "density", "value": "',

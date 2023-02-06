@@ -58,7 +58,7 @@ function GalleryControl(props) {
   const { zoomLevel, setZoomLevel, totalSupply, setGalleryLoadRange } = props;
 
   const [paginationCurrent, setPaginationCurrent] = useState(1);
-  const [pageSize, setPageSize] = useState(30);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     // handle data loading when params change
@@ -98,7 +98,7 @@ function GalleryControl(props) {
       <Col span={12}>
         <Pagination
           defaultCurrent={paginationCurrent}
-          defaultPageSize={30}
+          defaultPageSize={10}
           total={totalSupply}
           onChange={onChangePage}
           onShowSizeChange={onShowSizeChange}
