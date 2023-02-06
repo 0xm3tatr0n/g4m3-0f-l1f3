@@ -1,53 +1,74 @@
 /* eslint no-use-before-define: "warn" */
 const fs = require('fs');
 const chalk = require('chalk');
-const { config, ethers, tenderly, run } = require('hardhat');
+const { config, ethers, tenderly, run, network } = require('hardhat');
 const { utils } = require('ethers');
 const R = require('ramda');
 const helpers = require('@nomicfoundation/hardhat-network-helpers');
 require('@nomiclabs/hardhat-etherscan');
 
 const main = async () => {
-  // console.log(chalk.red('main is running'));
-  console.log('\n\n 📡 Deploying...\n');
+  console.log(`\n\n 📡 Deploying to ${network.name}...\n`);
 
-  // read in all the assets to get their IPFS hash...
-  /*let uploadedAssets = JSON.parse(fs.readFileSync("./uploaded.json"))
-  let bytes32Array = []
-  for(let a in uploadedAssets){
-    console.log(" 🏷 IPFS:",a)
-    let bytes32 = utils.id(a)
-    console.log(" #️⃣ hashed:",bytes32)
-    bytes32Array.push(bytes32)
-  }
-  console.log(" \n")*/
-  // linking libraries
-  const G0lLib = await deploy('G0l');
-  await G0lLib.deployTransaction.wait(6);
-  const BitOpsLib = await deploy('BitOps');
-  await BitOpsLib.deployTransaction.wait(6);
+  // common variables
+  let G0lLib, BitOpsLib, yourCollectible;
 
-  // deploy the contract with all the artworks forSale
-  const yourCollectible = await deploy(
-    'G4m3',
-    [],
-    {},
-    {
-      G0l: G0lLib.address,
-      BitOps: BitOpsLib.address,
+  if (network.name == 'localhost') {
+    // deploy to localhost/hardhat
+    // libraries first, no need to wait
+    G0lLib = await deploy('G0l');
+    BitOpsLib = await deploy('BitOps');
+
+    yourCollectible = await deploy(
+      'G4m3',
+      [],
+      {},
+      {
+        G0l: G0lLib.address,
+        BitOps: BitOpsLib.address,
+      }
+    );
+
+    // mint a bunch at deploy time to have a collection right away
+    const MINTS_10 = 30; // how many times to mintMany, max 10 per transaction
+    for (let i = 0; i < MINTS_10; i++) {
+      const minted = await yourCollectible.mintMany(
+        '0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295',
+        10,
+        { value: ethers.utils.parseEther((0.01 * 10).toString()) }
+      );
+      await minted.wait(1);
+      console.log(minted);
     }
-  ); // <-- add in constructor args like line 19 vvvv
+  } else {
+    // deploy to other environment
+    // linking libraries
+    G0lLib = await deploy('G0l');
+    await G0lLib.deployTransaction.wait(6);
+    BitOpsLib = await deploy('BitOps');
+    await BitOpsLib.deployTransaction.wait(6);
 
-  await yourCollectible.deployTransaction.wait(10);
+    yourCollectible = await deploy(
+      'G4m3',
+      [],
+      {},
+      {
+        G0l: G0lLib.address,
+        BitOps: BitOpsLib.address,
+      }
+    );
+
+    // wait for a bit
+    await yourCollectible.deployTransaction.wait(10);
+
+    console.log(chalk.blue('verifying on etherscan'));
+    await run('verify:verify', {
+      address: yourCollectible.address,
+      // constructorArguments: args // If your contract has constructor arguments, you can pass them as an array
+    });
+  }
 
   await yourCollectible.transferOwnership('0x5B310560815EaF364E5876908574b4a9c6eC1B7e');
-
-  //const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
-  //const secondContract = await deploy("SecondContract")
-
-  // const exampleToken = await deploy("ExampleToken")
-  // const examplePriceOracle = await deploy("ExamplePriceOracle")
-  // const smartContractWallet = await deploy("SmartContractWallet",[exampleToken.address,examplePriceOracle.address])
 
   // //If you want to send value to an address from the deployer
   // const deployerWallet = ethers.provider.getSigner();
@@ -56,59 +77,13 @@ const main = async () => {
   //   value: ethers.utils.parseEther('10'),
   // });
 
-  // await deployerWallet.sendTransaction({
-  //   to: '0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295',
-  //   value: ethers.utils.parseEther('10'),
-  // });
-
-  /*
-  //If you want to send some ETH to a contract on deploy (make your constructor payable!)
-  const yourContract = await deploy("YourContract", [], {
-  value: ethers.utils.parseEther("0.05")
-  });
-  */
-
-  /*
-  //If you want to link a library into your contract:
-  // reference: https://github.com/austintgriffith/scaffold-eth/blob/using-libraries-example/packages/hardhat/scripts/deploy.js#L19
-  const yourContract = await deploy("YourContract", [], {}, {
-   LibraryName: **LibraryAddress**
-  });
-  */
-
-  //If you want to verify your contract on tenderly.co (see setup details in the scaffold-eth README!)
-  /*
-  await tenderlyVerify(
-    {contractName: "YourContract",
-     contractAddress: yourContract.address
-  })
-  */
-
   // If you want to verify your contract on etherscan
-
-  console.log(chalk.blue('verifying on etherscan'));
-  await run('verify:verify', {
-    address: yourCollectible.address,
-    // constructorArguments: args // If your contract has constructor arguments, you can pass them as an array
-  });
 
   console.log(
     ' 💾  Artifacts (address, abi, and args) saved to: ',
     chalk.blue('packages/hardhat/artifacts/'),
     '\n\n'
   );
-
-  // // mint a bunch at deploy time to have a collection right away
-  // const MINTS_10 = 4; // how many times to mintMany, max 10 per transaction
-  // for (let i = 0; i < MINTS_10; i++) {
-  //   const minted = await yourCollectible.mintMany(
-  //     '0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295',
-  //     10,
-  //     { value: ethers.utils.parseEther((0.01 * 10).toString()) }
-  //   );
-  //   await minted.wait(1);
-  //   console.log(minted);
-  // }
 };
 
 const deploy = async (contractName, _args = [], overrides = {}, libraries = {}) => {

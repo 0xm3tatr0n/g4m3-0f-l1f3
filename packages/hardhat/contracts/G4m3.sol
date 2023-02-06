@@ -223,7 +223,7 @@ contract G4m3 is ERC721, Pausable, Ownable {
   // Token Rendering
 
   function tokenURI(uint256 id) public view override returns (string memory) {
-    require(_exists(id), 'no token');
+    require(_exists(id), 'nt');
     string memory image = Base64.encode(bytes(generateSVGofTokenById(id)));
     Structs.MetaData memory metadata = generateMetadata(id);
 
@@ -238,8 +238,7 @@ contract G4m3 is ERC721, Pausable, Ownable {
                 metadata.name,
                 '", "description":"',
                 metadata.description,
-                '", "external_url":"https://burnyboys.com/token/',
-                id.toString(),
+                '",',
                 G0l.generateAttributeString(metadata),
                 '"owner":"',
                 (uint160(ownerOf(id))).toHexString(20),
@@ -273,32 +272,23 @@ contract G4m3 is ERC721, Pausable, Ownable {
     returns (Structs.ColorMap memory)
   {
     Structs.ColorMap memory colorMap;
-
-    uint256 selectedColorScheme = metadata.populationDensity < 25
-      ? metadata.times
-      : metadata.times + 4;
-
     // modify selected palette
-    if (metadata.seed % 42 < 13) {
-      selectedColorScheme = selectedColorScheme + 4;
-    }
-
-    colorMap.backgroundColor = G0l.returnColor(selectedColorScheme, 0);
-    colorMap.aliveColor = G0l.returnColor(selectedColorScheme, 1);
-    colorMap.deadColor = G0l.returnColor(selectedColorScheme, 2);
+    colorMap.backgroundColor = G0l.returnColor(metadata.times, 0);
+    colorMap.aliveColor = G0l.returnColor(metadata.times, 1);
+    colorMap.deadColor = G0l.returnColor(metadata.times, 2);
 
     // handle birth's intensity
     if (metadata.birthCount < 6) {
-      colorMap.bornColor = G0l.returnColor(selectedColorScheme, 3);
+      colorMap.bornColor = G0l.returnColor(metadata.times, 3);
     } else {
-      colorMap.bornColor = G0l.returnColor(selectedColorScheme, 4);
+      colorMap.bornColor = G0l.returnColor(metadata.times, 4);
     }
 
     // handle death intensity
     if (metadata.deathCount < 6) {
-      colorMap.perishedColor = G0l.returnColor(selectedColorScheme, 5);
+      colorMap.perishedColor = G0l.returnColor(metadata.times, 5);
     } else {
-      colorMap.perishedColor = G0l.returnColor(selectedColorScheme, 6);
+      colorMap.perishedColor = G0l.returnColor(metadata.times, 6);
     }
 
     return colorMap;
@@ -449,8 +439,8 @@ contract G4m3 is ERC721, Pausable, Ownable {
   function generateMetadata(uint256 id) internal view returns (Structs.MetaData memory) {
     Structs.MetaData memory metadata;
     metadata.populationDensity = BitOps.getCountOfOnBits(tokenGridStatesInt[id]);
-    metadata.name = string(abi.encodePacked('gam3 0f l1f3 #', id.toString()));
-    metadata.description = string(abi.encodePacked('gam3 0f l1f3 #', id.toString()));
+    metadata.name = string(abi.encodePacked('g4m3 0f l1f3 #', id.toString()));
+    metadata.description = string(abi.encodePacked('g4m3 0f l1f3 #', id.toString()));
     metadata.generation = Strings.toString(tokenGeneration[id]);
 
     // "arbitrary" value to mix things up (not random because deterministic)
@@ -491,24 +481,21 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
       // determine prosperity levels
       metadata.popDiff = populationTrends.popDiff;
+      metadata.times = uint8(
+        G0l.generateTimesNumber(
+          populationTrends.up,
+          populationTrends.popDiff,
+          metadata.seed,
+          metadata.populationDensity
+        )
+      );
 
       if (populationTrends.up == 1) {
         metadata.trend = 'up';
-        if (populationTrends.popDiff > 2) {
-          metadata.times = 1;
-        } else {
-          metadata.times = 0;
-        }
       } else if (populationTrends.up == 0) {
         metadata.trend = 'down';
-        if (populationTrends.popDiff > 2) {
-          metadata.times = 2;
-        } else {
-          metadata.times = 0;
-        }
       } else {
-        metadata.trend = 'none';
-        metadata.times = 3;
+        metadata.trend = 'constant';
       }
     }
 
