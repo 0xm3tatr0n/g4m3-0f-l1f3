@@ -181,12 +181,10 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
         if (oldGameStateFromInt[i][j] == true) {
           if (total < 2 || total > 3) {
-            // todo: change this!
             newGameStateFromInt[i][j] = false;
           }
         } else {
           if (total == 3) {
-            // todo: change this!
             newGameStateFromInt[i][j] = true;
           }
         }
