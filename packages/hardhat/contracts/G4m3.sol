@@ -237,7 +237,16 @@ contract G4m3 is ERC721, Pausable, Ownable {
                 '", "description":"',
                 metadata.description,
                 '",',
-                G0l.generateAttributeString(metadata),
+                G0l.generateAttributeString(
+                  metadata.times,
+                  metadata.representation,
+                  metadata.generation,
+                  metadata.populationDensity,
+                  metadata.birthCount,
+                  metadata.deathCount,
+                  metadata.trend,
+                  metadata.popDiff
+                ),
                 '"owner":"',
                 (uint160(ownerOf(id))).toHexString(20),
                 '", "image": "',

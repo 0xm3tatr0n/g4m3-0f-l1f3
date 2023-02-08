@@ -262,33 +262,38 @@ library G0l {
     return timesName;
   }
 
-  function generateAttributeString(Structs.MetaData memory metadata)
-    internal
-    pure
-    returns (string memory)
-  {
-    string memory timesName = generateTimesName(metadata.times);
-    string memory representationName = generateRepresentationName(metadata.representation);
+  function generateAttributeString(
+    uint256 times,
+    uint8 representation,
+    string calldata generation,
+    uint256 populationDensity,
+    uint256 birthCount,
+    uint256 deathCount,
+    string calldata trend,
+    uint256 popDiff
+  ) public pure returns (string memory) {
+    string memory timesName = generateTimesName(times);
+    string memory representationName = generateRepresentationName(representation);
 
     string memory attributeString = string(
       abi.encodePacked(
         ' "attributes": [{"trait_type": "generation", "value": "#',
-        metadata.generation,
+        generation,
         '"},',
         '{"trait_type" : "density", "value": "',
-        Strings.toString(metadata.populationDensity),
+        Strings.toString(populationDensity),
         '"},',
         '{"trait_type" : "births", "value": "',
-        Strings.toString(metadata.birthCount),
+        Strings.toString(birthCount),
         '"},',
         '{"trait_type" : "deaths", "value": "',
-        Strings.toString(metadata.deathCount),
+        Strings.toString(deathCount),
         '"},',
         '{"trait_type" : "trend", "value": "',
-        metadata.trend,
+        trend,
         '"},',
         '{"trait_type" : "population_difference", "value": "',
-        Strings.toString(metadata.popDiff),
+        Strings.toString(popDiff),
         '"},',
         '{"trait_type" : "times", "value": "',
         timesName,
