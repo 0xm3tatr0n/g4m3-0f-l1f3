@@ -215,15 +215,48 @@ library G0l {
   }
 
   function generateTimesName(uint256 times) public pure returns (string memory) {
+    // what logic for naming could be applied?
     string memory timesName;
     if (times == 0) {
-      timesName = 'stable';
+      timesName = 't0';
     } else if (times == 1) {
-      timesName = 'good';
+      timesName = 't1';
     } else if (times == 2) {
-      timesName = 'bad';
+      timesName = 't2';
     } else if (times == 3) {
-      timesName = 'zero';
+      timesName = 't3';
+    } else if (times == 4) {
+      timesName = 't4';
+    } else if (times == 5) {
+      timesName = 't5';
+    } else if (times == 6) {
+      timesName = 't6';
+    } else if (times == 7) {
+      timesName = 't7';
+    } else if (times == 8) {
+      timesName = 't8';
+    } else if (times == 9) {
+      timesName = 't9';
+    } else if (times == 10) {
+      timesName = 't10';
+    } else if (times == 11) {
+      timesName = 't11';
+    } else if (times == 12) {
+      timesName = 't12';
+    } else if (times == 13) {
+      timesName = 't13';
+    } else if (times == 14) {
+      timesName = 't14';
+    } else if (times == 15) {
+      timesName = 't15';
+    } else if (times == 16) {
+      timesName = 't16';
+    } else if (times == 17) {
+      timesName = 't17';
+    } else if (times == 18) {
+      timesName = 't18';
+    } else if (times == 19) {
+      timesName = 't19';
     }
 
     return timesName;
