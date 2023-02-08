@@ -11,73 +11,50 @@ library G0l {
     returns (string memory)
   {
     // console.log('palette no, pos: ', paletteNumber, colorPos);
-    string[7][22] memory colorPalettes = [
+    string[7][20] memory colorPalettes = [
       // background, live, dead, born0, born1, perished0, perished1
       // 0 0/0: bad. rural, shrinking slowly
+      ['#ce653b', '#2b0948', '#7d3742', '#461846', '#612844', '#b3563d', '#98463f'],
       // 1 0/1: bad. rural, shrinking slowly
+      ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#a0c4ff', '#bdb2ff'],
       // 2 1/0: bad. rural, shrinking rapidly
+      ['#FFFFFF', '#C2E812', '#BFCBC2', '#91F5AD', '#91F5AD', '#FF934F', '#FF934F'],
       // 3 1/1: bad. rural, shrinking rapidly
+      ['#6699CC', '#A23E48', '#FFF275', '#FF3C38', '#FF8C42', '#6699CC', '#6699CC'],
       // 4 2/0: good. urban, shrinking slowly
-      // 5 2/1: good. urban, shrinking slowly
-      // 6 3/0: good. urban, shrinking rapidly
-      // 7 3/1: good. urban, shrinking rapidly
-      // 8 4/0: good. rural, growing slowly
-      // 9 4/1: good. rural, growing slowly
-      // 10 5/0: good. rural, growing rapidly
-      // 11 5/1: good. rural, growing rapidly
-      // 12 6/0: bad: urban, growing slowly
-      // 13 6/1: bad: urban, growing slowly
-      // 14 7/0: bad: urban, growing rapidly
-      // 15 7/1: bad: urban, growing rapidly
-      // 16 8/0: urban. zero net change.
-      // 17 8/1: urban. zero net change.
-      // 18 9/0: rural. zero net change.
-      // 19 9/1: rural. zero net change.
-
-      // 0: bad. rural, shrinking slowly
-      ['#EDEBD7', '#E3B23C', '#423E37', '#17BEBB', '#74A57F', '#FE6D73', '#7D5BA6'],
-      // 1: bad. rural, shrinking rapidly
-      ['#071E22', '#FF1053', '#251101', '#5BC0EB', '#D2F898', '#495159', '#3D3522'],
-      // 2: good. urban, shrinking slowly
-      ['#1C7C54', '#A80874', '#E3D8F1', '#86BBD8', '#33658A', '#FF7F11', '#F0F66E'],
-      // 3: good. urban, shrinking rapidly
       ['#E6FDFF', '#87FF65', '#C04CFD', '#5E2BFF', '#D2F898', '#ED254E', '#EADEDA'],
-      // 4: good. rural, growing slowly
+      // 5 2/1: good. urban, shrinking slowly
+      ['#ffee32', '#3d0066', '#ffee32', '#c86bfa', '#5c0099', '#fdc500', '#ffd500'],
+      // 6 3/0: good. urban, shrinking rapidly
+      ['#ef4043', '#01263d', '#c43240', '#72bad5', '#0e4c6d', '#be1e2d', '#ef4043'],
+      // 7 3/1: good. urban, shrinking rapidly
+      ['#0fffdb', '#9500ff', '#ff0059', '#2962ff', '#9500ff', '#b4e600', '#ff8c00'],
+      // 8 4/0: good. rural, growing slowly
+      ['#EDEBD7', '#E3B23C', '#423E37', '#17BEBB', '#74A57F', '#FE6D73', '#7D5BA6'],
+      // 9 4/1: good. rural, growing slowly
+      ['#1C7C54', '#A80874', '#E3D8F1', '#86BBD8', '#33658A', '#FF7F11', '#F0F66E'],
+      // 10 5/0: good. rural, growing rapidly
       ['#34287E', '#1E62AB', '#423E37', '#92B83C', '#469D45', '#FAED24', '#C7381D'],
-      // 5: good. rural, growing rapidly
-      ['#ff206e', '#fbff12', '#41ead4', '#fbff12', '#fbff12', '#fbff12', '#fbff12'],
-      // 6: bad: urban, growing slowly
+      // 11 5/1: good. rural, growing rapidly
       ['#201335', '#f78154', '#201335', '#5fad56', '#4d9078', '#f78154', '#b4436c'],
-      // 7: bad: urban, growing rapidly
+      // 12 6/0: bad: urban, growing slowly
+      ['#071E22', '#FF1053', '#251101', '#5BC0EB', '#D2F898', '#495159', '#3D3522'],
+      // 13 6/1: bad: urban, growing slowly
+      ['#ff206e', '#fbff12', '#41ead4', '#fbff12', '#fbff12', '#fbff12', '#fbff12'],
+      // 14 7/0: bad: urban, growing rapidly
       ['#212529', '#f8f9fa', '#343a40', '#dee2e6', '#dee2e6', '#495057', '#495057'],
-      // 8: urban. zero net change.
+      // 15 7/1: bad: urban, growing rapidly
       ['#061A40', '#003559', '#B9D6F2', '#006DAA', '#B9D6F2', '#003559', '#BFD7EA'],
-      // 9: rural. zero net change.
-      ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#a0c4ff', '#bdb2ff'],
-      // 10
-      ['#FFFFFF', '#C2E812', '#BFCBC2', '#91F5AD', '#91F5AD', '#FF934F', '#FF934F'],
-      // 11
-      ['#6699CC', '#A23E48', '#FFF275', '#FF3C38', '#FF8C42', '#6699CC', '#6699CC'],
-      // 12
-      ['#061A40', '#003559', '#B9D6F2', '#006DAA', '#B9D6F2', '#003559', '#BFD7EA'],
-      // 13
-      ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#a0c4ff', '#bdb2ff'],
-      // 14
-      ['#FFFFFF', '#C2E812', '#BFCBC2', '#91F5AD', '#91F5AD', '#FF934F', '#FF934F'],
-      // 15
-      ['#6699CC', '#A23E48', '#FFF275', '#FF3C38', '#FF8C42', '#6699CC', '#6699CC'],
-      // 16
-      ['#FFFFFF', '#C2E812', '#BFCBC2', '#91F5AD', '#91F5AD', '#FF934F', '#FF934F'],
-      // 17
-      ['#6699CC', '#A23E48', '#FFF275', '#FF3C38', '#FF8C42', '#6699CC', '#6699CC'],
-      // 18
-      ['#6699CC', '#A23E48', '#FFF275', '#FF3C38', '#FF8C42', '#6699CC', '#6699CC'],
-      // 19
-      ['#FFFFFF', '#C2E812', '#BFCBC2', '#91F5AD', '#91F5AD', '#FF934F', '#FF934F'],
-      // 20
-      ['#6699CC', '#A23E48', '#FFF275', '#FF3C38', '#FF8C42', '#6699CC', '#6699CC'],
-      // 21
-      ['#6699CC', '#A23E48', '#FFF275', '#FF3C38', '#FF8C42', '#6699CC', '#6699CC']
+      // 16 8/0: urban. zero net change.
+      ['#76520e', '#fad643', '#ffe169', '#805b10', '#a47e1b', '#dbb42c', '#dbb42c'],
+      // 17 8/1: urban. zero net change.
+      ['#dc97ff', '#310055', '#d283ff', '#ab51e3', '#8b2fc9', '#bd68ee', '#d283ff'],
+      // 18 9/0: rural. zero net change.
+      ['#e8f3fe', '#0f3375', '#cce4fd', '#1557c0', '#196bde', '#a4cefc', '#77b6fb'],
+      // 19 9/1: rural. zero net change.
+      // ---------------------------------
+      // todo: should only need 19 elements. but errors. quickfix for now
+      ['#FF3C38', '#ED254E', '#ef4043', '#be1e2d', '#ff0059', '#C7381D', '#FF1053']
     ];
 
     return colorPalettes[paletteNumber][colorPos];
@@ -198,7 +175,7 @@ library G0l {
     // initialize times variable
     uint256 times = 0;
     // change times depending on population evolution vs. previous round
-    if (popUp == 0 && densityThreshold) {
+    if (popUp == 0 && !densityThreshold) {
       // population low & shrinking
       // rural
       // bad times
@@ -208,7 +185,7 @@ library G0l {
       // urban
       // good times
       times = diffThreshold ? 3 : 2; // rapid change : slow change
-    } else if (popUp == 1 && densityThreshold) {
+    } else if (popUp == 1 && !densityThreshold) {
       // population low & growing
       // rural
       // good time
@@ -375,7 +352,9 @@ library G0l {
             j_scale,
             ')">',
             '<use href="#l0" />',
-            '<polygon points="0,36 18,36 18,0 36,0 36,18 0,18" fill="',
+            // '<polygon points="0,36 18,36 18,0 36,0 36,18 0,18" fill="', // to be replaced
+            // '<polygon points="15,5 21,5 21,15 31,15 31,21 21,21, 21,31 15,31 15,21 5,21 5,15 15,15" fill="',
+            '<polygon points="16,6 20,6 20,16 30,16 30,20 20,20 20,30 16,30 16,20 6,20 6,16, 16,16" fill="',
             colorMap.bornColor,
             '">',
             G0l.returnBornAnimation(colorMap, i, j, representation),
@@ -459,7 +438,9 @@ library G0l {
             j_scale,
             ')">',
             '<use href="#d0" />',
-            '<polygon points="0,36 18,36 18,0 36,0 36,18 0,18" fill="',
+            // '<polygon points="0,36 18,36 18,0 36,0 36,18 0,18" fill="', // 18,3 15,9 9,9 6,15 9,21 15,21 21,15 21,9 15,3
+            // '<polygon points="6,6 10,6 18,14 26,6 30,6 22,18 30,30 26,30 18,22 10,30 6,30 14,18" fill="',
+            '<polygon points="6,6 10,6 18,16 26,6 30,6 20,18 30,30 26,30 18,20 10,30 6,30 16,18" fill="',
             colorMap.perishedColor,
             '">',
             G0l.returnPerishedAnimation(colorMap, i, j, representation),
