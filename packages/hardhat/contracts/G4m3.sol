@@ -357,9 +357,13 @@ contract G4m3 is ERC721, Pausable, Ownable {
       // add perished fields
       defs = abi.encodePacked(
         defs,
-        '<polygon id="pp" points="0,36 36,36 0,0" fill="',
+        '<rect id="b0" width="',
+        s_scale,
+        '" height="',
+        s_scale,
+        '" fill="',
         colorMap.perishedColor,
-        '" />'
+        '"></rect>'
       );
 
       defs = abi.encodePacked(defs, '<g id="p0"><use href="#d0" /> <use href="#pp" /></g>');
@@ -460,13 +464,13 @@ contract G4m3 is ERC721, Pausable, Ownable {
     } else if (arbitrarySelector < 3) {
       // static
       metadata.representation = 1;
-    } else if (arbitrarySelector < 9) {
+    } else if (arbitrarySelector < 5) {
       // animated arrows
       metadata.representation = 2;
-    } else if (arbitrarySelector < 11) {
+    } else if (arbitrarySelector < 9) {
       // animated blocks
       metadata.representation = 3;
-    } else if (arbitrarySelector < 12) {
+    } else if (arbitrarySelector < 10) {
       // animated pixel
       metadata.representation = 4;
     } else {
