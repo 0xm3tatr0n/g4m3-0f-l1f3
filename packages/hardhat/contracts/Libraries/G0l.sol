@@ -44,7 +44,7 @@ library G0l {
       // 14 7/0: bad: urban, growing rapidly
       ['#212529', '#f8f9fa', '#343a40', '#dee2e6', '#dee2e6', '#495057', '#495057'],
       // 15 7/1: bad: urban, growing rapidly
-      ['#061A40', '#003559', '#B9D6F2', '#006DAA', '#B9D6F2', '#003559', '#BFD7EA'],
+      ['#061A40', '#003559', '#B9D6F2', '#006DAA', '#006DAA', '#003559', '#BFD7EA'],
       // 16 8/0: urban. zero net change.
       ['#76520e', '#fad643', '#ffe169', '#805b10', '#a47e1b', '#dbb42c', '#dbb42c'],
       // 17 8/1: urban. zero net change.
@@ -151,7 +151,7 @@ library G0l {
     } else if (representation == 3) {
       return 'blocks';
     } else if (representation == 4) {
-      return 'pixel';
+      return 'signs';
     } else if (representation == 5) {
       return 'circle';
     }
