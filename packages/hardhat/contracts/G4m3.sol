@@ -301,91 +301,6 @@ contract G4m3 is ERC721, Pausable, Ownable {
     return colorMap;
   }
 
-  function renderDefs(Structs.ColorMap memory colorMap, uint256 representation)
-    internal
-    view
-    returns (bytes memory)
-  {
-    // render defs for: live, dead
-
-    bytes memory defs;
-
-    defs = abi.encodePacked('<defs>');
-    // add live
-
-    if (representation < 5) {
-      defs = abi.encodePacked(
-        defs,
-        '<rect id="l0" width="',
-        s_scale,
-        '" height="',
-        s_scale,
-        '" fill="',
-        colorMap.aliveColor,
-        '"></rect>'
-      );
-      // add dead
-      defs = abi.encodePacked(
-        defs,
-        '<rect id="d0" width="',
-        s_scale,
-        '" height="',
-        s_scale,
-        '" fill="',
-        colorMap.deadColor,
-        '"></rect>'
-      );
-    } else {
-      // circle
-      defs = abi.encodePacked(
-        defs,
-        '<circle id="l0" r="18" fill="',
-        colorMap.aliveColor,
-        '"></circle>'
-      );
-      // add dead
-      defs = abi.encodePacked(
-        defs,
-        '<circle id="d0" r="18" fill="',
-        colorMap.deadColor,
-        '"></circle>'
-      );
-    }
-
-    if (representation == 1) {
-      // case: static
-      // add perished fields
-      defs = abi.encodePacked(
-        defs,
-        '<rect id="b0" width="',
-        s_scale,
-        '" height="',
-        s_scale,
-        '" fill="',
-        colorMap.perishedColor,
-        '"></rect>'
-      );
-
-      defs = abi.encodePacked(defs, '<g id="p0"><use href="#d0" /> <use href="#pp" /></g>');
-
-      // add born fields
-      defs = abi.encodePacked(
-        defs,
-        '<rect id="b0" width="',
-        s_scale,
-        '" height="',
-        s_scale,
-        '" fill="',
-        colorMap.bornColor,
-        '"></rect>'
-      );
-    }
-
-    defs = abi.encodePacked(defs, '</defs>');
-
-    return defs;
-  }
-
   function renderGameGrid(uint256 id) public view returns (string memory) {
     // render that thing
     bool[8][8] memory grid = BitOps.wordToGrid(tokenGridStatesInt[id]);
@@ -433,7 +348,15 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
     bytes memory output;
     // add general svg, e.g. background
-    output = renderDefs(colorMap, metaData.representation);
+    output = G0l.renderDefs(
+      colorMap.backgroundColor,
+      colorMap.aliveColor,
+      colorMap.deadColor,
+      colorMap.bornColor,
+      colorMap.perishedColor,
+      metaData.representation,
+      s_scale
+    );
     output = abi.encodePacked(
       output,
       '<rect width="100%" height="100%" fill="',
@@ -456,27 +379,7 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
     // "arbitrary" value to mix things up (not random because deterministic)
     metadata.seed = uint256(keccak256(abi.encodePacked(metadata.generation, metadata.description)));
-    uint256 arbitrarySelector = metadata.seed % 13;
-
-    if (arbitrarySelector < 1) {
-      // raw
-      metadata.representation = 0;
-    } else if (arbitrarySelector < 3) {
-      // static
-      metadata.representation = 1;
-    } else if (arbitrarySelector < 5) {
-      // animated arrows
-      metadata.representation = 2;
-    } else if (arbitrarySelector < 9) {
-      // animated blocks
-      metadata.representation = 3;
-    } else if (arbitrarySelector < 10) {
-      // animated pixel
-      metadata.representation = 4;
-    } else {
-      // animated circle
-      metadata.representation = 5;
-    }
+    metadata.representation = G0l.returnRepresentationSelector(metadata.seed);
     // get data for births & deaths
     uint256 stateDiff;
     if (id > 1) {

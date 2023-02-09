@@ -24,7 +24,7 @@ library G0l {
       // 4 2/0: good. urban, shrinking slowly
       ['#E6FDFF', '#87FF65', '#C04CFD', '#5E2BFF', '#D2F898', '#ED254E', '#EADEDA'],
       // 5 2/1: good. urban, shrinking slowly
-      ['#ffee32', '#3d0066', '#ffee32', '#c86bfa', '#5c0099', '#fdc500', '#ffd500'],
+      ['#ffee32', '#3d0066', '#fdc500', '#c86bfa', '#5c0099', '#ffd500', '#ffd500'],
       // 6 3/0: good. urban, shrinking rapidly
       ['#ef4043', '#01263d', '#c43240', '#72bad5', '#0e4c6d', '#be1e2d', '#ef4043'],
       // 7 3/1: good. urban, shrinking rapidly
@@ -40,7 +40,7 @@ library G0l {
       // 12 6/0: bad: urban, growing slowly
       ['#071E22', '#FF1053', '#251101', '#5BC0EB', '#D2F898', '#495159', '#3D3522'],
       // 13 6/1: bad: urban, growing slowly
-      ['#ff206e', '#fbff12', '#41ead4', '#fbff12', '#fbff12', '#fbff12', '#fbff12'],
+      ['#ff206e', '#fbff12', '#41ead4', '#9EF573', '#9EF573', '#FD9040', '#FD9040'],
       // 14 7/0: bad: urban, growing rapidly
       ['#212529', '#f8f9fa', '#343a40', '#dee2e6', '#dee2e6', '#495057', '#495057'],
       // 15 7/1: bad: urban, growing rapidly
@@ -58,6 +58,109 @@ library G0l {
     ];
 
     return colorPalettes[paletteNumber][colorPos];
+  }
+
+  function returnRepresentationSelector(uint256 seed) public pure returns (uint8) {
+    uint256 arbitrarySelector = seed % 13;
+
+    if (arbitrarySelector < 1) {
+      // raw
+      return 0;
+    } else if (arbitrarySelector < 3) {
+      // static
+      return 1;
+    } else if (arbitrarySelector < 5) {
+      // animated arrows
+      return 2;
+    } else if (arbitrarySelector < 9) {
+      // animated blocks
+      return 3;
+    } else if (arbitrarySelector < 10) {
+      // animated pixel
+      return 4;
+    } else {
+      // animated circle
+      return 5;
+    }
+  }
+
+  function renderDefs(
+    string memory backgroundColor,
+    string memory aliveColor,
+    string memory deadColor,
+    string memory bornColor,
+    string memory perishedColor,
+    uint256 representation,
+    string memory scaling
+  ) public pure returns (bytes memory) {
+    // render defs for: live, dead
+
+    bytes memory defs;
+
+    defs = abi.encodePacked('<defs>');
+    // add live
+
+    if (representation < 5) {
+      defs = abi.encodePacked(
+        defs,
+        '<rect id="l0" width="',
+        scaling,
+        '" height="',
+        scaling,
+        '" fill="',
+        aliveColor,
+        '"></rect>'
+      );
+      // add dead
+      defs = abi.encodePacked(
+        defs,
+        '<rect id="d0" width="',
+        scaling,
+        '" height="',
+        scaling,
+        '" fill="',
+        deadColor,
+        '"></rect>'
+      );
+    } else {
+      // circle
+      defs = abi.encodePacked(defs, '<circle id="l0" r="18" fill="', aliveColor, '"></circle>');
+      // add dead
+      defs = abi.encodePacked(defs, '<circle id="d0" r="18" fill="', deadColor, '"></circle>');
+    }
+
+    if (representation == 1) {
+      // case: static
+      // add perished fields
+      defs = abi.encodePacked(
+        defs,
+        '<rect id="b0" width="',
+        scaling,
+        '" height="',
+        scaling,
+        '" fill="',
+        perishedColor,
+        '"></rect>'
+      );
+
+      defs = abi.encodePacked(defs, '<g id="p0"><use href="#d0" /> <use href="#pp" /></g>');
+
+      // add born fields
+      defs = abi.encodePacked(
+        defs,
+        '<rect id="b0" width="',
+        scaling,
+        '" height="',
+        scaling,
+        '" fill="',
+        bornColor,
+        '"></rect>'
+      );
+    }
+
+    defs = abi.encodePacked(defs, '</defs>');
+
+    return defs;
   }
 
   function returnPerishedAnimation(
