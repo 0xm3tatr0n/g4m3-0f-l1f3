@@ -307,6 +307,7 @@ contract G4m3 is ERC721, Pausable, Ownable {
     string[] memory squares = new string[](8 * 8);
     uint256 slotCounter = 0;
     uint256 stateDiff;
+    Structs.CellData memory CellData;
 
     // figure out which cells have changed in this round
     if (id > 1) {
@@ -320,24 +321,32 @@ contract G4m3 is ERC721, Pausable, Ownable {
     Structs.MetaData memory metaData = generateMetadata(id);
     Structs.ColorMap memory colorMap = generateColorMap(metaData);
 
+    // adding counters to keep track of born / perished
+    CellData.bornCounter = 0;
+    CellData.perishedCounter = 0;
+
+    // packing representation (present in metaData) into CellData struct for stacking reasons
+    CellData.representation = metaData.representation;
+    CellData.unitScale = scale;
+
     for (uint256 i = 0; i < grid.length; i += 1) {
       //
       bool[8] memory row = grid[i];
       for (uint256 j = 0; j < row.length; j += 1) {
-        bool alive = grid[i][j];
+        CellData.alive = grid[i][j];
         string memory square;
 
         // check for stateDiff
-        bool hasChanged = BitOps.getBooleanFromIndex(stateDiff, (i * 8 + j));
-        square = G0l.renderGameSquare(
-          alive,
-          hasChanged,
-          i,
-          j,
-          colorMap,
-          metaData.representation,
-          scale
-        );
+        CellData.hasChanged = BitOps.getBooleanFromIndex(stateDiff, (i * 8 + j));
+
+        // update tracking counters
+        if (CellData.hasChanged && CellData.alive) {
+          CellData.bornCounter += 1;
+        } else if (CellData.hasChanged && !CellData.alive) {
+          CellData.perishedCounter += 1;
+        }
+
+        square = G0l.renderGameSquare(CellData, colorMap);
 
         squares[slotCounter] = square;
         slotCounter += 1;

@@ -173,7 +173,9 @@ library G0l {
     string memory perishedColor,
     uint256 i,
     uint256 j,
-    uint256 representation
+    uint256 representation,
+    uint8 bornCounter,
+    uint8 perishedCounter
   ) public pure returns (string memory) {
     //
     if (representation == 4) {
@@ -222,7 +224,9 @@ library G0l {
     string memory bornColor,
     uint256 i,
     uint256 j,
-    uint256 representation
+    uint256 representation,
+    uint8 bornCounter,
+    uint8 perishedCounter
   ) public pure returns (string memory) {
     //
 
@@ -590,47 +594,43 @@ library G0l {
     return attributeString;
   }
 
-  function renderGameSquare(
-    bool alive,
-    bool hasChanged,
-    uint256 i,
-    uint256 j,
-    Structs.ColorMap memory colorMap,
-    uint256 representation,
-    uint256 unitScale
-  ) internal pure returns (string memory) {
+  function renderGameSquare(Structs.CellData memory CellData, Structs.ColorMap memory colorMap)
+    internal
+    pure
+    returns (string memory)
+  {
     //
     string memory square;
     string memory i_scale;
     string memory j_scale;
 
-    if (representation < 5) {
+    if (CellData.representation < 5) {
       // rectangle case
-      i_scale = Strings.toString(i * unitScale + 2 + 20);
-      j_scale = Strings.toString(j * unitScale + 2 + 20);
+      i_scale = Strings.toString(CellData.i * CellData.unitScale + 2 + 20);
+      j_scale = Strings.toString(CellData.j * CellData.unitScale + 2 + 20);
     } else {
       // circle case
-      i_scale = Strings.toString(i * unitScale + 20 + 20);
-      j_scale = Strings.toString(j * unitScale + 20 + 20);
+      i_scale = Strings.toString(CellData.i * CellData.unitScale + 20 + 20);
+      j_scale = Strings.toString(CellData.j * CellData.unitScale + 20 + 20);
     }
 
-    if (alive && !hasChanged) {
+    if (CellData.alive && !CellData.hasChanged) {
       // was alive last round
       square = string(
         abi.encodePacked('<use href="#l0" ', 'x="', i_scale, '" y="', j_scale, '" />')
       );
-    } else if (alive && hasChanged) {
+    } else if (CellData.alive && CellData.hasChanged) {
       // case: new born
-      if (representation == 0) {
+      if (CellData.representation == 0) {
         // raw
         square = string(
           abi.encodePacked('<use href="#l0" ', 'x="', i_scale, '" y="', j_scale, '" />')
         );
-      } else if (representation == 1) {
+      } else if (CellData.representation == 1) {
         square = string(
           abi.encodePacked('<use href="#b0" ', 'x="', i_scale, '" y="', j_scale, '" />')
         );
-      } else if (representation == 2) {
+      } else if (CellData.representation == 2) {
         square = string(
           abi.encodePacked(
             '<g transform="translate(',
@@ -642,12 +642,20 @@ library G0l {
             '<polygon points="36,0 36,36 0,0" fill="',
             colorMap.bornColor,
             '">',
-            returnBornAnimation(colorMap.aliveColor, colorMap.bornColor, i, j, representation),
+            returnBornAnimation(
+              colorMap.aliveColor,
+              colorMap.bornColor,
+              CellData.i,
+              CellData.j,
+              CellData.representation,
+              CellData.bornCounter,
+              CellData.perishedCounter
+            ),
             '</polygon>',
             '</g>'
           )
         );
-      } else if (representation == 3) {
+      } else if (CellData.representation == 3) {
         square = string(
           abi.encodePacked(
             '<g transform="translate(',
@@ -659,12 +667,20 @@ library G0l {
             '<polygon points="0,0 0,36 36,36 36,0" fill="',
             colorMap.bornColor,
             '">',
-            returnBornAnimation(colorMap.aliveColor, colorMap.bornColor, i, j, representation),
+            returnBornAnimation(
+              colorMap.aliveColor,
+              colorMap.bornColor,
+              CellData.i,
+              CellData.j,
+              CellData.representation,
+              CellData.bornCounter,
+              CellData.perishedCounter
+            ),
             '</polygon>',
             '</g>'
           )
         );
-      } else if (representation == 4) {
+      } else if (CellData.representation == 4) {
         square = string(
           abi.encodePacked(
             '<g transform="translate(',
@@ -678,12 +694,20 @@ library G0l {
             '<polygon points="16,6 20,6 20,16 30,16 30,20 20,20 20,30 16,30 16,20 6,20 6,16, 16,16" fill="',
             colorMap.bornColor,
             '">',
-            returnBornAnimation(colorMap.aliveColor, colorMap.bornColor, i, j, representation),
+            returnBornAnimation(
+              colorMap.aliveColor,
+              colorMap.bornColor,
+              CellData.i,
+              CellData.j,
+              CellData.representation,
+              CellData.bornCounter,
+              CellData.perishedCounter
+            ),
             '</polygon>',
             '</g>'
           )
         );
-      } else if (representation == 5) {
+      } else if (CellData.representation == 5) {
         square = string(
           abi.encodePacked(
             '<g transform="translate(',
@@ -695,28 +719,36 @@ library G0l {
             '<circle r="18" fill="',
             colorMap.bornColor,
             '">',
-            returnBornAnimation(colorMap.aliveColor, colorMap.bornColor, i, j, representation),
+            returnBornAnimation(
+              colorMap.aliveColor,
+              colorMap.bornColor,
+              CellData.i,
+              CellData.j,
+              CellData.representation,
+              CellData.bornCounter,
+              CellData.perishedCounter
+            ),
             '</circle>',
             '</g>'
           )
         );
       }
-    } else if (!alive && !hasChanged) {
+    } else if (!CellData.alive && !CellData.hasChanged) {
       // case: didn't exist in previous round
       square = string(
         abi.encodePacked('<use href="#d0" ', 'x="', i_scale, '" y="', j_scale, '" />')
       );
-    } else if (!alive && hasChanged) {
+    } else if (!CellData.alive && CellData.hasChanged) {
       // case: died this round
-      if (representation == 0) {
+      if (CellData.representation == 0) {
         square = string(
           abi.encodePacked('<use href="#d0" ', 'x="', i_scale, '" y="', j_scale, '" />')
         );
-      } else if (representation == 1) {
+      } else if (CellData.representation == 1) {
         square = string(
           abi.encodePacked('<use href="#p0" transform="translate(', i_scale, ',', j_scale, ')" />')
         );
-      } else if (representation == 2) {
+      } else if (CellData.representation == 2) {
         square = string(
           abi.encodePacked(
             '<g transform="translate(',
@@ -731,15 +763,17 @@ library G0l {
             returnPerishedAnimation(
               colorMap.deadColor,
               colorMap.perishedColor,
-              i,
-              j,
-              representation
+              CellData.i,
+              CellData.j,
+              CellData.representation,
+              CellData.bornCounter,
+              CellData.perishedCounter
             ),
             '</polygon>',
             '</g>'
           )
         );
-      } else if (representation == 3) {
+      } else if (CellData.representation == 3) {
         square = string(
           abi.encodePacked(
             '<g transform="translate(',
@@ -754,15 +788,17 @@ library G0l {
             returnPerishedAnimation(
               colorMap.deadColor,
               colorMap.perishedColor,
-              i,
-              j,
-              representation
+              CellData.i,
+              CellData.j,
+              CellData.representation,
+              CellData.bornCounter,
+              CellData.perishedCounter
             ),
             '</polygon>',
             '</g>'
           )
         );
-      } else if (representation == 4) {
+      } else if (CellData.representation == 4) {
         square = string(
           abi.encodePacked(
             '<g transform="translate(',
@@ -779,15 +815,17 @@ library G0l {
             returnPerishedAnimation(
               colorMap.deadColor,
               colorMap.perishedColor,
-              i,
-              j,
-              representation
+              CellData.i,
+              CellData.j,
+              CellData.representation,
+              CellData.bornCounter,
+              CellData.perishedCounter
             ),
             '</polygon>',
             '</g>'
           )
         );
-      } else if (representation == 5) {
+      } else if (CellData.representation == 5) {
         square = string(
           abi.encodePacked(
             '<g transform="translate(',
@@ -802,9 +840,11 @@ library G0l {
             returnPerishedAnimation(
               colorMap.deadColor,
               colorMap.perishedColor,
-              i,
-              j,
-              representation
+              CellData.i,
+              CellData.j,
+              CellData.representation,
+              CellData.bornCounter,
+              CellData.perishedCounter
             ),
             '</circle>',
             '</g>'
