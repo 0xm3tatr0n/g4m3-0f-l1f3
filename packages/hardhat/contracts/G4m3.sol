@@ -333,6 +333,8 @@ contract G4m3 is ERC721, Pausable, Ownable {
       //
       bool[8] memory row = grid[i];
       for (uint256 j = 0; j < row.length; j += 1) {
+        CellData.i = i;
+        CellData.j = j;
         CellData.alive = grid[i][j];
         string memory square;
 
