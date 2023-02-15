@@ -97,10 +97,15 @@ library G0l {
 
     bytes memory defs;
 
+    // start of defs
     defs = abi.encodePacked('<defs>');
+
+    // add dummy animation for timing offset
+    defs = abi.encodePacked(defs, '<animate id="aa" begin="0s"/>');
     // add live
 
     if (representation < 5) {
+      // if
       defs = abi.encodePacked(
         defs,
         '<rect id="l0" width="',
@@ -164,24 +169,44 @@ library G0l {
   }
 
   function returnPerishedAnimation(
-    Structs.ColorMap memory colorMap,
+    string memory deadColor,
+    string memory perishedColor,
     uint256 i,
     uint256 j,
     uint256 representation
-  ) internal pure returns (string memory) {
+  ) public pure returns (string memory) {
     //
-    if (representation >= 2) {
+    if (representation == 4) {
+      // going for a matrix style animation
       return
         string(
           abi.encodePacked(
             '<animate attributeType="XML" attributeName="fill" values="',
-            colorMap.deadColor,
+            deadColor,
             ';',
-            colorMap.perishedColor,
+            perishedColor,
             ';',
-            colorMap.deadColor,
+            deadColor,
             ';',
-            colorMap.deadColor,
+            deadColor,
+            '" dur="8s" begin="aa.begin +',
+            Strings.toString(i * 8 + j),
+            's" ',
+            'repeatCount="indefinite"/>'
+          )
+        );
+    } else if (representation >= 2 && representation != 4) {
+      return
+        string(
+          abi.encodePacked(
+            '<animate attributeType="XML" attributeName="fill" values="',
+            deadColor,
+            ';',
+            perishedColor,
+            ';',
+            deadColor,
+            ';',
+            deadColor,
             '" dur="1.',
             Strings.toString((i * j) % 9),
             's" repeatCount="indefinite"/>'
@@ -193,24 +218,45 @@ library G0l {
   }
 
   function returnBornAnimation(
-    Structs.ColorMap memory colorMap,
+    string memory aliveColor,
+    string memory bornColor,
     uint256 i,
     uint256 j,
     uint256 representation
-  ) internal pure returns (string memory) {
+  ) public pure returns (string memory) {
     //
-    if (representation >= 2) {
+
+    if (representation == 4) {
+      // going for a matrix style animation
       return
         string(
           abi.encodePacked(
             '<animate attributeType="XML" attributeName="fill" values="',
-            colorMap.aliveColor,
+            aliveColor,
             ';',
-            colorMap.bornColor,
+            bornColor,
             ';',
-            colorMap.aliveColor,
+            aliveColor,
             ';',
-            colorMap.aliveColor,
+            aliveColor,
+            '" dur="8s" begin="aa.begin +',
+            Strings.toString(i * 8 + j),
+            's" ',
+            'repeatCount="indefinite"/>'
+          )
+        );
+    } else if (representation >= 2 && representation != 4) {
+      return
+        string(
+          abi.encodePacked(
+            '<animate attributeType="XML" attributeName="fill" values="',
+            aliveColor,
+            ';',
+            bornColor,
+            ';',
+            aliveColor,
+            ';',
+            aliveColor,
             '" dur="1.',
             Strings.toString((i * j) % 9),
             's" repeatCount="indefinite"/>'
@@ -257,6 +303,140 @@ library G0l {
       return 'signs';
     } else if (representation == 5) {
       return 'circle';
+    }
+  }
+
+  function timeOffsetMap(uint256 elementIndex) public pure returns (string memory) {
+    // workaround:
+    // return a string for animation timing offset as getting fractions (float, fixed) is tricky to convert to strings
+    // mapping for all possible elements (64)
+
+    if (elementIndex == 0) {
+      return '0.5';
+    } else if (elementIndex == 1) {
+      return '1';
+    } else if (elementIndex == 2) {
+      return '1.5';
+    } else if (elementIndex == 3) {
+      return '2';
+    } else if (elementIndex == 5) {
+      return '2.5';
+    } else if (elementIndex == 6) {
+      return '3';
+    } else if (elementIndex == 7) {
+      return '3.5';
+    } else if (elementIndex == 8) {
+      return '4';
+    } else if (elementIndex == 9) {
+      return '4.5';
+    } else if (elementIndex == 10) {
+      return '5';
+    } else if (elementIndex == 11) {
+      return '5.5';
+    } else if (elementIndex == 12) {
+      return '6';
+    } else if (elementIndex == 13) {
+      return '6.5';
+    } else if (elementIndex == 14) {
+      return '7';
+    } else if (elementIndex == 15) {
+      return '7.5';
+    } else if (elementIndex == 16) {
+      return '8';
+    } else if (elementIndex == 17) {
+      return '8.5';
+    } else if (elementIndex == 18) {
+      return '9';
+    } else if (elementIndex == 19) {
+      return '9.5';
+    } else if (elementIndex == 20) {
+      return '10';
+    } else if (elementIndex == 21) {
+      return '10.5';
+    } else if (elementIndex == 22) {
+      return '';
+    } else if (elementIndex == 23) {
+      return '';
+    } else if (elementIndex == 24) {
+      return '';
+    } else if (elementIndex == 25) {
+      return '';
+    } else if (elementIndex == 26) {
+      return '';
+    } else if (elementIndex == 27) {
+      return '';
+    } else if (elementIndex == 28) {
+      return '';
+    } else if (elementIndex == 29) {
+      return '';
+    } else if (elementIndex == 30) {
+      return '';
+    } else if (elementIndex == 31) {
+      return '';
+    } else if (elementIndex == 32) {
+      return '';
+    } else if (elementIndex == 33) {
+      return '';
+    } else if (elementIndex == 34) {
+      return '';
+    } else if (elementIndex == 35) {
+      return '';
+    } else if (elementIndex == 36) {
+      return '';
+    } else if (elementIndex == 37) {
+      return '';
+    } else if (elementIndex == 38) {
+      return '';
+    } else if (elementIndex == 39) {
+      return '';
+    } else if (elementIndex == 40) {
+      return '';
+    } else if (elementIndex == 41) {
+      return '';
+    } else if (elementIndex == 42) {
+      return '';
+    } else if (elementIndex == 43) {
+      return '';
+    } else if (elementIndex == 44) {
+      return '';
+    } else if (elementIndex == 45) {
+      return '';
+    } else if (elementIndex == 46) {
+      return '';
+    } else if (elementIndex == 47) {
+      return '';
+    } else if (elementIndex == 48) {
+      return '';
+    } else if (elementIndex == 49) {
+      return '';
+    } else if (elementIndex == 50) {
+      return '';
+    } else if (elementIndex == 51) {
+      return '';
+    } else if (elementIndex == 52) {
+      return '';
+    } else if (elementIndex == 53) {
+      return '';
+    } else if (elementIndex == 54) {
+      return '';
+    } else if (elementIndex == 55) {
+      return '';
+    } else if (elementIndex == 56) {
+      return '';
+    } else if (elementIndex == 57) {
+      return '';
+    } else if (elementIndex == 58) {
+      return '';
+    } else if (elementIndex == 59) {
+      return '';
+    } else if (elementIndex == 60) {
+      return '';
+    } else if (elementIndex == 61) {
+      return '';
+    } else if (elementIndex == 62) {
+      return '';
+    } else if (elementIndex == 63) {
+      return '';
     }
   }
 
@@ -462,7 +642,7 @@ library G0l {
             '<polygon points="36,0 36,36 0,0" fill="',
             colorMap.bornColor,
             '">',
-            G0l.returnBornAnimation(colorMap, i, j, representation),
+            returnBornAnimation(colorMap.aliveColor, colorMap.bornColor, i, j, representation),
             '</polygon>',
             '</g>'
           )
@@ -479,7 +659,7 @@ library G0l {
             '<polygon points="0,0 0,36 36,36 36,0" fill="',
             colorMap.bornColor,
             '">',
-            G0l.returnBornAnimation(colorMap, i, j, representation),
+            returnBornAnimation(colorMap.aliveColor, colorMap.bornColor, i, j, representation),
             '</polygon>',
             '</g>'
           )
@@ -498,7 +678,7 @@ library G0l {
             '<polygon points="16,6 20,6 20,16 30,16 30,20 20,20 20,30 16,30 16,20 6,20 6,16, 16,16" fill="',
             colorMap.bornColor,
             '">',
-            G0l.returnBornAnimation(colorMap, i, j, representation),
+            returnBornAnimation(colorMap.aliveColor, colorMap.bornColor, i, j, representation),
             '</polygon>',
             '</g>'
           )
@@ -515,7 +695,7 @@ library G0l {
             '<circle r="18" fill="',
             colorMap.bornColor,
             '">',
-            G0l.returnBornAnimation(colorMap, i, j, representation),
+            returnBornAnimation(colorMap.aliveColor, colorMap.bornColor, i, j, representation),
             '</circle>',
             '</g>'
           )
@@ -548,7 +728,13 @@ library G0l {
             '<polygon points="0,36 36,36 0,0" fill="',
             colorMap.perishedColor,
             '">',
-            G0l.returnPerishedAnimation(colorMap, i, j, representation),
+            returnPerishedAnimation(
+              colorMap.deadColor,
+              colorMap.perishedColor,
+              i,
+              j,
+              representation
+            ),
             '</polygon>',
             '</g>'
           )
@@ -565,7 +751,13 @@ library G0l {
             '<polygon points="0,0 0,36 36,36 36,0" fill="',
             colorMap.perishedColor,
             '">',
-            G0l.returnPerishedAnimation(colorMap, i, j, representation),
+            returnPerishedAnimation(
+              colorMap.deadColor,
+              colorMap.perishedColor,
+              i,
+              j,
+              representation
+            ),
             '</polygon>',
             '</g>'
           )
@@ -584,7 +776,13 @@ library G0l {
             '<polygon points="6,6 10,6 18,16 26,6 30,6 20,18 30,30 26,30 18,20 10,30 6,30 16,18" fill="',
             colorMap.perishedColor,
             '">',
-            G0l.returnPerishedAnimation(colorMap, i, j, representation),
+            returnPerishedAnimation(
+              colorMap.deadColor,
+              colorMap.perishedColor,
+              i,
+              j,
+              representation
+            ),
             '</polygon>',
             '</g>'
           )
@@ -601,7 +799,13 @@ library G0l {
             '<circle r="18" fill="',
             colorMap.perishedColor,
             '">',
-            G0l.returnPerishedAnimation(colorMap, i, j, representation),
+            returnPerishedAnimation(
+              colorMap.deadColor,
+              colorMap.perishedColor,
+              i,
+              j,
+              representation
+            ),
             '</circle>',
             '</g>'
           )
