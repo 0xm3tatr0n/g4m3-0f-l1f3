@@ -31,4 +31,15 @@ library Structs {
     string bornColor;
     string perishedColor;
   }
+
+  struct CellData {
+    bool alive;
+    bool hasChanged;
+    uint256 i;
+    uint256 j;
+    uint8 bornCounter;
+    uint8 perishedCounter;
+    uint256 representation;
+    uint256 unitScale;
+  }
 }
