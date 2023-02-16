@@ -144,7 +144,7 @@ library G0l {
         '" height="',
         scaling,
         '" fill="',
-        perishedColor,
+        bornColor,
         '"></rect>'
       );
 
@@ -191,8 +191,8 @@ library G0l {
             deadColor,
             ';',
             deadColor,
-            '" dur="8s" begin="aa.begin +',
-            Strings.toString(i * 8 + j),
+            '" dur="3s" begin="aa.begin +',
+            timeOffsetMap(bornCounter + perishedCounter),
             's" ',
             'repeatCount="indefinite"/>'
           )
@@ -243,8 +243,8 @@ library G0l {
             aliveColor,
             ';',
             aliveColor,
-            '" dur="8s" begin="aa.begin +',
-            Strings.toString(i * 8 + j),
+            '" dur="3s" begin="aa.begin +',
+            timeOffsetMap(bornCounter + perishedCounter),
             's" ',
             'repeatCount="indefinite"/>'
           )
@@ -358,90 +358,92 @@ library G0l {
     } else if (elementIndex == 21) {
       return '10.5';
     } else if (elementIndex == 22) {
-      return '';
-    } else if (elementIndex == 23) {
-      return '';
-    } else if (elementIndex == 24) {
-      return '';
-    } else if (elementIndex == 25) {
-      return '';
-    } else if (elementIndex == 26) {
-      return '';
-    } else if (elementIndex == 27) {
-      return '';
-    } else if (elementIndex == 28) {
-      return '';
-    } else if (elementIndex == 29) {
-      return '';
-    } else if (elementIndex == 30) {
-      return '';
-    } else if (elementIndex == 31) {
-      return '';
-    } else if (elementIndex == 32) {
-      return '';
-    } else if (elementIndex == 33) {
-      return '';
-    } else if (elementIndex == 34) {
-      return '';
-    } else if (elementIndex == 35) {
-      return '';
-    } else if (elementIndex == 36) {
-      return '';
-    } else if (elementIndex == 37) {
-      return '';
-    } else if (elementIndex == 38) {
-      return '';
-    } else if (elementIndex == 39) {
-      return '';
-    } else if (elementIndex == 40) {
-      return '';
-    } else if (elementIndex == 41) {
-      return '';
-    } else if (elementIndex == 42) {
-      return '';
-    } else if (elementIndex == 43) {
-      return '';
-    } else if (elementIndex == 44) {
-      return '';
-    } else if (elementIndex == 45) {
-      return '';
-    } else if (elementIndex == 46) {
-      return '';
-    } else if (elementIndex == 47) {
-      return '';
-    } else if (elementIndex == 48) {
-      return '';
-    } else if (elementIndex == 49) {
-      return '';
-    } else if (elementIndex == 50) {
-      return '';
-    } else if (elementIndex == 51) {
-      return '';
-    } else if (elementIndex == 52) {
-      return '';
-    } else if (elementIndex == 53) {
-      return '';
-    } else if (elementIndex == 54) {
-      return '';
-    } else if (elementIndex == 55) {
-      return '';
-    } else if (elementIndex == 56) {
-      return '';
-    } else if (elementIndex == 57) {
-      return '';
-    } else if (elementIndex == 58) {
-      return '';
-    } else if (elementIndex == 59) {
-      return '';
-    } else if (elementIndex == 60) {
-      return '';
-    } else if (elementIndex == 61) {
-      return '';
-    } else if (elementIndex == 62) {
-      return '';
-    } else if (elementIndex == 63) {
-      return '';
+      return '11';
     }
+
+    // else if (elementIndex == 23) {
+    //   return '';
+    // } else if (elementIndex == 24) {
+    //   return '';
+    // } else if (elementIndex == 25) {
+    //   return '';
+    // } else if (elementIndex == 26) {
+    //   return '';
+    // } else if (elementIndex == 27) {
+    //   return '';
+    // } else if (elementIndex == 28) {
+    //   return '';
+    // } else if (elementIndex == 29) {
+    //   return '';
+    // } else if (elementIndex == 30) {
+    //   return '';
+    // } else if (elementIndex == 31) {
+    //   return '';
+    // } else if (elementIndex == 32) {
+    //   return '';
+    // } else if (elementIndex == 33) {
+    //   return '';
+    // } else if (elementIndex == 34) {
+    //   return '';
+    // } else if (elementIndex == 35) {
+    //   return '';
+    // } else if (elementIndex == 36) {
+    //   return '';
+    // } else if (elementIndex == 37) {
+    //   return '';
+    // } else if (elementIndex == 38) {
+    //   return '';
+    // } else if (elementIndex == 39) {
+    //   return '';
+    // } else if (elementIndex == 40) {
+    //   return '';
+    // } else if (elementIndex == 41) {
+    //   return '';
+    // } else if (elementIndex == 42) {
+    //   return '';
+    // } else if (elementIndex == 43) {
+    //   return '';
+    // } else if (elementIndex == 44) {
+    //   return '';
+    // } else if (elementIndex == 45) {
+    //   return '';
+    // } else if (elementIndex == 46) {
+    //   return '';
+    // } else if (elementIndex == 47) {
+    //   return '';
+    // } else if (elementIndex == 48) {
+    //   return '';
+    // } else if (elementIndex == 49) {
+    //   return '';
+    // } else if (elementIndex == 50) {
+    //   return '';
+    // } else if (elementIndex == 51) {
+    //   return '';
+    // } else if (elementIndex == 52) {
+    //   return '';
+    // } else if (elementIndex == 53) {
+    //   return '';
+    // } else if (elementIndex == 54) {
+    //   return '';
+    // } else if (elementIndex == 55) {
+    //   return '';
+    // } else if (elementIndex == 56) {
+    //   return '';
+    // } else if (elementIndex == 57) {
+    //   return '';
+    // } else if (elementIndex == 58) {
+    //   return '';
+    // } else if (elementIndex == 59) {
+    //   return '';
+    // } else if (elementIndex == 60) {
+    //   return '';
+    // } else if (elementIndex == 61) {
+    //   return '';
+    // } else if (elementIndex == 62) {
+    //   return '';
+    // } else if (elementIndex == 63) {
+    //   return '';
+    // }
   }
 
   function generateTimesNumber(
@@ -691,7 +693,8 @@ library G0l {
             '<use href="#l0" />',
             // '<polygon points="0,36 18,36 18,0 36,0 36,18 0,18" fill="', // to be replaced
             // '<polygon points="15,5 21,5 21,15 31,15 31,21 21,21, 21,31 15,31 15,21 5,21 5,15 15,15" fill="',
-            '<polygon points="16,6 20,6 20,16 30,16 30,20 20,20 20,30 16,30 16,20 6,20 6,16, 16,16" fill="',
+            // '<polygon points="16,6 20,6 20,16 30,16 30,20 20,20 20,30 16,30 16,20 6,20 6,16, 16,16" fill="',
+            '<polygon points="0,0 0,36 36,36 36,0" fill="',
             colorMap.bornColor,
             '">',
             returnBornAnimation(
@@ -809,7 +812,8 @@ library G0l {
             '<use href="#d0" />',
             // '<polygon points="0,36 18,36 18,0 36,0 36,18 0,18" fill="', // 18,3 15,9 9,9 6,15 9,21 15,21 21,15 21,9 15,3
             // '<polygon points="6,6 10,6 18,14 26,6 30,6 22,18 30,30 26,30 18,22 10,30 6,30 14,18" fill="',
-            '<polygon points="6,6 10,6 18,16 26,6 30,6 20,18 30,30 26,30 18,20 10,30 6,30 16,18" fill="',
+            // '<polygon points="6,6 10,6 18,16 26,6 30,6 20,18 30,30 26,30 18,20 10,30 6,30 16,18" fill="',
+            '<polygon points="0,0 0,36 36,36 36,0" fill="',
             colorMap.perishedColor,
             '">',
             returnPerishedAnimation(
