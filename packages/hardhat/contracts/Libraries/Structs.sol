@@ -13,7 +13,10 @@ library Structs {
     string generation;
     string trend;
     uint8 times; // 0: stable, 1: prosperous, 2: bad
-    uint8 representation; // 0: raw, 1: static, 2: animated
+    uint8 representation; // to be replaced by shape/speed/pattern
+    uint8 shape;
+    uint8 speed;
+    uint8 pattern;
     uint256 seed;
   }
 

@@ -424,6 +424,11 @@ contract G4m3 is ERC721, Pausable, Ownable {
       }
     }
 
+    // dummy population of new representation data
+    metadata.shape = 1;
+    metadata.speed = 1;
+    metadata.pattern = 1;
+
     return metadata;
   }
 
