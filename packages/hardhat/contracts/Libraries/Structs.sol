@@ -41,9 +41,9 @@ library Structs {
     uint8 bornCounter;
     uint8 perishedCounter;
     uint8 representation;
-    uint8 shape;
-    uint8 speed;
-    uint8 pattern;
+    uint8 shape; // 0: blocks, 1: circles, 2: blocks/triangles
+    uint8 speed; // 0,1,2: lower == slower
+    uint8 pattern; // 0: static, 1: pump, 2: random, 3: matrix, ...
     uint8 i;
     uint8 j;
     uint8 unitScale;
