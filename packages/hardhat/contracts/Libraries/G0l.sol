@@ -1,5 +1,6 @@
 pragma solidity >=0.7.0 <0.8.0;
 // pragma abicoder v2;
+// pragma abicoder v2;
 import '@openzeppelin/contracts/utils/Strings.sol';
 import {Structs} from './Structs.sol';
 import 'hardhat/console.sol';
@@ -168,60 +169,9 @@ library G0l {
     return defs;
   }
 
-  function returnPerishedAnimation(
-    string memory deadColor,
-    string memory perishedColor,
-    uint256 i,
-    uint256 j,
-    uint256 representation,
-    uint8 bornCounter,
-    uint8 perishedCounter
-  ) public pure returns (string memory) {
-    //
-    if (representation == 4) {
-      // going for a matrix style animation
-      return
-        string(
-          abi.encodePacked(
-            '<animate attributeType="XML" attributeName="fill" values="',
-            deadColor,
-            ';',
-            perishedColor,
-            ';',
-            deadColor,
-            ';',
-            deadColor,
-            '" dur="3s" begin="aa.begin +',
-            timeOffsetMap(bornCounter + perishedCounter),
-            's" ',
-            'repeatCount="indefinite"/>'
-          )
-        );
-    } else if (representation >= 2 && representation != 4) {
-      return
-        string(
-          abi.encodePacked(
-            '<animate attributeType="XML" attributeName="fill" values="',
-            deadColor,
-            ';',
-            perishedColor,
-            ';',
-            deadColor,
-            ';',
-            deadColor,
-            '" dur="1.',
-            Strings.toString((i * j) % 9),
-            's" repeatCount="indefinite"/>'
-          )
-        );
-    } else {
-      return '';
-    }
-  }
-
-  function returnBornAnimation(
-    string memory aliveColor,
-    string memory bornColor,
+  function renderAnimation(
+    string memory primaryColor,
+    string memory secondaryColor,
     uint256 i,
     uint256 j,
     uint256 representation,
@@ -236,13 +186,13 @@ library G0l {
         string(
           abi.encodePacked(
             '<animate attributeType="XML" attributeName="fill" values="',
-            aliveColor,
+            primaryColor,
             ';',
-            bornColor,
+            secondaryColor,
             ';',
-            aliveColor,
+            primaryColor,
             ';',
-            aliveColor,
+            primaryColor,
             '" dur="3s" begin="aa.begin +',
             timeOffsetMap(bornCounter + perishedCounter),
             's" ',
@@ -254,13 +204,13 @@ library G0l {
         string(
           abi.encodePacked(
             '<animate attributeType="XML" attributeName="fill" values="',
-            aliveColor,
+            primaryColor,
             ';',
-            bornColor,
+            secondaryColor,
             ';',
-            aliveColor,
+            primaryColor,
             ';',
-            aliveColor,
+            primaryColor,
             '" dur="1.',
             Strings.toString((i * j) % 9),
             's" repeatCount="indefinite"/>'
@@ -596,6 +546,61 @@ library G0l {
     return attributeString;
   }
 
+  function renderUseTag(
+    string memory href,
+    string memory i_scale,
+    string memory j_scale
+  ) public pure returns (string memory) {
+    return
+      string(abi.encodePacked('<use href="', href, '" ', 'x="', i_scale, '" y="', j_scale, '" />'));
+  }
+
+  function renderAnimatedCell(
+    string memory href,
+    string memory i_scale,
+    string memory j_scale,
+    string memory primaryColor,
+    string memory secondaryColor,
+    Structs.CellData memory CellData
+  ) internal pure returns (string memory) {
+    // pattern
+    string memory cell;
+
+    {
+      cell = string(abi.encodePacked('<g transform="translate(', i_scale, ',', j_scale, ')">'));
+    }
+
+    {
+      string[3] memory shapeTagOpen = [
+        '<polygon points="0,0 0,36 36,36 36,0" fill="',
+        '<circle r="18" fill="',
+        '<polygon points="36,0 36,36 0,0" fill="'
+      ];
+      cell = string(
+        abi.encodePacked(cell, '<use href="', href, '" />', shapeTagOpen[CellData.shape])
+      );
+    }
+
+    {
+      string[3] memory shapeTagClose = ['</polygon>', '</circle>', '</polygon>'];
+      string memory animation = renderAnimation(
+        primaryColor,
+        secondaryColor,
+        CellData.i,
+        CellData.j,
+        CellData.pattern,
+        CellData.bornCounter,
+        CellData.perishedCounter
+      );
+
+      cell = string(
+        abi.encodePacked(cell, primaryColor, '">', animation, shapeTagClose[CellData.shape], '</g>')
+      );
+    }
+
+    return cell;
+  }
+
   function renderGameSquare(Structs.CellData memory CellData, Structs.ColorMap memory colorMap)
     internal
     pure
@@ -606,15 +611,7 @@ library G0l {
     string memory i_scale;
     string memory j_scale;
 
-    if (CellData.representation < 5) {
-      // rectangle case
-      i_scale = Strings.toString(
-        uint256(uint256(CellData.i) * uint256(CellData.unitScale) + 2 + 20)
-      );
-      j_scale = Strings.toString(
-        uint256(uint256(CellData.j) * uint256(CellData.unitScale) + 2 + 20)
-      );
-    } else {
+    if (CellData.shape == 1) {
       // circle case
       i_scale = Strings.toString(
         uint256(uint256(CellData.i) * uint256(CellData.unitScale) + 20 + 20)
@@ -622,245 +619,137 @@ library G0l {
       j_scale = Strings.toString(
         uint256(uint256(CellData.j) * uint256(CellData.unitScale) + 20 + 20)
       );
+    } else {
+      // rectangle case
+      i_scale = Strings.toString(
+        uint256(uint256(CellData.i) * uint256(CellData.unitScale) + 2 + 20)
+      );
+      j_scale = Strings.toString(
+        uint256(uint256(CellData.j) * uint256(CellData.unitScale) + 2 + 20)
+      );
     }
 
     if (CellData.alive && !CellData.hasChanged) {
       // was alive last round
-      square = string(
-        abi.encodePacked('<use href="#l0" ', 'x="', i_scale, '" y="', j_scale, '" />')
-      );
+      square = renderUseTag('#l0', i_scale, j_scale); // string(
+      //  abi.encodePacked('<use href="#l0" ', 'x="', i_scale, '" y="', j_scale, '" />')
+      // );
     } else if (CellData.alive && CellData.hasChanged) {
       // case: new born
-      if (CellData.representation == 0) {
+      if (CellData.speed == 0) {
         // raw
-        square = string(
-          abi.encodePacked('<use href="#l0" ', 'x="', i_scale, '" y="', j_scale, '" />')
-        );
-      } else if (CellData.representation == 1) {
-        square = string(
-          abi.encodePacked('<use href="#b0" ', 'x="', i_scale, '" y="', j_scale, '" />')
-        );
+        square = renderUseTag('#l0', i_scale, j_scale);
+      } else if (CellData.speed == 1) {
+        square = renderUseTag('#b0', i_scale, j_scale);
       } else if (CellData.representation == 2) {
-        square = string(
-          abi.encodePacked(
-            '<g transform="translate(',
-            i_scale,
-            ',',
-            j_scale,
-            ')">',
-            '<use href="#l0" />',
-            '<polygon points="36,0 36,36 0,0" fill="',
-            colorMap.bornColor,
-            '">',
-            returnBornAnimation(
-              colorMap.aliveColor,
-              colorMap.bornColor,
-              CellData.i,
-              CellData.j,
-              CellData.representation,
-              CellData.bornCounter,
-              CellData.perishedCounter
-            ),
-            '</polygon>',
-            '</g>'
-          )
+        square = renderAnimatedCell(
+          '#l0',
+          i_scale,
+          j_scale,
+          colorMap.bornColor,
+          colorMap.aliveColor,
+          CellData
         );
       } else if (CellData.representation == 3) {
-        square = string(
-          abi.encodePacked(
-            '<g transform="translate(',
-            i_scale,
-            ',',
-            j_scale,
-            ')">',
-            '<use href="#l0" />',
-            '<polygon points="0,0 0,36 36,36 36,0" fill="',
-            colorMap.bornColor,
-            '">',
-            returnBornAnimation(
-              colorMap.aliveColor,
-              colorMap.bornColor,
-              CellData.i,
-              CellData.j,
-              CellData.representation,
-              CellData.bornCounter,
-              CellData.perishedCounter
-            ),
-            '</polygon>',
-            '</g>'
-          )
+        square = renderAnimatedCell(
+          '#l0',
+          i_scale,
+          j_scale,
+          colorMap.bornColor,
+          colorMap.aliveColor,
+          CellData
         );
       } else if (CellData.representation == 4) {
-        square = string(
-          abi.encodePacked(
-            '<g transform="translate(',
-            i_scale,
-            ',',
-            j_scale,
-            ')">',
-            '<use href="#l0" />',
-            // '<polygon points="0,36 18,36 18,0 36,0 36,18 0,18" fill="', // to be replaced
-            // '<polygon points="15,5 21,5 21,15 31,15 31,21 21,21, 21,31 15,31 15,21 5,21 5,15 15,15" fill="',
-            // '<polygon points="16,6 20,6 20,16 30,16 30,20 20,20 20,30 16,30 16,20 6,20 6,16, 16,16" fill="',
-            '<polygon points="0,0 0,36 36,36 36,0" fill="',
-            colorMap.bornColor,
-            '">',
-            returnBornAnimation(
-              colorMap.aliveColor,
-              colorMap.bornColor,
-              CellData.i,
-              CellData.j,
-              CellData.representation,
-              CellData.bornCounter,
-              CellData.perishedCounter
-            ),
-            '</polygon>',
-            '</g>'
-          )
+        square = renderAnimatedCell(
+          '#l0',
+          i_scale,
+          j_scale,
+          colorMap.bornColor,
+          colorMap.aliveColor,
+          CellData
         );
+        // square = string(
+        //   abi.encodePacked(
+        //     '<g transform="translate(',
+        //     i_scale,
+        //     ',',
+        //     j_scale,
+        //     ')">',
+        //     '<use href="#l0" />',
+        //     // '<polygon points="0,36 18,36 18,0 36,0 36,18 0,18" fill="', // to be replaced
+        //     // '<polygon points="15,5 21,5 21,15 31,15 31,21 21,21, 21,31 15,31 15,21 5,21 5,15 15,15" fill="',
+        //     // '<polygon points="16,6 20,6 20,16 30,16 30,20 20,20 20,30 16,30 16,20 6,20 6,16, 16,16" fill="',
+        //     '<polygon points="0,0 0,36 36,36 36,0" fill="',
+        //     colorMap.bornColor,
+        //     '">',
+        //     returnBornAnimation(
+        //       colorMap.aliveColor,
+        //       colorMap.bornColor,
+        //       CellData.i,
+        //       CellData.j,
+        //       CellData.representation,
+        //       CellData.bornCounter,
+        //       CellData.perishedCounter
+        //     ),
+        //     '</polygon>',
+        //     '</g>'
+        //   )
+        // );
       } else if (CellData.representation == 5) {
-        square = string(
-          abi.encodePacked(
-            '<g transform="translate(',
-            i_scale,
-            ',',
-            j_scale,
-            ')">',
-            '<use href="#l0" />',
-            '<circle r="18" fill="',
-            colorMap.bornColor,
-            '">',
-            returnBornAnimation(
-              colorMap.aliveColor,
-              colorMap.bornColor,
-              CellData.i,
-              CellData.j,
-              CellData.representation,
-              CellData.bornCounter,
-              CellData.perishedCounter
-            ),
-            '</circle>',
-            '</g>'
-          )
+        square = renderAnimatedCell(
+          '#l0',
+          i_scale,
+          j_scale,
+          colorMap.bornColor,
+          colorMap.aliveColor,
+          CellData
         );
       }
     } else if (!CellData.alive && !CellData.hasChanged) {
       // case: didn't exist in previous round
-      square = string(
-        abi.encodePacked('<use href="#d0" ', 'x="', i_scale, '" y="', j_scale, '" />')
-      );
+
+      square = renderUseTag('#d0', i_scale, j_scale);
     } else if (!CellData.alive && CellData.hasChanged) {
       // case: died this round
       if (CellData.representation == 0) {
-        square = string(
-          abi.encodePacked('<use href="#d0" ', 'x="', i_scale, '" y="', j_scale, '" />')
-        );
+        square = renderUseTag('#d0', i_scale, j_scale);
       } else if (CellData.representation == 1) {
-        square = string(
-          abi.encodePacked('<use href="#p0" transform="translate(', i_scale, ',', j_scale, ')" />')
-        );
+        square = renderUseTag('#p0', i_scale, j_scale);
       } else if (CellData.representation == 2) {
-        square = string(
-          abi.encodePacked(
-            '<g transform="translate(',
-            i_scale,
-            ',',
-            j_scale,
-            ')">',
-            '<use href="#d0" />',
-            '<polygon points="0,36 36,36 0,0" fill="',
-            colorMap.perishedColor,
-            '">',
-            returnPerishedAnimation(
-              colorMap.deadColor,
-              colorMap.perishedColor,
-              CellData.i,
-              CellData.j,
-              CellData.representation,
-              CellData.bornCounter,
-              CellData.perishedCounter
-            ),
-            '</polygon>',
-            '</g>'
-          )
+        square = renderAnimatedCell(
+          '#d0',
+          i_scale,
+          j_scale,
+          colorMap.bornColor,
+          colorMap.aliveColor,
+          CellData
         );
       } else if (CellData.representation == 3) {
-        square = string(
-          abi.encodePacked(
-            '<g transform="translate(',
-            i_scale,
-            ',',
-            j_scale,
-            ')">',
-            '<use href="#d0" />',
-            '<polygon points="0,0 0,36 36,36 36,0" fill="',
-            colorMap.perishedColor,
-            '">',
-            returnPerishedAnimation(
-              colorMap.deadColor,
-              colorMap.perishedColor,
-              CellData.i,
-              CellData.j,
-              CellData.representation,
-              CellData.bornCounter,
-              CellData.perishedCounter
-            ),
-            '</polygon>',
-            '</g>'
-          )
+        square = renderAnimatedCell(
+          '#d0',
+          i_scale,
+          j_scale,
+          colorMap.bornColor,
+          colorMap.aliveColor,
+          CellData
         );
       } else if (CellData.representation == 4) {
-        square = string(
-          abi.encodePacked(
-            '<g transform="translate(',
-            i_scale,
-            ',',
-            j_scale,
-            ')">',
-            '<use href="#d0" />',
-            // '<polygon points="0,36 18,36 18,0 36,0 36,18 0,18" fill="', // 18,3 15,9 9,9 6,15 9,21 15,21 21,15 21,9 15,3
-            // '<polygon points="6,6 10,6 18,14 26,6 30,6 22,18 30,30 26,30 18,22 10,30 6,30 14,18" fill="',
-            // '<polygon points="6,6 10,6 18,16 26,6 30,6 20,18 30,30 26,30 18,20 10,30 6,30 16,18" fill="',
-            '<polygon points="0,0 0,36 36,36 36,0" fill="',
-            colorMap.perishedColor,
-            '">',
-            returnPerishedAnimation(
-              colorMap.deadColor,
-              colorMap.perishedColor,
-              CellData.i,
-              CellData.j,
-              CellData.representation,
-              CellData.bornCounter,
-              CellData.perishedCounter
-            ),
-            '</polygon>',
-            '</g>'
-          )
+        square = renderAnimatedCell(
+          '#d0',
+          i_scale,
+          j_scale,
+          colorMap.bornColor,
+          colorMap.aliveColor,
+          CellData
         );
       } else if (CellData.representation == 5) {
-        square = string(
-          abi.encodePacked(
-            '<g transform="translate(',
-            i_scale,
-            ',',
-            j_scale,
-            ')">',
-            '<use href="#d0" />',
-            '<circle r="18" fill="',
-            colorMap.perishedColor,
-            '">',
-            returnPerishedAnimation(
-              colorMap.deadColor,
-              colorMap.perishedColor,
-              CellData.i,
-              CellData.j,
-              CellData.representation,
-              CellData.bornCounter,
-              CellData.perishedCounter
-            ),
-            '</circle>',
-            '</g>'
-          )
+        square = renderAnimatedCell(
+          '#l0',
+          i_scale,
+          j_scale,
+          colorMap.bornColor,
+          colorMap.aliveColor,
+          CellData
         );
       }
     }
