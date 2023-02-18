@@ -4,10 +4,10 @@ pragma solidity >=0.7.0 <0.8.0;
 
 library Structs {
   struct MetaData {
-    uint256 birthCount; // can't be more than 64, so should be uint8
-    uint256 deathCount; // can't be more than 64, so should be uint8
-    uint256 populationDensity; // can't be more than 64, so should be uint8
-    uint256 popDiff; // can't be more than 64, so should be uint8
+    uint8 birthCount; // can't be more than 64, so should be uint8
+    uint8 deathCount; // can't be more than 64, so should be uint8
+    uint8 populationDensity; // can't be more than 64, so should be uint8
+    uint8 popDiff; // can't be more than 64, so should be uint8
     string name;
     string description;
     string generation;
@@ -21,10 +21,10 @@ library Structs {
   }
 
   struct Trends {
-    uint256 popDiff;
-    uint256 up;
-    uint256 births;
-    uint256 deaths;
+    uint8 popDiff;
+    uint8 up;
+    uint8 births;
+    uint8 deaths;
   }
 
   struct ColorMap {
@@ -44,8 +44,8 @@ library Structs {
     uint8 shape;
     uint8 speed;
     uint8 pattern;
-    uint256 i;
-    uint256 j;
-    uint256 unitScale;
+    uint8 i;
+    uint8 j;
+    uint8 unitScale;
   }
 }

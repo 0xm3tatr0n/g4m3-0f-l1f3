@@ -24,7 +24,7 @@ library BitOps {
     else return _packedBools & ~(uint256(1) << _boolNumber);
   }
 
-  function getCountOfOnBits(uint256 boolsUint) public pure returns (uint256) {
+  function getCountOfOnBits(uint256 boolsUint) public pure returns (uint8) {
     // count all the on bits in boolsUint
     uint256 boolsUintCopy = boolsUint;
     uint8 _count = 0;

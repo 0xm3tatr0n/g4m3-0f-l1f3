@@ -48,7 +48,7 @@ contract G4m3 is ERC721, Pausable, Ownable {
   // constants
   uint256 public constant maxItems = 10;
   uint256 public constant mintPrice = 0.01 ether;
-  uint256 internal constant scale = 40;
+  uint8 internal constant scale = 40;
   string s_scale = Strings.toString(scale - 4);
 
   // variables
@@ -329,10 +329,10 @@ contract G4m3 is ERC721, Pausable, Ownable {
     CellData.representation = metaData.representation;
     CellData.unitScale = scale;
 
-    for (uint256 i = 0; i < grid.length; i += 1) {
+    for (uint8 i = 0; i < grid.length; i += 1) {
       //
       bool[8] memory row = grid[i];
-      for (uint256 j = 0; j < row.length; j += 1) {
+      for (uint8 j = 0; j < row.length; j += 1) {
         CellData.i = i;
         CellData.j = j;
         CellData.alive = grid[i][j];
@@ -396,8 +396,8 @@ contract G4m3 is ERC721, Pausable, Ownable {
     if (id > 1) {
       stateDiff = tokenGridStatesInt[id - 1] ^ tokenGridStatesInt[id];
 
-      uint256 bornCells = BitOps.getCountOfOnBits(tokenGridStatesInt[id] & stateDiff);
-      uint256 perishedCells = BitOps.getCountOfOnBits(~tokenGridStatesInt[id] & stateDiff);
+      uint8 bornCells = BitOps.getCountOfOnBits(tokenGridStatesInt[id] & stateDiff);
+      uint8 perishedCells = BitOps.getCountOfOnBits(~tokenGridStatesInt[id] & stateDiff);
       // set counts
       metadata.birthCount = bornCells;
       metadata.deathCount = perishedCells;
@@ -410,8 +410,8 @@ contract G4m3 is ERC721, Pausable, Ownable {
         G0l.generateTimesNumber(
           populationTrends.up,
           populationTrends.popDiff,
-          metadata.seed,
-          metadata.populationDensity
+          metadata.populationDensity,
+          metadata.seed
         )
       );
 

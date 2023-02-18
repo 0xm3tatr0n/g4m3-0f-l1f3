@@ -90,7 +90,7 @@ library G0l {
     string memory deadColor,
     string memory bornColor,
     string memory perishedColor,
-    uint256 representation,
+    uint8 representation,
     string memory scaling
   ) public pure returns (bytes memory) {
     // render defs for: live, dead
@@ -271,7 +271,7 @@ library G0l {
     }
   }
 
-  function getTrends(uint256 bornCells, uint256 perishedCells)
+  function getTrends(uint8 bornCells, uint8 perishedCells)
     internal
     pure
     returns (Structs.Trends memory)
@@ -285,7 +285,7 @@ library G0l {
       trends.popDiff = bornCells - perishedCells;
     } else if (bornCells < perishedCells) {
       trends.up = 0;
-      trends.popDiff = uint256(-int256(bornCells - perishedCells));
+      trends.popDiff = uint8(-int8(bornCells - perishedCells));
     } else {
       trends.up = 99;
       trends.popDiff = 0;
@@ -448,11 +448,11 @@ library G0l {
 
   function generateTimesNumber(
     // individual variables to make function public
-    uint256 popUp,
-    uint256 popDiff,
-    uint256 seed,
-    uint256 density
-  ) public pure returns (uint256) {
+    uint8 popUp,
+    uint8 popDiff,
+    uint8 density,
+    uint256 seed
+  ) public pure returns (uint8) {
     // (replicating current state to get started somewhere. better would be better.)
     // should commit to final number of pallettes: 24?
     // trying to figure out dramaturgy of times
@@ -462,7 +462,7 @@ library G0l {
     bool diffThreshold = popDiff > 3;
 
     // initialize times variable
-    uint256 times = 0;
+    uint8 times = 0;
     // change times depending on population evolution vs. previous round
     if (popUp == 0 && !densityThreshold) {
       // population low & shrinking
@@ -498,7 +498,7 @@ library G0l {
 
     // shift "randomly"
 
-    times = (times * 2) + ((seed % 2));
+    times = uint8((times * 2) + ((seed % 2)));
 
     return times;
   }
@@ -608,12 +608,20 @@ library G0l {
 
     if (CellData.representation < 5) {
       // rectangle case
-      i_scale = Strings.toString(CellData.i * CellData.unitScale + 2 + 20);
-      j_scale = Strings.toString(CellData.j * CellData.unitScale + 2 + 20);
+      i_scale = Strings.toString(
+        uint256(uint256(CellData.i) * uint256(CellData.unitScale) + 2 + 20)
+      );
+      j_scale = Strings.toString(
+        uint256(uint256(CellData.j) * uint256(CellData.unitScale) + 2 + 20)
+      );
     } else {
       // circle case
-      i_scale = Strings.toString(CellData.i * CellData.unitScale + 20 + 20);
-      j_scale = Strings.toString(CellData.j * CellData.unitScale + 20 + 20);
+      i_scale = Strings.toString(
+        uint256(uint256(CellData.i) * uint256(CellData.unitScale) + 20 + 20)
+      );
+      j_scale = Strings.toString(
+        uint256(uint256(CellData.j) * uint256(CellData.unitScale) + 20 + 20)
+      );
     }
 
     if (CellData.alive && !CellData.hasChanged) {
