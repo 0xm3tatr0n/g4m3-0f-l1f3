@@ -38,11 +38,14 @@ library Structs {
   struct CellData {
     bool alive;
     bool hasChanged;
-    uint256 i;
-    uint256 j;
     uint8 bornCounter;
     uint8 perishedCounter;
-    uint256 representation;
+    uint8 representation;
+    uint8 shape;
+    uint8 speed;
+    uint8 pattern;
+    uint256 i;
+    uint256 j;
     uint256 unitScale;
   }
 }
