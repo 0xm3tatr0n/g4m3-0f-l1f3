@@ -61,7 +61,31 @@ library G0l {
     return colorPalettes[paletteNumber][colorPos];
   }
 
-  function returnRepresentationSelector(uint256 seed) public pure returns (uint8) {
+  // function returnRepresentationSelector(uint256 seed) public pure returns (uint8) {
+  //   uint256 arbitrarySelector = seed % 13;
+
+  //   if (arbitrarySelector < 1) {
+  //     // raw
+  //     return 0;
+  //   } else if (arbitrarySelector < 3) {
+  //     // static
+  //     return 1;
+  //   } else if (arbitrarySelector < 5) {
+  //     // animated arrows
+  //     return 2;
+  //   } else if (arbitrarySelector < 9) {
+  //     // animated blocks
+  //     return 3;
+  //   } else if (arbitrarySelector < 10) {
+  //     // animated pixel
+  //     return 4;
+  //   } else {
+  //     // animated circle
+  //     return 5;
+  //   }
+  // }
+
+  function shapeSelector(uint256 seed) public pure returns (uint8) {
     uint256 arbitrarySelector = seed % 13;
 
     if (arbitrarySelector < 1) {
@@ -515,14 +539,17 @@ library G0l {
   }
 
   function generateAttributeString(
-    uint256 times,
+    uint8 times,
     // uint8 representation,
     string calldata generation,
-    uint256 populationDensity,
-    uint256 birthCount,
-    uint256 deathCount,
+    uint8 populationDensity,
+    uint8 birthCount,
+    uint8 deathCount,
     string calldata trend,
-    uint256 popDiff
+    uint8 popDiff, 
+    uint8 shape,
+    uint8 speed,
+    uint8 pattern
   ) public pure returns (string memory) {
     string memory timesName = generateTimesName(times);
     // string memory representationName = generateRepresentationName(representation);
@@ -549,7 +576,10 @@ library G0l {
         '"},',
         '{"trait_type" : "times", "value": "',
         timesName,
-        '"}',
+        '"},',
+        '{"trait_type" : "representation", "value": "',
+        Strings.toString(shape), Strings.toString(speed), Strings.toString(pattern),
+        '"}'
         // '{"trait_type" : "representation", "value": "',
         // representationName,
         // '"}',
