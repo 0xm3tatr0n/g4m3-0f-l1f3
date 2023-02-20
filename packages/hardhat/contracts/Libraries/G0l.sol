@@ -138,31 +138,30 @@ library G0l {
 
     if (speed == 1) {
       // case: static
-      // add perished fields
-      defs = abi.encodePacked(
-        defs,
-        '<rect id="b0" width="',
-        scaling,
-        '" height="',
-        scaling,
-        '" fill="',
-        bornColor,
-        '"></rect>'
-      );
+      if (shape == 0) {
+        // circles
+        defs = abi.encodePacked(defs, '<circle id="b0" r="18" fill="', bornColor, '"></circle>');
+        defs = abi.encodePacked(
+          defs,
+          '<circle id="p0" r="18" fill="',
+          perishedColor,
+          '"></circle>'
+        );
+      } else {
+        // blocks & triangles
+        defs = abi.encodePacked(
+          defs,
+          '<rect id="b0" width="',
+          scaling,
+          '" height="',
+          scaling,
+          '" fill="',
+          bornColor,
+          '"></rect>'
+        );
 
-      defs = abi.encodePacked(defs, '<g id="p0"><use href="#d0" /> <use href="#pp" /></g>');
-
-      // add born fields
-      defs = abi.encodePacked(
-        defs,
-        '<rect id="b0" width="',
-        scaling,
-        '" height="',
-        scaling,
-        '" fill="',
-        bornColor,
-        '"></rect>'
-      );
+        defs = abi.encodePacked(defs, '<g id="p0"><use href="#d0" /> <use href="#pp" /></g>');
+      }
     }
 
     defs = abi.encodePacked(defs, '</defs>');
