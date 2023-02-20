@@ -136,36 +136,6 @@ library G0l {
       );
     }
 
-    // if (shape < 5) {
-    //   // if
-    //   defs = abi.encodePacked(
-    //     defs,
-    //     '<rect id="l0" width="',
-    //     scaling,
-    //     '" height="',
-    //     scaling,
-    //     '" fill="',
-    //     aliveColor,
-    //     '"></rect>'
-    //   );
-    //   // add dead
-    //   defs = abi.encodePacked(
-    //     defs,
-    //     '<rect id="d0" width="',
-    //     scaling,
-    //     '" height="',
-    //     scaling,
-    //     '" fill="',
-    //     deadColor,
-    //     '"></rect>'
-    //   );
-    // } else {
-    //   // circle
-    //   defs = abi.encodePacked(defs, '<circle id="l0" r="18" fill="', aliveColor, '"></circle>');
-    //   // add dead
-    //   defs = abi.encodePacked(defs, '<circle id="d0" r="18" fill="', deadColor, '"></circle>');
-    // }
-
     if (speed == 1) {
       // case: static
       // add perished fields
@@ -603,8 +573,8 @@ library G0l {
 
     {
       string[3] memory shapeTagOpen = [
-        '<polygon points="0,0 0,36 36,36 36,0" fill="',
         '<circle r="18" fill="',
+        '<polygon points="0,0 0,36 36,36 36,0" fill="',
         '<polygon points="36,0 36,36 0,0" fill="'
       ];
       cell = string(
@@ -613,7 +583,7 @@ library G0l {
     }
 
     {
-      string[3] memory shapeTagClose = ['</polygon>', '</circle>', '</polygon>'];
+      string[3] memory shapeTagClose = ['</circle>', '</polygon>', '</polygon>'];
       string memory animation = renderAnimation(
         primaryColor,
         secondaryColor,
@@ -676,7 +646,7 @@ library G0l {
       } else if (CellData.speed == 1) {
         // static
         square = renderUseTag('#b0', i_scale, j_scale);
-      } else if (CellData.representation >= 2) {
+      } else if (CellData.speed >= 2) {
         square = renderAnimatedCell(
           '#l0',
           i_scale,
@@ -688,11 +658,11 @@ library G0l {
       }
     } else if (!CellData.alive && CellData.hasChanged) {
       // case: died this round
-      if (CellData.representation == 0) {
+      if (CellData.speed == 0) {
         square = renderUseTag('#d0', i_scale, j_scale);
-      } else if (CellData.representation == 1) {
+      } else if (CellData.speed == 1) {
         square = renderUseTag('#p0', i_scale, j_scale);
-      } else if (CellData.representation >= 2) {
+      } else if (CellData.speed >= 2) {
         square = renderAnimatedCell(
           '#d0',
           i_scale,
