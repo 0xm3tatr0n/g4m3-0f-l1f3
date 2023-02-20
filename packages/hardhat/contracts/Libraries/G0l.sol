@@ -160,7 +160,18 @@ library G0l {
           '"></rect>'
         );
 
-        defs = abi.encodePacked(defs, '<g id="p0"><use href="#d0" /> <use href="#pp" /></g>');
+        defs = abi.encodePacked(
+          defs,
+          '<rect id="p0" width="',
+          scaling,
+          '" height="',
+          scaling,
+          '" fill="',
+          perishedColor,
+          '"></rect>'
+        );
+
+        // defs = abi.encodePacked(defs, '<g id="p0"><use href="#d0" /> <use href="#pp" /></g>');
       }
     }
 
@@ -669,8 +680,8 @@ library G0l {
           '#p0',
           i_scale,
           j_scale,
-          colorMap.bornColor,
-          colorMap.aliveColor,
+          colorMap.perishedColor,
+          colorMap.deadColor,
           CellData
         );
       }
