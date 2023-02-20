@@ -173,52 +173,54 @@ library G0l {
   function renderAnimation(
     string memory primaryColor,
     string memory secondaryColor,
-    uint256 i,
-    uint256 j,
-    uint256 representation,
+    uint8 pattern,
+    uint8 speed,
+    uint8 i,
+    uint8 j,
     uint8 bornCounter,
     uint8 perishedCounter
   ) public pure returns (string memory) {
     //
-
-    if (representation == 4) {
-      // going for a matrix style animation
-      return
-        string(
-          abi.encodePacked(
-            '<animate attributeType="XML" attributeName="fill" values="',
-            primaryColor,
-            ';',
-            secondaryColor,
-            ';',
-            primaryColor,
-            ';',
-            primaryColor,
-            '" dur="3s" begin="aa.begin +',
-            timeOffsetMap(bornCounter + perishedCounter),
-            's" ',
-            'repeatCount="indefinite"/>'
-          )
-        );
-    } else if (representation >= 2 && representation != 4) {
-      return
-        string(
-          abi.encodePacked(
-            '<animate attributeType="XML" attributeName="fill" values="',
-            primaryColor,
-            ';',
-            secondaryColor,
-            ';',
-            primaryColor,
-            ';',
-            primaryColor,
-            '" dur="1.',
-            Strings.toString((i * j) % 9),
-            's" repeatCount="indefinite"/>'
-          )
-        );
-    } else {
+    if (speed <= 1) {
+      // raw or static
       return '';
+    } else {
+      if (pattern == 0) {
+        return
+          string(
+            abi.encodePacked(
+              '<animate attributeType="XML" attributeName="fill" values="',
+              primaryColor,
+              ';',
+              secondaryColor,
+              ';',
+              primaryColor,
+              ';',
+              primaryColor,
+              '" dur="3s" begin="aa.begin +',
+              timeOffsetMap(bornCounter + perishedCounter),
+              's" ',
+              'repeatCount="indefinite"/>'
+            )
+          );
+      } else if (pattern == 1) {
+        return
+          string(
+            abi.encodePacked(
+              '<animate attributeType="XML" attributeName="fill" values="',
+              primaryColor,
+              ';',
+              secondaryColor,
+              ';',
+              primaryColor,
+              ';',
+              primaryColor,
+              '" dur="1.',
+              Strings.toString((i * j) % 9),
+              's" repeatCount="indefinite"/>'
+            )
+          );
+      }
     }
   }
 
@@ -587,9 +589,10 @@ library G0l {
       string memory animation = renderAnimation(
         primaryColor,
         secondaryColor,
+        CellData.pattern,
+        CellData.speed,
         CellData.i,
         CellData.j,
-        CellData.pattern,
         CellData.bornCounter,
         CellData.perishedCounter
       );
@@ -648,7 +651,7 @@ library G0l {
         square = renderUseTag('#b0', i_scale, j_scale);
       } else if (CellData.speed >= 2) {
         square = renderAnimatedCell(
-          '#l0',
+          '#b0',
           i_scale,
           j_scale,
           colorMap.bornColor,
@@ -664,7 +667,7 @@ library G0l {
         square = renderUseTag('#p0', i_scale, j_scale);
       } else if (CellData.speed >= 2) {
         square = renderAnimatedCell(
-          '#d0',
+          '#p0',
           i_scale,
           j_scale,
           colorMap.bornColor,
