@@ -365,7 +365,8 @@ contract G4m3 is ERC721, Pausable, Ownable {
       colorMap.deadColor,
       colorMap.bornColor,
       colorMap.perishedColor,
-      metaData.representation,
+      metaData.shape,
+      metaData.speed,
       s_scale
     );
     output = abi.encodePacked(
@@ -425,8 +426,8 @@ contract G4m3 is ERC721, Pausable, Ownable {
     }
 
     // dummy population of new representation data
-    metadata.shape = 1;
-    metadata.speed = 1;
+    metadata.shape = 0;
+    metadata.speed = 0;
     metadata.pattern = 1;
 
     return metadata;

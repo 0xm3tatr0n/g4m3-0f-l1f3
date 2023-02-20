@@ -91,7 +91,8 @@ library G0l {
     string memory deadColor,
     string memory bornColor,
     string memory perishedColor,
-    uint8 representation,
+    uint8 shape,
+    uint8 speed,
     string memory scaling
   ) public pure returns (bytes memory) {
     // render defs for: live, dead
@@ -105,8 +106,13 @@ library G0l {
     defs = abi.encodePacked(defs, '<animate id="aa" begin="0s"/>');
     // add live
 
-    if (representation < 5) {
-      // if
+    if (shape == 0) {
+      // circle
+      defs = abi.encodePacked(defs, '<circle id="l0" r="18" fill="', aliveColor, '"></circle>');
+      // add dead
+      defs = abi.encodePacked(defs, '<circle id="d0" r="18" fill="', deadColor, '"></circle>');
+    } else {
+      // blocks & triangles
       defs = abi.encodePacked(
         defs,
         '<rect id="l0" width="',
@@ -128,14 +134,39 @@ library G0l {
         deadColor,
         '"></rect>'
       );
-    } else {
-      // circle
-      defs = abi.encodePacked(defs, '<circle id="l0" r="18" fill="', aliveColor, '"></circle>');
-      // add dead
-      defs = abi.encodePacked(defs, '<circle id="d0" r="18" fill="', deadColor, '"></circle>');
     }
 
-    if (representation == 1) {
+    // if (shape < 5) {
+    //   // if
+    //   defs = abi.encodePacked(
+    //     defs,
+    //     '<rect id="l0" width="',
+    //     scaling,
+    //     '" height="',
+    //     scaling,
+    //     '" fill="',
+    //     aliveColor,
+    //     '"></rect>'
+    //   );
+    //   // add dead
+    //   defs = abi.encodePacked(
+    //     defs,
+    //     '<rect id="d0" width="',
+    //     scaling,
+    //     '" height="',
+    //     scaling,
+    //     '" fill="',
+    //     deadColor,
+    //     '"></rect>'
+    //   );
+    // } else {
+    //   // circle
+    //   defs = abi.encodePacked(defs, '<circle id="l0" r="18" fill="', aliveColor, '"></circle>');
+    //   // add dead
+    //   defs = abi.encodePacked(defs, '<circle id="d0" r="18" fill="', deadColor, '"></circle>');
+    // }
+
+    if (speed == 1) {
       // case: static
       // add perished fields
       defs = abi.encodePacked(
