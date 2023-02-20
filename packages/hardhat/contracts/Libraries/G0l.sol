@@ -630,72 +630,22 @@ library G0l {
     }
 
     if (CellData.alive && !CellData.hasChanged) {
-      // was alive last round
+      // case: long alive
+      // never animated
       square = renderUseTag('#l0', i_scale, j_scale); // string(
-      //  abi.encodePacked('<use href="#l0" ', 'x="', i_scale, '" y="', j_scale, '" />')
-      // );
+    } else if (!CellData.alive && !CellData.hasChanged) {
+      // case: long dead
+      // never animated
+      square = renderUseTag('#d0', i_scale, j_scale);
     } else if (CellData.alive && CellData.hasChanged) {
       // case: new born
       if (CellData.speed == 0) {
         // raw
         square = renderUseTag('#l0', i_scale, j_scale);
       } else if (CellData.speed == 1) {
+        // static
         square = renderUseTag('#b0', i_scale, j_scale);
-      } else if (CellData.representation == 2) {
-        square = renderAnimatedCell(
-          '#l0',
-          i_scale,
-          j_scale,
-          colorMap.bornColor,
-          colorMap.aliveColor,
-          CellData
-        );
-      } else if (CellData.representation == 3) {
-        square = renderAnimatedCell(
-          '#l0',
-          i_scale,
-          j_scale,
-          colorMap.bornColor,
-          colorMap.aliveColor,
-          CellData
-        );
-      } else if (CellData.representation == 4) {
-        square = renderAnimatedCell(
-          '#l0',
-          i_scale,
-          j_scale,
-          colorMap.bornColor,
-          colorMap.aliveColor,
-          CellData
-        );
-        // square = string(
-        //   abi.encodePacked(
-        //     '<g transform="translate(',
-        //     i_scale,
-        //     ',',
-        //     j_scale,
-        //     ')">',
-        //     '<use href="#l0" />',
-        //     // '<polygon points="0,36 18,36 18,0 36,0 36,18 0,18" fill="', // to be replaced
-        //     // '<polygon points="15,5 21,5 21,15 31,15 31,21 21,21, 21,31 15,31 15,21 5,21 5,15 15,15" fill="',
-        //     // '<polygon points="16,6 20,6 20,16 30,16 30,20 20,20 20,30 16,30 16,20 6,20 6,16, 16,16" fill="',
-        //     '<polygon points="0,0 0,36 36,36 36,0" fill="',
-        //     colorMap.bornColor,
-        //     '">',
-        //     returnBornAnimation(
-        //       colorMap.aliveColor,
-        //       colorMap.bornColor,
-        //       CellData.i,
-        //       CellData.j,
-        //       CellData.representation,
-        //       CellData.bornCounter,
-        //       CellData.perishedCounter
-        //     ),
-        //     '</polygon>',
-        //     '</g>'
-        //   )
-        // );
-      } else if (CellData.representation == 5) {
+      } else if (CellData.representation >= 2) {
         square = renderAnimatedCell(
           '#l0',
           i_scale,
@@ -705,46 +655,15 @@ library G0l {
           CellData
         );
       }
-    } else if (!CellData.alive && !CellData.hasChanged) {
-      // case: didn't exist in previous round
-
-      square = renderUseTag('#d0', i_scale, j_scale);
     } else if (!CellData.alive && CellData.hasChanged) {
       // case: died this round
       if (CellData.representation == 0) {
         square = renderUseTag('#d0', i_scale, j_scale);
       } else if (CellData.representation == 1) {
         square = renderUseTag('#p0', i_scale, j_scale);
-      } else if (CellData.representation == 2) {
+      } else if (CellData.representation >= 2) {
         square = renderAnimatedCell(
           '#d0',
-          i_scale,
-          j_scale,
-          colorMap.bornColor,
-          colorMap.aliveColor,
-          CellData
-        );
-      } else if (CellData.representation == 3) {
-        square = renderAnimatedCell(
-          '#d0',
-          i_scale,
-          j_scale,
-          colorMap.bornColor,
-          colorMap.aliveColor,
-          CellData
-        );
-      } else if (CellData.representation == 4) {
-        square = renderAnimatedCell(
-          '#d0',
-          i_scale,
-          j_scale,
-          colorMap.bornColor,
-          colorMap.aliveColor,
-          CellData
-        );
-      } else if (CellData.representation == 5) {
-        square = renderAnimatedCell(
-          '#l0',
           i_scale,
           j_scale,
           colorMap.bornColor,
