@@ -516,7 +516,7 @@ library G0l {
 
   function generateAttributeString(
     uint256 times,
-    uint8 representation,
+    // uint8 representation,
     string calldata generation,
     uint256 populationDensity,
     uint256 birthCount,
@@ -525,7 +525,7 @@ library G0l {
     uint256 popDiff
   ) public pure returns (string memory) {
     string memory timesName = generateTimesName(times);
-    string memory representationName = generateRepresentationName(representation);
+    // string memory representationName = generateRepresentationName(representation);
 
     string memory attributeString = string(
       abi.encodePacked(
@@ -549,10 +549,10 @@ library G0l {
         '"},',
         '{"trait_type" : "times", "value": "',
         timesName,
-        '"},',
-        '{"trait_type" : "representation", "value": "',
-        representationName,
         '"}',
+        // '{"trait_type" : "representation", "value": "',
+        // representationName,
+        // '"}',
         '],'
       )
     );

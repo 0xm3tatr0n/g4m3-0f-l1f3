@@ -239,7 +239,7 @@ contract G4m3 is ERC721, Pausable, Ownable {
                 '",',
                 G0l.generateAttributeString(
                   metadata.times,
-                  metadata.representation,
+                  // metadata.representation,
                   metadata.generation,
                   metadata.populationDensity,
                   metadata.birthCount,
@@ -331,7 +331,7 @@ contract G4m3 is ERC721, Pausable, Ownable {
     CellData.perishedCounter = 0;
 
     // packing representation (present in metaData) into CellData struct for stacking reasons
-    CellData.representation = metaData.representation;
+    // CellData.representation = metaData.representation;
     CellData.unitScale = scale;
 
     for (uint8 i = 0; i < grid.length; i += 1) {
@@ -396,7 +396,7 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
     // "arbitrary" value to mix things up (not random because deterministic)
     metadata.seed = uint256(keccak256(abi.encodePacked(metadata.generation, metadata.description)));
-    metadata.representation = G0l.returnRepresentationSelector(metadata.seed);
+    // metadata.representation = G0l.returnRepresentationSelector(metadata.seed);
     // get data for births & deaths
     uint256 stateDiff;
     if (id > 1) {
@@ -431,9 +431,9 @@ contract G4m3 is ERC721, Pausable, Ownable {
     }
 
     // dummy population of new representation data
-    metadata.shape = 1;
-    metadata.speed = 2;
-    metadata.pattern = 0;
+    metadata.shape = 2;
+    metadata.speed = 1;
+    metadata.pattern = 1;
 
     return metadata;
   }
