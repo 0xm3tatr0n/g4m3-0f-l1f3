@@ -615,7 +615,7 @@ library G0l {
     string memory i_scale;
     string memory j_scale;
 
-    if (CellData.shape == 1) {
+    if (CellData.shape == 0) {
       // circle case
       i_scale = Strings.toString(
         uint256(uint256(CellData.i) * uint256(CellData.unitScale) + 20 + 20)
