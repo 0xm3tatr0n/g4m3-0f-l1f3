@@ -245,7 +245,10 @@ contract G4m3 is ERC721, Pausable, Ownable {
                   metadata.birthCount,
                   metadata.deathCount,
                   metadata.trend,
-                  metadata.popDiff
+                  metadata.popDiff,
+                  metadata.shape,
+                  metadata.speed,
+                  metadata.pattern
                 ),
                 '"owner":"',
                 (uint160(ownerOf(id))).toHexString(20),
@@ -421,6 +424,8 @@ contract G4m3 is ERC721, Pausable, Ownable {
         )
       );
 
+      // metadata.times = 13;
+
       if (populationTrends.up == 1) {
         metadata.trend = 'up';
       } else if (populationTrends.up == 0) {
@@ -431,9 +436,9 @@ contract G4m3 is ERC721, Pausable, Ownable {
     }
 
     // dummy population of new representation data
-    metadata.shape = 2;
-    metadata.speed = 1;
-    metadata.pattern = 1;
+    metadata.shape = uint8(metadata.seed % 3);
+    metadata.speed = uint8(metadata.seed % 6);
+    metadata.pattern = uint8(metadata.seed % 2);
 
     return metadata;
   }
