@@ -321,6 +321,11 @@ contract G4m3 is ERC721, Pausable, Ownable {
     Structs.MetaData memory metaData = generateMetadata(id);
     Structs.ColorMap memory colorMap = generateColorMap(metaData);
 
+    // pass metadata to celldata
+    CellData.shape = metaData.shape;
+    CellData.speed = metaData.speed;
+    CellData.pattern = metaData.pattern;
+
     // adding counters to keep track of born / perished
     CellData.bornCounter = 0;
     CellData.perishedCounter = 0;
