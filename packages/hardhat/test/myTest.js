@@ -164,18 +164,18 @@ describe('My Dapp', function () {
 
         // get generation data
         const generationAttribute = tokenMetadata.attributes.find((e) => {
-          return e.trait_type === 'generation';
+          return e.trait_type === 'epoch';
         });
 
         const generationValue = generationAttribute.value;
         nextGeneration = generationValue;
 
-        console.log(`last token checked ${latestToken} is at generation ${generationValue}`);
+        console.log(`last token checked ${latestToken} is at epoch ${generationValue}`);
       }
 
       // save generated data to stats (to get an idea of avg gen length)
 
-      console.log(`generation changed to ${nextGeneration} at tokenId ${latestToken}`);
+      console.log(`epoch changed to ${nextGeneration} at tokenId ${latestToken}`);
     });
 
     it('Should just track the length of tokenURIs (for now)', async function () {

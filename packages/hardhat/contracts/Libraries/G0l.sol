@@ -37,7 +37,7 @@ library G0l {
       // 10 5/0: good. rural, growing rapidly
       ['#34287E', '#1E62AB', '#423E37', '#92B83C', '#469D45', '#FAED24', '#C7381D'],
       // 11 5/1: good. rural, growing rapidly
-      ['#201335', '#f78154', '#201335', '#5fad56', '#4d9078', '#f78154', '#b4436c'],
+      ['#201335', '#f78154', '#201335', '#5fad56', '#4d9078', '#b4436c', '#b4436c'],
       // 12 6/0: bad: urban, growing slowly
       ['#071E22', '#FF1053', '#251101', '#5BC0EB', '#D2F898', '#495159', '#3D3522'],
       // 13 6/1: bad: urban, growing slowly
@@ -85,28 +85,59 @@ library G0l {
   //   }
   // }
 
-  function shapeSelector(uint256 seed) public pure returns (uint8) {
-    uint256 arbitrarySelector = seed % 13;
+  function representationAttributes(uint256 seed) public pure returns (uint8, uint8, uint8) {
+    uint8 shape;
+    uint8 speed;
+    uint8 pattern;
+    // uint256 arbitrarySelector = seed % 13;
 
-    if (arbitrarySelector < 1) {
-      // raw
-      return 0;
-    } else if (arbitrarySelector < 3) {
-      // static
-      return 1;
-    } else if (arbitrarySelector < 5) {
-      // animated arrows
-      return 2;
-    } else if (arbitrarySelector < 9) {
-      // animated blocks
-      return 3;
-    } else if (arbitrarySelector < 10) {
-      // animated pixel
-      return 4;
-    } else {
-      // animated circle
-      return 5;
+    {
+      // shape: 0: circle, 1: block, 2: triangle
+      uint8 selector = uint8(seed % 13);
+      if (selector < 5){
+        // circle
+        shape = 0;
+      } else if (selector < 12){
+        // block
+        shape = 1;
+      } else {
+        // triangle
+        shape = 2;
+      }
     }
+
+    {
+      // speed: 0: raw, 1: static, 2: animated1
+      uint8 selector = uint8(seed % 23);
+      if (selector < 5){
+        // circle
+        speed = 0;
+      } else if (selector < 10){
+        // block
+        speed = 1;
+      } else if (selector < 13){
+        // triangle
+        speed = 2;
+      } else if (selector < 17){
+        speed = 3;
+      } else {
+        speed = 4;
+      }
+    }
+
+    {
+      // pattern: 0: , 1:
+      uint8 selector = uint8(seed % 31 );
+      if (selector < 15){
+        // circle
+        pattern = 0;
+      } else {
+        // triangle
+        pattern = 1;
+      }
+    }
+
+    return (shape, speed, pattern);
   }
 
   function renderDefs(
@@ -220,6 +251,14 @@ library G0l {
       return '';
     } else {
       if (pattern == 0) {
+                uint8 dur;
+        if (speed == 2){
+          dur = 4;
+        } else if (speed == 3){
+          dur = 3;
+        } else if (speed == 4){
+          dur = 1;
+        }
         return
           string(
             abi.encodePacked(
@@ -231,13 +270,21 @@ library G0l {
               primaryColor,
               ';',
               primaryColor,
-              '" dur="3s" begin="aa.begin +',
+              '" dur="',Strings.toString(dur),'s" begin="aa.begin +',
               timeOffsetMap(bornCounter + perishedCounter),
               's" ',
               'repeatCount="indefinite"/>'
             )
           );
       } else if (pattern == 1) {
+        uint8 dur;
+        if (speed == 2){
+          dur = 2;
+        } else if (speed == 3){
+          dur = 1;
+        } else if (speed == 4){
+          dur = 0;
+        }
         return
           string(
             abi.encodePacked(
@@ -249,8 +296,8 @@ library G0l {
               primaryColor,
               ';',
               primaryColor,
-              '" dur="1.',
-              Strings.toString((i * j) % 9),
+              '" dur="',Strings.toString(dur),'.',
+              Strings.toString((i * j) % 10),
               's" repeatCount="indefinite"/>'
             )
           );
@@ -281,21 +328,21 @@ library G0l {
     return trends;
   }
 
-  function generateRepresentationName(uint256 representation) public pure returns (string memory) {
-    if (representation == 0) {
-      return 'raw';
-    } else if (representation == 1) {
-      return 'static';
-    } else if (representation == 2) {
-      return 'arrows';
-    } else if (representation == 3) {
-      return 'blocks';
-    } else if (representation == 4) {
-      return 'signs';
-    } else if (representation == 5) {
-      return 'circle';
-    }
-  }
+  // function generateRepresentationName(uint256 representation) public pure returns (string memory) {
+  //   if (representation == 0) {
+  //     return 'raw';
+  //   } else if (representation == 1) {
+  //     return 'static';
+  //   } else if (representation == 2) {
+  //     return 'arrows';
+  //   } else if (representation == 3) {
+  //     return 'blocks';
+  //   } else if (representation == 4) {
+  //     return 'signs';
+  //   } else if (representation == 5) {
+  //     return 'circle';
+  //   }
+  // }
 
   function timeOffsetMap(uint256 elementIndex) public pure returns (string memory) {
     // workaround:
@@ -556,7 +603,7 @@ library G0l {
 
     string memory attributeString = string(
       abi.encodePacked(
-        ' "attributes": [{"trait_type": "generation", "value": "#',
+        ' "attributes": [{"trait_type": "epoch", "value": "#',
         generation,
         '"},',
         '{"trait_type" : "density", "value": "',
@@ -654,6 +701,8 @@ library G0l {
     string memory square;
     string memory i_scale;
     string memory j_scale;
+    // string memory i_scale_c;
+    // string memory j_scale_c;
 
     if (CellData.shape == 0) {
       // circle case
