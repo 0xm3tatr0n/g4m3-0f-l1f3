@@ -92,17 +92,20 @@ library G0l {
     // uint256 arbitrarySelector = seed % 13;
 
     {
-      // shape: 0: circle, 1: block, 2: triangle
-      uint8 selector = uint8(seed % 13);
+      // shape: 0: circle, 1: block, 2: triangle, 3: squares (alive) & circles (dead)
+      uint8 selector = uint8(seed % 17);
+
       if (selector < 5){
         // circle
         shape = 0;
-      } else if (selector < 12){
+      } else if (selector < 10){
         // block
         shape = 1;
+      } else if (selector < 11 ){
+        shape = 2;
       } else {
         // triangle
-        shape = 2;
+        shape = 3;
       }
     }
 
