@@ -193,7 +193,7 @@ library G0l {
         '"></rect>'
       );
     } else {
-      // alive: square, dead: circle
+      // shape 3: alive: square, dead: circle
       defs = abi.encodePacked(
         defs,
         '<rect id="l0" width="',
@@ -245,26 +245,28 @@ library G0l {
 
         // defs = abi.encodePacked(defs, '<g id="p0"><use href="#d0" /> <use href="#pp" /></g>');
       }
-    } else {
-      // alive: square, dead: circle
-      defs = abi.encodePacked(
-        defs,
-        '<rect id="b0" width="',
-        scaling,
-        '" height="',
-        scaling,
-        '" fill="',
-        bornColor,
-        '"></rect>'
-      );
+    } 
+    
+    // else {
+    //   // todo: this seems very wrong. alive: square, dead: circle
+    //   defs = abi.encodePacked(
+    //     defs,
+    //     '<rect id="b0" width="',
+    //     scaling,
+    //     '" height="',
+    //     scaling,
+    //     '" fill="',
+    //     bornColor,
+    //     '"></rect>'
+    //   );
 
-      defs = abi.encodePacked(
-        defs,
-        '<circle id="p0" r="18" fill="',
-        perishedColor,
-        '"></circle>'
-      );
-    }
+    //   defs = abi.encodePacked(
+    //     defs,
+    //     '<circle id="p0" r="18" fill="',
+    //     perishedColor,
+    //     '"></circle>'
+    //   );
+    // }
 
     defs = abi.encodePacked(defs, '</defs>');
 
