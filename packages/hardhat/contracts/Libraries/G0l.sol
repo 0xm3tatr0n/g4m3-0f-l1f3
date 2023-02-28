@@ -244,6 +244,25 @@ library G0l {
         );
 
         // defs = abi.encodePacked(defs, '<g id="p0"><use href="#d0" /> <use href="#pp" /></g>');
+      } else if (shape == 3){
+        // mixed shapes
+        defs = abi.encodePacked(
+          defs,
+          '<rect id="b0" width="',
+          scaling,
+          '" height="',
+          scaling,
+          '" fill="',
+          bornColor,
+          '"></rect>'
+        );
+
+        defs = abi.encodePacked(
+          defs,
+          '<circle id="p0" r="18" fill="',
+          perishedColor,
+          '"></circle>'
+        );
       }
     } 
     
@@ -861,7 +880,12 @@ library G0l {
           square = renderUseTag('#d0', i_scale, j_scale);
         }
       } else if (CellData.speed == 1) {
-        square = renderUseTag('#p0', i_scale, j_scale);
+        if (CellData.shape == 3){
+          square = renderUseTag('#p0', i_scale_a, j_scale_a);
+        } else {
+          square = renderUseTag('#p0', i_scale, j_scale);
+
+        }
       } else if (CellData.speed >= 2) {
 
         if (CellData.shape == 3){
