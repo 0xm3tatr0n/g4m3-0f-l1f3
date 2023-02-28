@@ -855,7 +855,11 @@ library G0l {
     } else if (!CellData.alive && CellData.hasChanged) {
       // case: died this round
       if (CellData.speed == 0) {
-        square = renderUseTag('#d0', i_scale, j_scale);
+        if (CellData.shape == 3){
+          square = renderUseTag('#d0', i_scale_a, j_scale_a);
+        } else {
+          square = renderUseTag('#d0', i_scale, j_scale);
+        }
       } else if (CellData.speed == 1) {
         square = renderUseTag('#p0', i_scale, j_scale);
       } else if (CellData.speed >= 2) {
