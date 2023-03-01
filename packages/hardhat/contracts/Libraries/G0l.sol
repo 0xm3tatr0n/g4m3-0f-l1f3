@@ -139,14 +139,18 @@ library G0l {
     }
 
     {
-      // pattern: 0: , 1:
-      uint8 selector = uint8(seed % 31);
-      if (selector < 15) {
-        // circle
+      if (speed <= 1) {
         pattern = 0;
       } else {
-        // triangle
-        pattern = 1;
+        // pattern: 1: , 2:
+        uint8 selector = uint8(seed % 31);
+        if (selector < 15) {
+          // circle
+          pattern = 1;
+        } else {
+          // triangle
+          pattern = 2;
+        }
       }
     }
 
@@ -323,7 +327,7 @@ library G0l {
       // raw or static
       return '';
     } else {
-      if (pattern == 0) {
+      if (pattern == 1) {
         uint8 dur;
         if (speed == 2) {
           dur = 4;
@@ -351,7 +355,7 @@ library G0l {
               'repeatCount="indefinite"/>'
             )
           );
-      } else if (pattern == 1) {
+      } else if (pattern == 2) {
         uint8 dur;
         if (speed == 2) {
           dur = 2;
