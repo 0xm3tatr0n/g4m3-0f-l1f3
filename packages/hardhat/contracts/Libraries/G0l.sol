@@ -85,7 +85,15 @@ library G0l {
   //   }
   // }
 
-  function representationAttributes(uint256 seed) public pure returns (uint8, uint8, uint8) {
+  function representationAttributes(uint256 seed)
+    public
+    pure
+    returns (
+      uint8,
+      uint8,
+      uint8
+    )
+  {
     uint8 shape;
     uint8 speed;
     uint8 pattern;
@@ -95,13 +103,13 @@ library G0l {
       // shape: 0: circle, 1: block, 2: triangle, 3: squares (alive) & circles (dead), 4: circles (alive) & squares (dead)
       uint8 selector = uint8(seed % 19);
 
-      if (selector < 5){
+      if (selector < 5) {
         // circle
         shape = 0;
-      } else if (selector < 10){
+      } else if (selector < 10) {
         // block
         shape = 1;
-      } else if (selector < 11 ){
+      } else if (selector < 11) {
         shape = 2;
       } else if (selector < 15) {
         // triangle
@@ -114,16 +122,16 @@ library G0l {
     {
       // speed: 0: raw, 1: static, 2: animated1
       uint8 selector = uint8(seed % 23);
-      if (selector < 5){
+      if (selector < 5) {
         // circle
         speed = 0;
-      } else if (selector < 10){
+      } else if (selector < 10) {
         // block
         speed = 1;
-      } else if (selector < 13){
+      } else if (selector < 13) {
         // triangle
         speed = 2;
-      } else if (selector < 17){
+      } else if (selector < 17) {
         speed = 3;
       } else {
         speed = 4;
@@ -132,8 +140,8 @@ library G0l {
 
     {
       // pattern: 0: , 1:
-      uint8 selector = uint8(seed % 31 );
-      if (selector < 15){
+      uint8 selector = uint8(seed % 31);
+      if (selector < 15) {
         // circle
         pattern = 0;
       } else {
@@ -208,7 +216,7 @@ library G0l {
       );
 
       defs = abi.encodePacked(defs, '<circle id="d0" r="18" fill="', deadColor, '"></circle>');
-    } else if (shape == 4){
+    } else if (shape == 4) {
       // shape 3: alive: square, dead: circle
       defs = abi.encodePacked(
         defs,
@@ -260,7 +268,7 @@ library G0l {
         );
 
         // defs = abi.encodePacked(defs, '<g id="p0"><use href="#d0" /> <use href="#pp" /></g>');
-      } else if (shape == 3){
+      } else if (shape == 3) {
         // mixed shapes
         defs = abi.encodePacked(
           defs,
@@ -279,7 +287,7 @@ library G0l {
           perishedColor,
           '"></circle>'
         );
-      } else if (shape == 4){
+      } else if (shape == 4) {
         defs = abi.encodePacked(
           defs,
           '<rect id="p0" width="',
@@ -291,14 +299,9 @@ library G0l {
           '"></rect>'
         );
 
-        defs = abi.encodePacked(
-          defs,
-          '<circle id="b0" r="18" fill="',
-          bornColor,
-          '"></circle>'
-        );
+        defs = abi.encodePacked(defs, '<circle id="b0" r="18" fill="', bornColor, '"></circle>');
       }
-    } 
+    }
 
     defs = abi.encodePacked(defs, '</defs>');
 
@@ -322,11 +325,11 @@ library G0l {
     } else {
       if (pattern == 0) {
         uint8 dur;
-        if (speed == 2){
+        if (speed == 2) {
           dur = 4;
-        } else if (speed == 3){
+        } else if (speed == 3) {
           dur = 3;
-        } else if (speed == 4){
+        } else if (speed == 4) {
           dur = 1;
         }
         return
@@ -340,7 +343,9 @@ library G0l {
               primaryColor,
               ';',
               primaryColor,
-              '" dur="',Strings.toString(dur),'s" begin="aa.begin +',
+              '" dur="',
+              Strings.toString(dur),
+              's" begin="aa.begin +',
               timeOffsetMap(bornCounter + perishedCounter),
               's" ',
               'repeatCount="indefinite"/>'
@@ -348,11 +353,11 @@ library G0l {
           );
       } else if (pattern == 1) {
         uint8 dur;
-        if (speed == 2){
+        if (speed == 2) {
           dur = 2;
-        } else if (speed == 3){
+        } else if (speed == 3) {
           dur = 1;
-        } else if (speed == 4){
+        } else if (speed == 4) {
           dur = 0;
         }
         return
@@ -366,7 +371,9 @@ library G0l {
               primaryColor,
               ';',
               primaryColor,
-              '" dur="',Strings.toString(dur),'.',
+              '" dur="',
+              Strings.toString(dur),
+              '.',
               Strings.toString((i * j) % 10),
               's" repeatCount="indefinite"/>'
             )
@@ -663,7 +670,7 @@ library G0l {
     uint8 birthCount,
     uint8 deathCount,
     string calldata trend,
-    uint8 popDiff, 
+    uint8 popDiff,
     uint8 shape,
     uint8 speed,
     uint8 pattern
@@ -694,12 +701,20 @@ library G0l {
         '{"trait_type" : "times", "value": "',
         timesName,
         '"},',
-        '{"trait_type" : "representation", "value": "',
-        Strings.toString(shape), Strings.toString(speed), Strings.toString(pattern),
-        '"}'
         // '{"trait_type" : "representation", "value": "',
-        // representationName,
-        // '"}',
+        // Strings.toString(shape),
+        // Strings.toString(speed),
+        // Strings.toString(pattern),
+        // '"},'
+        '{"trait_type" : "shape", "value": "',
+        Strings.toString(shape),
+        '"},',
+        '{"trait_type" : "speed", "value": "',
+        Strings.toString(speed),
+        '"},',
+        '{"trait_type" : "pattern", "value": "',
+        Strings.toString(pattern),
+        '"}',
         '],'
       )
     );
@@ -729,19 +744,19 @@ library G0l {
     uint8 shapeOverride;
 
     // override shape to mix squares & circles
-    if (CellData.shape == 3){
-      if (CellData.alive){
+    if (CellData.shape == 3) {
+      if (CellData.alive) {
         shapeOverride = 1;
       } else {
         shapeOverride = 0;
       }
     } else if (CellData.shape == 4) {
-      if (CellData.alive){
+      if (CellData.alive) {
         shapeOverride = 0;
       } else {
         shapeOverride = 1;
       }
-    }else {
+    } else {
       shapeOverride = CellData.shape;
     }
 
@@ -839,8 +854,8 @@ library G0l {
       j_scale_a = Strings.toString(
         uint256(uint256(CellData.j) * uint256(CellData.unitScale) + 20 + 20)
       );
-    } else if (CellData.shape == 4){
-      // inverting *_scale // *_scale_a 
+    } else if (CellData.shape == 4) {
+      // inverting *_scale // *_scale_a
 
       i_scale = Strings.toString(
         uint256(uint256(CellData.i) * uint256(CellData.unitScale) + 20 + 20)
@@ -862,20 +877,18 @@ library G0l {
     if (CellData.alive && !CellData.hasChanged) {
       // case: long alive
       // never animated
-      if (CellData.shape == 3 || CellData.shape == 4){
+      if (CellData.shape == 3 || CellData.shape == 4) {
         square = renderUseTag('#l0', i_scale, j_scale); // string(
       } else {
         square = renderUseTag('#l0', i_scale, j_scale); // string(
-
       }
     } else if (!CellData.alive && !CellData.hasChanged) {
       // case: long dead
       // never animated
-      if (CellData.shape == 3 || CellData.shape == 4){
+      if (CellData.shape == 3 || CellData.shape == 4) {
         square = renderUseTag('#d0', i_scale_a, j_scale_a);
       } else {
         square = renderUseTag('#d0', i_scale, j_scale);
-        
       }
     } else if (CellData.alive && CellData.hasChanged) {
       // case: new born
@@ -886,8 +899,7 @@ library G0l {
         // static
         square = renderUseTag('#b0', i_scale, j_scale);
       } else if (CellData.speed >= 2) {
-
-        if (CellData.shape == 3 || CellData.shape == 4){
+        if (CellData.shape == 3 || CellData.shape == 4) {
           square = renderAnimatedCell(
             '#b0',
             i_scale,
@@ -906,26 +918,23 @@ library G0l {
             CellData
           );
         }
-
       }
     } else if (!CellData.alive && CellData.hasChanged) {
       // case: died this round
       if (CellData.speed == 0) {
-        if (CellData.shape == 3 || CellData.shape == 4){
+        if (CellData.shape == 3 || CellData.shape == 4) {
           square = renderUseTag('#d0', i_scale_a, j_scale_a);
         } else {
           square = renderUseTag('#d0', i_scale, j_scale);
         }
       } else if (CellData.speed == 1) {
-        if (CellData.shape == 3 || CellData.shape == 4){
+        if (CellData.shape == 3 || CellData.shape == 4) {
           square = renderUseTag('#p0', i_scale_a, j_scale_a);
         } else {
           square = renderUseTag('#p0', i_scale, j_scale);
-
         }
       } else if (CellData.speed >= 2) {
-
-        if (CellData.shape == 3 || CellData.shape == 4){
+        if (CellData.shape == 3 || CellData.shape == 4) {
           square = renderAnimatedCell(
             '#p0',
             i_scale_a,
@@ -935,15 +944,14 @@ library G0l {
             CellData
           );
         } else {
-        square = renderAnimatedCell(
-          '#p0',
-          i_scale,
-          j_scale,
-          colorMap.perishedColor,
-          colorMap.deadColor,
-          CellData
-        );
-
+          square = renderAnimatedCell(
+            '#p0',
+            i_scale,
+            j_scale,
+            colorMap.perishedColor,
+            colorMap.deadColor,
+            CellData
+          );
         }
       }
     }
