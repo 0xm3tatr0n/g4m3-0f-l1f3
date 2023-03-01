@@ -14,7 +14,7 @@ library G0l {
     // console.log('palette no, pos: ', paletteNumber, colorPos);
     string[7][20] memory colorPalettes = [
       // background, live, dead, born0, born1, perished0, perished1
-      // 0 0/0: bad. rural, shrinking slowly
+      // 0 0/0: bad. rural, shrinking slowly:
       ['#ce653b', '#2b0948', '#7d3742', '#461846', '#612844', '#b3563d', '#98463f'],
       // 1 0/1: bad. rural, shrinking slowly
       ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#a0c4ff', '#bdb2ff'],
@@ -624,19 +624,19 @@ library G0l {
     if (times == 0) {
       timesName = 't0';
     } else if (times == 1) {
-      timesName = 't1';
+      timesName = 'Serenity';
     } else if (times == 2) {
-      timesName = 't2';
+      timesName = 'Chartreuse';
     } else if (times == 3) {
-      timesName = 't3';
+      timesName = 'Coral';
     } else if (times == 4) {
-      timesName = 't4';
+      timesName = 'Sprout';
     } else if (times == 5) {
-      timesName = 't5';
+      timesName = 'Lavender';
     } else if (times == 6) {
-      timesName = 't6';
+      timesName = 'Blaze';
     } else if (times == 7) {
-      timesName = 't7';
+      timesName = 'Cerise';
     } else if (times == 8) {
       timesName = 't8';
     } else if (times == 9) {
@@ -654,7 +654,7 @@ library G0l {
     } else if (times == 15) {
       timesName = 't15';
     } else if (times == 16) {
-      timesName = 't16';
+      timesName = 'Goldrush';
     } else if (times == 17) {
       timesName = 't17';
     } else if (times == 18) {
