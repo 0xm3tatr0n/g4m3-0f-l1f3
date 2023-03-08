@@ -57,9 +57,11 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
   // Game state
   Counters.Counter internal _tokenIds;
-  Counters.Counter internal _currentGeneration;
+  Counters.Counter internal _currentEpoch;
+  uint16 internal _currentGeneration = 0;
   mapping(uint256 => uint256) internal tokenGridStatesInt;
-  mapping(uint256 => uint256) internal tokenGeneration;
+  mapping(uint256 => uint256) internal tokenEpoch;
+  mapping(uint256 => uint16) internal tokenGeneration;
   uint256 internal gameStateInt;
 
   // Functions: Mint
@@ -74,7 +76,8 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
     // store token states
     tokenGridStatesInt[id] = gameStateInt;
-    tokenGeneration[id] = _currentGeneration.current();
+    tokenEpoch[id] = _currentEpoch.current();
+    tokenGeneration[id] = _currentGeneration;
 
     return id;
   }
@@ -92,7 +95,8 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
       // store token states
       tokenGridStatesInt[id] = gameStateInt;
-      tokenGeneration[id] = _currentGeneration.current();
+      tokenEpoch[id] = _currentEpoch.current();
+      tokenGeneration[id] = _currentGeneration;
     }
   }
 
@@ -111,14 +115,16 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
       // store token states
       tokenGridStatesInt[id] = gameStateInt;
-      tokenGeneration[id] = _currentGeneration.current();
+      tokenEpoch[id] = _currentEpoch.current();
     }
   }
 
   // State changing
   function _initState() internal {
+    // set epoch
+    _currentEpoch.increment();
     // set generation
-    _currentGeneration.increment();
+    _currentGeneration = 0;
 
     // temporary storage
     bool[8][8] memory results;
@@ -127,7 +133,7 @@ contract G4m3 is ERC721, Pausable, Ownable {
     bytes32 seedBytes = keccak256(
       abi.encodePacked(
         address(this),
-        _currentGeneration.current(),
+        _currentEpoch.current(),
         blockhash(block.number - 1),
         block.timestamp
       )
@@ -160,59 +166,67 @@ contract G4m3 is ERC721, Pausable, Ownable {
   }
 
   function _iterateState() internal {
-    // play game of life
-    uint256 N = 8;
+    if (_currentGeneration >= 1024) {
+      // start new epoch
+      _initState();
+    } else {
+      // play game of life
+      uint8 N = 8;
 
-    bool[8][8] memory oldGameStateFromInt = BitOps.wordToGrid(gameStateInt);
-    bool[8][8] memory newGameStateFromInt = oldGameStateFromInt;
+      bool[8][8] memory oldGameStateFromInt = BitOps.wordToGrid(gameStateInt);
+      bool[8][8] memory newGameStateFromInt = oldGameStateFromInt;
 
-    for (uint256 i = 0; i < 8; i += 1) {
-      for (uint256 j = 0; j < 8; j += 1) {
-        uint256 total = uint256(
-          BitOps._b2u(oldGameStateFromInt[uint256((i - 1) % N)][uint256((j - 1) % N)]) +
-            BitOps._b2u(oldGameStateFromInt[uint256((i - 1) % N)][j]) +
-            BitOps._b2u(oldGameStateFromInt[uint256((i - 1) % N)][uint256((j + 1) % N)]) +
-            BitOps._b2u(oldGameStateFromInt[i][uint256((j + 1) % N)]) +
-            BitOps._b2u(oldGameStateFromInt[uint256((i + 1) % N)][uint256((j + 1) % N)]) +
-            BitOps._b2u(oldGameStateFromInt[uint256((i + 1) % N)][j]) +
-            BitOps._b2u(oldGameStateFromInt[uint256((i + 1) % N)][uint256((j - 1) % N)]) +
-            BitOps._b2u(oldGameStateFromInt[i][uint256((j - 1) % N)])
-        );
+      for (uint256 i = 0; i < 8; i += 1) {
+        for (uint256 j = 0; j < 8; j += 1) {
+          uint256 total = uint256(
+            BitOps._b2u(oldGameStateFromInt[uint256((i - 1) % N)][uint256((j - 1) % N)]) +
+              BitOps._b2u(oldGameStateFromInt[uint256((i - 1) % N)][j]) +
+              BitOps._b2u(oldGameStateFromInt[uint256((i - 1) % N)][uint256((j + 1) % N)]) +
+              BitOps._b2u(oldGameStateFromInt[i][uint256((j + 1) % N)]) +
+              BitOps._b2u(oldGameStateFromInt[uint256((i + 1) % N)][uint256((j + 1) % N)]) +
+              BitOps._b2u(oldGameStateFromInt[uint256((i + 1) % N)][j]) +
+              BitOps._b2u(oldGameStateFromInt[uint256((i + 1) % N)][uint256((j - 1) % N)]) +
+              BitOps._b2u(oldGameStateFromInt[i][uint256((j - 1) % N)])
+          );
 
-        if (oldGameStateFromInt[i][j] == true) {
-          if (total < 2 || total > 3) {
-            newGameStateFromInt[i][j] = false;
-          }
-        } else {
-          if (total == 3) {
-            newGameStateFromInt[i][j] = true;
+          if (oldGameStateFromInt[i][j] == true) {
+            if (total < 2 || total > 3) {
+              newGameStateFromInt[i][j] = false;
+            }
+          } else {
+            if (total == 3) {
+              newGameStateFromInt[i][j] = true;
+            }
           }
         }
       }
-    }
 
-    // check if generation ended (no change between iteration)
-    // naming suboptimal:
-    // gameStateIntOld --> old N-2
-    // gameStateInt --> old N-1
-    // gameStateIntNew --> current
-    uint256 gameStateIntNew = BitOps.gridToWord(newGameStateFromInt);
+      // check if generation ended (no change between iteration)
+      // naming suboptimal:
+      // gameStateIntOldOld --> old N-3
+      // gameStateIntOld --> old N-2
+      // gameStateInt --> old N-1
+      // gameStateIntNew --> current
+      uint256 gameStateIntNew = BitOps.gridToWord(newGameStateFromInt);
 
-    if (_tokenIds.current() > 2) {
-      // game advanced enough to look back 2 periods
-      uint256 gameStateIntOld = tokenGridStatesInt[_tokenIds.current()];
-      if (gameStateInt == gameStateIntNew || gameStateIntOld == gameStateIntNew) {
-        // init new state
-        _initState();
+      if (_tokenIds.current() > 3) {
+        // game advanced enough to look back 3 periods
+        uint256 gameStateIntOldOld = tokenGridStatesInt[_tokenIds.current() - 1];
+        uint256 gameStateIntOld = tokenGridStatesInt[_tokenIds.current()];
+        if (
+          gameStateInt == gameStateIntNew ||
+          gameStateIntOld == gameStateIntNew ||
+          gameStateIntOldOld == gameStateIntNew
+        ) {
+          // init new state
+          _initState();
+        } else {
+          _currentGeneration += 1;
+          gameStateInt = gameStateIntNew;
+        }
       } else {
-        gameStateInt = gameStateIntNew;
-      }
-    } else {
-      // we can't look back 2 periods yet..
-      if (gameStateInt == gameStateIntNew) {
-        // init new state
-        _initState();
-      } else {
+        // we can't look back 3 periods yet..
+        _currentGeneration += 1;
         gameStateInt = gameStateIntNew;
       }
     }
@@ -239,12 +253,12 @@ contract G4m3 is ERC721, Pausable, Ownable {
                 '",',
                 G0l.generateAttributeString(
                   metadata.times,
-                  // metadata.representation,
+                  metadata.epoch,
                   metadata.generation,
                   metadata.populationDensity,
                   metadata.birthCount,
                   metadata.deathCount,
-                  metadata.trend,
+                  // metadata.trend,
                   metadata.popDiff,
                   metadata.shape,
                   metadata.speed,
@@ -393,9 +407,19 @@ contract G4m3 is ERC721, Pausable, Ownable {
   function generateMetadata(uint256 id) internal view returns (Structs.MetaData memory) {
     Structs.MetaData memory metadata;
     metadata.populationDensity = BitOps.getCountOfOnBits(tokenGridStatesInt[id]);
-    metadata.name = string(abi.encodePacked('g4m3 0f l1f3 #', id.toString()));
+    metadata.name = string(
+      abi.encodePacked(
+        'g4m3 0f l1f3 #',
+        id.toString(),
+        ' ',
+        tokenEpoch[id].toString(),
+        '/',
+        uint256(tokenGeneration[id]).toString()
+      )
+    );
     metadata.description = string(abi.encodePacked('g4m3 0f l1f3 #', id.toString()));
-    metadata.generation = Strings.toString(tokenGeneration[id]);
+    metadata.epoch = Strings.toString(tokenEpoch[id]);
+    metadata.generation = tokenGeneration[id];
 
     // "arbitrary" value to mix things up (not random because deterministic)
     metadata.seed = uint256(keccak256(abi.encodePacked(metadata.generation, metadata.description)));

@@ -10,8 +10,9 @@ library Structs {
     uint8 popDiff;
     string name;
     string description;
-    string generation;
+    string epoch;
     string trend;
+    uint16 generation;
     uint8 times; // 0: stable, 1: prosperous, 2: bad
     // uint8 representation; // to be replaced by shape/speed/pattern
     uint8 shape;
