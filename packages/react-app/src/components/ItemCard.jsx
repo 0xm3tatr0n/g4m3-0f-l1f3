@@ -22,10 +22,10 @@ function ItemCard(props) {
             backgroundColor: "white",
             padding: "0px",
           }}
-          bodyStyle={{padding: "0"}}
+          bodyStyle={{ padding: "0" }}
           onClick={flipCard}
         >
-          <img src={item.image} alt="g0l" style={{width: "100%", height: "100%"}}/>
+          <img src={item.image} alt="g0l" style={{ width: "100%", height: "100%" }} />
         </Card>
       ) : (
         <Card
@@ -33,7 +33,7 @@ function ItemCard(props) {
           onClick={flipCard}
         >
           <div style={{ width: "320px", height: "320px", margin: "auto" }}>
-            <div>{item.description}</div>
+            <div>{item.name}</div>
             <div>owned by: {item.owner}</div>
             <div>traits:</div>
             {item.attributes.map((a, iax) => {

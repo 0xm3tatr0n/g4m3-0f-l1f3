@@ -415,13 +415,11 @@ library G0l {
   //   } else if (representation == 1) {
   //     return 'static';
   //   } else if (representation == 2) {
-  //     return 'arrows';
+  //     return 'slomo';
   //   } else if (representation == 3) {
-  //     return 'blocks';
+  //     return 'realtime';
   //   } else if (representation == 4) {
-  //     return 'signs';
-  //   } else if (representation == 5) {
-  //     return 'circle';
+  //     return 'montage';
   //   }
   // }
 
@@ -666,26 +664,78 @@ library G0l {
     return timesName;
   }
 
+  function generateShapeName(uint8 shape) public pure returns (string memory) {
+    string memory name;
+    if (shape == 0) {
+      name = 'circles';
+    } else if (shape == 1) {
+      name = 'squares';
+    } else if (shape == 2) {
+      name = 'pointers';
+    } else if (shape == 3) {
+      name = 'I/O';
+    } else if (shape == 4) {
+      name = 'Oi!';
+    }
+
+    return name;
+  }
+
+  function generateSpeedName(uint8 shape) public pure returns (string memory) {
+    string memory name;
+    if (shape == 0) {
+      name = 'raw';
+    } else if (shape == 1) {
+      name = 'static';
+    } else if (shape == 2) {
+      name = 'slomo';
+    } else if (shape == 3) {
+      name = 'realtime';
+    } else if (shape == 4) {
+      name = 'montage';
+    }
+
+    return name;
+  }
+
+  function generatePatternName(uint8 shape) public pure returns (string memory) {
+    string memory name;
+    if (shape == 0) {
+      name = 'none';
+    } else if (shape == 1) {
+      name = 'random';
+    } else if (shape == 2) {
+      name = 'matrix';
+    } else if (shape == 3) {
+      name = 'obvious';
+    }
+
+    return name;
+  }
+
   function generateAttributeString(
     uint8 times,
     // uint8 representation,
-    string calldata generation,
+    string calldata epoch,
+    uint16 generation,
     uint8 populationDensity,
     uint8 birthCount,
     uint8 deathCount,
-    string calldata trend,
+    // string calldata trend,
     uint8 popDiff,
     uint8 shape,
     uint8 speed,
     uint8 pattern
   ) public pure returns (string memory) {
-    string memory timesName = generateTimesName(times);
     // string memory representationName = generateRepresentationName(representation);
 
     string memory attributeString = string(
       abi.encodePacked(
         ' "attributes": [{"trait_type": "epoch", "value": "#',
-        generation,
+        epoch,
+        '"},',
+        ' "attributes": [{"trait_type": "generation", "value": "#',
+        Strings.toString(uint256(generation)),
         '"},',
         '{"trait_type" : "density", "value": "',
         Strings.toString(populationDensity),
@@ -696,14 +746,14 @@ library G0l {
         '{"trait_type" : "deaths", "value": "',
         Strings.toString(deathCount),
         '"},',
-        '{"trait_type" : "trend", "value": "',
-        trend,
-        '"},',
+        // '{"trait_type" : "trend", "value": "',
+        // trend,
+        // '"},',
         '{"trait_type" : "population_difference", "value": "',
         Strings.toString(popDiff),
         '"},',
         '{"trait_type" : "times", "value": "',
-        timesName,
+        generateTimesName(times),
         '"},',
         // '{"trait_type" : "representation", "value": "',
         // Strings.toString(shape),
@@ -711,13 +761,13 @@ library G0l {
         // Strings.toString(pattern),
         // '"},'
         '{"trait_type" : "shape", "value": "',
-        Strings.toString(shape),
+        generateShapeName(shape),
         '"},',
         '{"trait_type" : "speed", "value": "',
-        Strings.toString(speed),
+        generateSpeedName(speed),
         '"},',
         '{"trait_type" : "pattern", "value": "',
-        Strings.toString(pattern),
+        generatePatternName(pattern),
         '"}',
         '],'
       )
