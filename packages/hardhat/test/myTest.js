@@ -149,8 +149,8 @@ describe('My Dapp', function () {
       let latestToken = '';
 
       while (lastGeneration === nextGeneration) {
-        const mintTx = await myContract.mintMany(owner.address, 10, {
-          value: ethers.utils.parseEther((0.01 * 10).toString()),
+        const mintTx = await myContract.mintPack(owner.address, {
+          value: ethers.utils.parseEther((0.025).toString()),
         });
         const mintRc = await mintTx.wait();
         const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
@@ -189,8 +189,8 @@ describe('My Dapp', function () {
 
       // mint a sample of 100 tokens
       for (let i = 0; i < 10; i++) {
-        const mintTx = await myContract.mintMany(owner.address, 10, {
-          value: ethers.utils.parseEther((0.01 * 10).toString()),
+        const mintTx = await myContract.mintPack(owner.address, {
+          value: ethers.utils.parseEther((0.025).toString()),
         });
         const mintRc = await mintTx.wait();
         const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
