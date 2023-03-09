@@ -178,10 +178,10 @@ function App(props) {
   // If you want to bring in the mainnet DAI contract it would look like:
   const isSigner = injectedProvider && injectedProvider.getSigner && injectedProvider.getSigner()._isSigner;
 
-  // If you want to call a function on a new block
-  useOnBlock(mainnetProvider, () => {
-    console.log(`⛓ A new mainnet block is here: ${mainnetProvider._lastBlockNumber}`);
-  });
+  // // If you want to call a function on a new block
+  // useOnBlock(mainnetProvider, () => {
+  //   console.log(`⛓ A new mainnet block is here: ${mainnetProvider._lastBlockNumber}`);
+  // });
 
   // Then read your DAI balance like:
   /*
@@ -245,8 +245,8 @@ function App(props) {
         }
       }
     };
-
-    updateOwenersCollectibles();
+    // re-activate to show owner's collection
+    // updateOwenersCollectibles();
   }, [address, yourBalance]);
 
   // load all tokens into state
@@ -419,11 +419,25 @@ function App(props) {
                     fontFamily: "monospace",
                   }}
                   onClick={() => {
-                    tx(writeContracts.G4m3.mintItem(address, { value: parseEther("0.001") }));
+                    tx(writeContracts.G4m3.mintItem(address, { value: parseEther("0.01") }));
                   }}
                 >
-                  mint
+                  mint one
                 </button>
+                <button
+                style={{
+                  margin: "30px",
+                  color: "black",
+                  padding: "10px 30px 10px 30px",
+                  fontSize: "20px",
+                  fontFamily: "monospace",
+                }}
+                onClick={() => {
+                  tx(writeContracts.G4m3.mintItem(address, { value: parseEther("0.01") }));
+                }}
+              >
+                mint pack (5 tokens)
+              </button>
               ) : (
                 <button
                   style={{

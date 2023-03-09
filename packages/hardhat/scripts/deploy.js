@@ -16,6 +16,14 @@ const main = async () => {
   if (network.name == 'localhost') {
     // deploy to localhost/hardhat
     // libraries first, no need to wait
+
+    // //If you want to send value to an address from the deployer
+    const deployerWallet = ethers.provider.getSigner();
+    await deployerWallet.sendTransaction({
+      to: '0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295',
+      value: ethers.utils.parseEther('10'),
+    });
+
     G0lLib = await deploy('G0l');
     BitOpsLib = await deploy('BitOps');
 
