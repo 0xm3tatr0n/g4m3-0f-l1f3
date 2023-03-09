@@ -46,8 +46,9 @@ contract G4m3 is ERC721, Pausable, Ownable {
   event Withdrawal(address to, uint256 amount);
 
   // constants
-  uint256 public constant maxItems = 10;
-  uint256 public constant mintPrice = 0.01 ether;
+  // uint256 public constant maxItems = 10;
+  uint256 public constant mintOnePrice = 0.01 ether;
+  uint256 public constant mintPackPrice = 0.025 ether;
   uint8 internal constant scale = 40;
   string s_scale = Strings.toString(scale - 4);
 
@@ -66,7 +67,7 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
   // Functions: Mint
   function mintItem(address mintTo) public payable whenNotPaused returns (uint256) {
-    require(msg.value >= mintPrice, 'funds');
+    require(msg.value >= mintOnePrice, 'funds');
     // tokenIdsIncrement();
     _tokenIds.increment();
 
@@ -82,11 +83,10 @@ contract G4m3 is ERC721, Pausable, Ownable {
     return id;
   }
 
-  function mintMany(address mintTo, uint256 noItems) public payable whenNotPaused {
-    require(noItems <= maxItems, 'too many mints');
-    require(msg.value >= mintPrice * noItems, 'funds');
+  function mintPack(address mintTo) public payable whenNotPaused {
+    require(msg.value >= mintPackPrice, 'funds');
 
-    for (uint256 i = 0; i < noItems; i++) {
+    for (uint256 i = 0; i < 5; i++) {
       _tokenIds.increment();
 
       uint256 id = _tokenIds.current();

@@ -410,34 +410,38 @@ function App(props) {
 
             <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
               {isSigner ? (
-                <button
-                  style={{
-                    margin: "30px",
-                    color: "black",
-                    padding: "10px 30px 10px 30px",
-                    fontSize: "20px",
-                    fontFamily: "monospace",
-                  }}
-                  onClick={() => {
-                    tx(writeContracts.G4m3.mintItem(address, { value: parseEther("0.01") }));
-                  }}
-                >
-                  mint one
-                </button>
-                <button
-                style={{
-                  margin: "30px",
-                  color: "black",
-                  padding: "10px 30px 10px 30px",
-                  fontSize: "20px",
-                  fontFamily: "monospace",
-                }}
-                onClick={() => {
-                  tx(writeContracts.G4m3.mintItem(address, { value: parseEther("0.01") }));
-                }}
-              >
-                mint pack (5 tokens)
-              </button>
+                <>
+                  <button
+                    style={{
+                      margin: "30px",
+                      color: "black",
+                      padding: "10px 30px 10px 30px",
+                      fontSize: "20px",
+                      fontFamily: "monospace",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => {
+                      tx(writeContracts.G4m3.mintItem(address, { value: parseEther("0.01") }));
+                    }}
+                  >
+                    mint one
+                  </button>
+                  <button
+                    style={{
+                      margin: "30px",
+                      color: "black",
+                      padding: "10px 30px 10px 30px",
+                      fontSize: "20px",
+                      fontFamily: "monospace",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => {
+                      tx(writeContracts.G4m3.mintPack(address, { value: parseEther("0.025") }));
+                    }}
+                  >
+                    mint pack (5 tokens)
+                  </button>
+                </>
               ) : (
                 <button
                   style={{
@@ -482,7 +486,7 @@ function App(props) {
                 )}
               </Row>
             </div>
-            <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 256 }}>
+            <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 256, fontFamily: "monospace" }}>
               🛠 built with{" "}
               <a href="https://github.com/austintgriffith/scaffold-eth" target="_blank">
                 🏗 scaffold-eth
@@ -543,7 +547,7 @@ function App(props) {
         {faucetHint}
       </div> */}
       {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
-      <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
+      {/* <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
         <Row align="middle" gutter={[4, 4]}>
           <Col span={8}>
             <Ramp price={price} address={address} networks={NETWORKS} />
@@ -571,7 +575,7 @@ function App(props) {
         <Row align="middle" gutter={[4, 4]}>
           <Col span={24}>
             {
-              /*  if the local provider has a signer, let's show the faucet:  */
+              // if the local provider has a signer, let's show the faucet:
               faucetAvailable ? (
                 <Faucet localProvider={localProvider} price={price} ensProvider={mainnetProvider} />
               ) : (
@@ -580,7 +584,7 @@ function App(props) {
             }
           </Col>
         </Row>
-      </div>
+      </div> */}
     </div>
   );
 }
