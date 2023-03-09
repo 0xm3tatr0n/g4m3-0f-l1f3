@@ -13,6 +13,8 @@ use(solidity);
 function decodeTokenURI(tokenURI64) {
   // parse base64 tokenURI for later consumption
   const jsonManifestString = atob(tokenURI64.substring(29));
+  // console.log('json unparsed');
+  // console.log(jsonManifestString);
   const jsonManifest = JSON.parse(jsonManifestString);
   return jsonManifest;
 }
@@ -161,6 +163,9 @@ describe('My Dapp', function () {
         latestToken = tokenId.toString();
         const tokenURI = await myContract.tokenURI(tokenId);
         const tokenMetadata = decodeTokenURI(tokenURI);
+
+        // console.log('token metadata:');
+        // console.log(tokenMetadata);
 
         // get generation data
         const generationAttribute = tokenMetadata.attributes.find((e) => {

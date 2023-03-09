@@ -719,8 +719,8 @@ library G0l {
     string calldata epoch,
     uint16 generation,
     uint8 populationDensity,
-    uint8 birthCount,
-    uint8 deathCount,
+    // uint8 birthCount,
+    // uint8 deathCount,
     // string calldata trend,
     uint8 popDiff,
     uint8 shape,
@@ -729,29 +729,37 @@ library G0l {
   ) public pure returns (string memory) {
     // string memory representationName = generateRepresentationName(representation);
 
-    string memory attributeString = string(
-      abi.encodePacked(
+    bytes memory attributeBytes;
+
+    {
+      attributeBytes = abi.encodePacked(
         ' "attributes": [{"trait_type": "epoch", "value": "#',
         epoch,
         '"},',
-        ' "attributes": [{"trait_type": "generation", "value": "#',
+        '{"trait_type" : "generation", "value": "',
         Strings.toString(uint256(generation)),
         '"},',
         '{"trait_type" : "density", "value": "',
         Strings.toString(populationDensity),
         '"},',
-        '{"trait_type" : "births", "value": "',
-        Strings.toString(birthCount),
-        '"},',
-        '{"trait_type" : "deaths", "value": "',
-        Strings.toString(deathCount),
-        '"},',
+        // '{"trait_type" : "births", "value": "',
+        // Strings.toString(birthCount),
+        // '"},',
+        // '{"trait_type" : "deaths", "value": "',
+        // Strings.toString(deathCount),
+        // '"},',
         // '{"trait_type" : "trend", "value": "',
         // trend,
         // '"},',
         '{"trait_type" : "population_difference", "value": "',
         Strings.toString(popDiff),
-        '"},',
+        '"},'
+      );
+    }
+
+    {
+      attributeBytes = abi.encodePacked(
+        attributeBytes,
         '{"trait_type" : "times", "value": "',
         generateTimesName(times),
         '"},',
@@ -770,9 +778,10 @@ library G0l {
         generatePatternName(pattern),
         '"}',
         '],'
-      )
-    );
-    return attributeString;
+      );
+    }
+
+    return string(attributeBytes);
   }
 
   function renderUseTag(
