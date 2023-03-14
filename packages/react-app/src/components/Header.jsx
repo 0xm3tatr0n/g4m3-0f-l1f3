@@ -34,7 +34,7 @@ export default function Header() {
   return (
     <>
       <div id="header" style={styles.headerBox}>
-        <div style={styles.header}>g4m3 0f lif3</div>
+        <div style={styles.header}>g4m3 0f l1f3</div>
         <div style={styles.items}>
           <a href="/" style={styles.a}>
             mint

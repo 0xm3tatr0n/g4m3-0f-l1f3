@@ -77,8 +77,8 @@ describe('My Dapp', function () {
     it('Should mint many', async function () {
       const [owner] = await ethers.getSigners();
       await deployContract();
-      const mintTx = await myContract.mintMany(owner.address, 10, {
-        value: ethers.utils.parseEther((0.01 * 10).toString()),
+      const mintTx = await myContract.mintPack(owner.address, {
+        value: ethers.utils.parseEther((0.025).toString()),
       });
       const mintRc = await mintTx.wait();
       const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
@@ -110,14 +110,14 @@ describe('My Dapp', function () {
     it('Should mint a few & withdraw funds', async function () {
       const [owner, addr1, addr2] = await ethers.getSigners();
       await deployContract();
-      const mintTx = await myContract.mintMany(owner.address, 10, {
-        value: ethers.utils.parseEther((0.01 * 10).toString()),
+      const mintTx = await myContract.mintPack(owner.address, {
+        value: ethers.utils.parseEther((0.025).toString()),
       });
       const mintRc = await mintTx.wait();
       const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
 
       // testing withdrawals
-      const amount = ethers.utils.parseEther((0.01 * 10).toString());
+      const amount = ethers.utils.parseEther((0.025).toString());
 
       // withdraw as not owner: expected to fail
       await expect(myContract.connect(addr1).withdrawAmount(amount)).to.be.revertedWith(
@@ -181,6 +181,55 @@ describe('My Dapp', function () {
       // save generated data to stats (to get an idea of avg gen length)
 
       console.log(`epoch changed to ${nextGeneration} at tokenId ${latestToken}`);
+    });
+
+    it('Should keep minting until the end', async function () {
+      const [owner] = await ethers.getSigners();
+      await deployContract();
+
+      let currentGeneration = 1;
+      let finalGeneration = 11;
+      let latestToken = '';
+
+      while (currentGeneration <= finalGeneration) {
+        const mintTx = await myContract.mintPack(owner.address, {
+          value: ethers.utils.parseEther((0.025).toString()),
+        });
+        const mintRc = await mintTx.wait();
+        const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
+
+        // get user's token balance
+        const userTokenBalance = await myContract.balanceOf(owner.address);
+        // identify last minted token
+        const tokenId = await myContract.tokenOfOwnerByIndex(owner.address, userTokenBalance - 1);
+        // console.log('last token id: ', tokenId.toString())
+        latestToken = tokenId.toString();
+        const tokenURI = await myContract.tokenURI(tokenId);
+        const tokenMetadata = decodeTokenURI(tokenURI);
+
+        // console.log('token metadata:');
+        // console.log(tokenMetadata);
+
+        // get generation data
+        const epochAttribute = tokenMetadata.attributes.find((e) => {
+          return e.trait_type === 'epoch';
+        });
+
+        const generationAttribute = tokenMetadata.attributes.find((e) => {
+          return e.trait_type === 'generation';
+        });
+
+        const generationValue = epochAttribute.value.replace('#', '');
+        currentGeneration = generationValue;
+
+        console.log(
+          `last token checked ${latestToken} is at epoch ${generationValue} / ${generationAttribute.value}`
+        );
+      }
+
+      // save generated data to stats (to get an idea of avg gen length)
+
+      console.log(`epoch changed to ${nextGeneration} at tokenId ${latestToken} `);
     });
 
     it('Should just track the length of tokenURIs (for now)', async function () {

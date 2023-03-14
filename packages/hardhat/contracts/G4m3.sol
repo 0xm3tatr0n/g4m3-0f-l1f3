@@ -49,6 +49,7 @@ contract G4m3 is ERC721, Pausable, Ownable {
   // uint256 public constant maxItems = 10;
   uint256 public constant mintOnePrice = 0.01 ether;
   uint256 public constant mintPackPrice = 0.025 ether;
+  uint8 public constant maxEpochs = 10;
   uint8 internal constant scale = 40;
   string s_scale = Strings.toString(scale - 4);
 
@@ -121,6 +122,7 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
   // State changing
   function _initState() internal {
+    require(_currentEpoch.current() < maxEpochs, 'minted out');
     // set epoch
     _currentEpoch.increment();
     // set generation

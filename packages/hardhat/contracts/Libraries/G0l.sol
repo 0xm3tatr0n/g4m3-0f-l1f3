@@ -12,7 +12,7 @@ library G0l {
     returns (string memory)
   {
     // console.log('palette no, pos: ', paletteNumber, colorPos);
-    string[7][20] memory colorPalettes = [
+    string[7][21] memory colorPalettes = [
       // background, live, dead, born0, born1, perished0, perished1
       // 0 0/0: bad. rural, shrinking slowly:
       ['#ce653b', '#2b0948', '#7d3742', '#461846', '#612844', '#b3563d', '#98463f'],
@@ -55,7 +55,8 @@ library G0l {
       // 19 9/1: rural. zero net change.
       // ---------------------------------
       // todo: should only need 19 elements. but errors. quickfix for now
-      ['#FF3C38', '#ED254E', '#ef4043', '#be1e2d', '#ff0059', '#C7381D', '#FF1053']
+      ['#FF3C38', '#ED254E', '#ef4043', '#be1e2d', '#ff0059', '#C7381D', '#FF1053'],
+      ['#0c226e', '#000000', '#6f6269', '#fafeff', '#ccc0c4', '#3b63ba', '#7c9ace']
     ];
 
     return colorPalettes[paletteNumber][colorPos];
