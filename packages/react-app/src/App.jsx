@@ -26,6 +26,7 @@ import {
   ThemeSwitch,
   ItemCard,
   Gallery,
+  MintInfo,
 } from "./components";
 import { DAI_ABI, DAI_ADDRESS, INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
@@ -159,7 +160,7 @@ function App(props) {
   const tx = Transactor(userProvider, gasPrice);
 
   // Faucet Tx can be used to send funds from the faucet
-  const faucetTx = Transactor(localProvider, gasPrice);
+  // const faucetTx = Transactor(localProvider, gasPrice);
 
   // 🏗 scaffold-eth is full of handy hooks like this one to get your balance:
   const yourLocalBalance = useBalance(localProvider, address);
@@ -246,7 +247,7 @@ function App(props) {
       }
     };
     // re-activate to show owner's collection
-    // updateOwenersCollectibles();
+    updateOwenersCollectibles();
   }, [address, yourBalance]);
 
   // load all tokens into state
@@ -279,7 +280,7 @@ function App(props) {
       }
     };
 
-    updateGallery();
+    // updateGallery();
   }, [totalSupply, galleryLoadRange]);
 
   /*
@@ -397,6 +398,7 @@ function App(props) {
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
       <Header />
+      <MintInfo totalSupply />
       {/* {networkDisplay} */}
 
       <BrowserRouter>
@@ -453,7 +455,7 @@ function App(props) {
                   }}
                   onClick={loadWeb3Modal}
                 >
-                  mint
+                  connect
                 </button>
               )}
             </div>

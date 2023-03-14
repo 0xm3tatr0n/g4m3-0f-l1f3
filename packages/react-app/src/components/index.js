@@ -17,4 +17,5 @@ export { default as Timeline } from "./Timeline";
 export { default as TokenBalance } from "./TokenBalance";
 export { default as Wallet } from "./Wallet";
 export { default as ItemCard } from "./ItemCard";
-export { default as Gallery } from "./Gallery"
+export { default as Gallery } from "./Gallery";
+export { default as MintInfo } from "./MintInfo.jsx";
