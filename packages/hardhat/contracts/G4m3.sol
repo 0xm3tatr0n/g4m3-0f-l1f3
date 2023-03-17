@@ -292,11 +292,9 @@ contract G4m3 is ERC721, Pausable, Ownable {
     return svg;
   }
 
-  function generateColorMap(Structs.MetaData memory metadata)
-    internal
-    pure
-    returns (Structs.ColorMap memory)
-  {
+  function generateColorMap(
+    Structs.MetaData memory metadata
+  ) internal pure returns (Structs.ColorMap memory) {
     Structs.ColorMap memory colorMap;
     // modify selected palette
     colorMap.backgroundColor = G0l.returnColor(metadata.times, 0);
@@ -441,14 +439,16 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
       // determine prosperity levels
       metadata.popDiff = populationTrends.popDiff;
-      metadata.times = uint8(
-        G0l.generateTimesNumber(
-          populationTrends.up,
-          populationTrends.popDiff,
-          metadata.populationDensity,
-          metadata.seed
-        )
-      );
+      metadata.times =
+        uint8(
+          G0l.generateTimesNumber(
+            populationTrends.up,
+            populationTrends.popDiff,
+            metadata.populationDensity,
+            metadata.seed
+          )
+        ) +
+        uint8(tokenEpoch[id]);
 
       // metadata.times = 19;
 
