@@ -6,13 +6,12 @@ import {Structs} from './Structs.sol';
 import 'hardhat/console.sol';
 
 library G0l {
-  function returnColor(uint256 paletteNumber, uint256 colorPos)
-    public
-    pure
-    returns (string memory)
-  {
+  function returnColor(
+    uint256 paletteNumber,
+    uint256 colorPos
+  ) public pure returns (string memory) {
     // console.log('palette no, pos: ', paletteNumber, colorPos);
-    string[7][21] memory colorPalettes = [
+    string[7][31] memory colorPalettes = [
       // background, live, dead, born0, born1, perished0, perished1
       // 0 0/0: bad. rural, shrinking slowly:
       ['#ce653b', '#2b0948', '#7d3742', '#461846', '#612844', '#b3563d', '#98463f'],
@@ -56,6 +55,28 @@ library G0l {
       // ---------------------------------
       // todo: should only need 19 elements. but errors. quickfix for now
       ['#FF3C38', '#ED254E', '#ef4043', '#be1e2d', '#ff0059', '#C7381D', '#FF1053'],
+      // 20
+      ['#0c226e', '#000000', '#6f6269', '#fafeff', '#ccc0c4', '#3b63ba', '#7c9ace'],
+      // 21
+      ['#005F73', '#EE9B00', '#001219', '#0A9396', '#94D2BD', '#AE2012', '#9B2226'],
+      // 22
+      ['#CAFFBF', '#FDFFB6', '#FFC6FF', '#CAFFBF', '#CAFFBF', '#A0C4FF', '#BDB2FF'],
+      // 23
+      ['#52B788', '#081C15', '#D8F3DC', '#52B788', '#40916C', '#1B4332', '#2D6A4F'],
+      // 24
+      ['#80B918', '#FFFF3F', '#2B9348', '#DDDF00', '#EEEF20', '#007F5F', '#55A630'],
+      // 25
+      ['#92F2E8', '#F72585', '#159F91', '#B5179E', '#7209B7', '#1BCCBA', '#1EE3CF'],
+      // 26
+      ['#6A040F', '#03071E', '#D00000', '#FBB539', '#F48C06', '#370617', '#9D0208'],
+      // 27
+      ['#c9a83b', '#070707', '#5d4218', '#1e180b', '#564015', '#836024', '#b99c4c'],
+      // 28
+      ['#806537', '#3d4a4e', '#cfd3e8', '#637aa7', '#35456a', '#718abf', '#7c9ace'],
+      // 29
+      ['#d0cdcd', '#927961', '#3b456f', '#e3e3e7', '#232627', '#b795a4', '#a87b82'],
+      // fillers
+      // 30
       ['#0c226e', '#000000', '#6f6269', '#fafeff', '#ccc0c4', '#3b63ba', '#7c9ace']
     ];
 
@@ -86,15 +107,7 @@ library G0l {
   //   }
   // }
 
-  function representationAttributes(uint256 seed)
-    public
-    pure
-    returns (
-      uint8,
-      uint8,
-      uint8
-    )
-  {
+  function representationAttributes(uint256 seed) public pure returns (uint8, uint8, uint8) {
     uint8 shape;
     uint8 speed;
     uint8 pattern;
@@ -387,11 +400,10 @@ library G0l {
     }
   }
 
-  function getTrends(uint8 bornCells, uint8 perishedCells)
-    internal
-    pure
-    returns (Structs.Trends memory)
-  {
+  function getTrends(
+    uint8 bornCells,
+    uint8 perishedCells
+  ) internal pure returns (Structs.Trends memory) {
     Structs.Trends memory trends;
     trends.births = bornCells;
     trends.deaths = perishedCells;
@@ -621,7 +633,7 @@ library G0l {
     // what logic for naming could be applied?
     string memory timesName;
     if (times == 0) {
-      timesName = 't0';
+      timesName = 'Chocolate';
     } else if (times == 1) {
       timesName = 'Serenity';
     } else if (times == 2) {
@@ -631,35 +643,57 @@ library G0l {
     } else if (times == 4) {
       timesName = 'Sprout';
     } else if (times == 5) {
-      timesName = 'Lavender';
+      timesName = 'Electric';
     } else if (times == 6) {
       timesName = 'Blaze';
     } else if (times == 7) {
-      timesName = 'Cerise';
+      timesName = 'Bubblegum';
     } else if (times == 8) {
-      timesName = 't8';
+      timesName = 'Rustic';
     } else if (times == 9) {
-      timesName = 't9';
+      timesName = 'Peppermint';
     } else if (times == 10) {
-      timesName = 't10';
+      timesName = 'Harvest';
     } else if (times == 11) {
-      timesName = 't11';
+      timesName = 'Nebula';
     } else if (times == 12) {
-      timesName = 't12';
+      timesName = 'Enchanted Forest';
     } else if (times == 13) {
-      timesName = 't13';
+      timesName = 'Cosmic Candy';
     } else if (times == 14) {
-      timesName = 't14';
+      timesName = 'Shadows';
     } else if (times == 15) {
-      timesName = 't15';
+      timesName = 'Ocean';
     } else if (times == 16) {
       timesName = 'Goldrush';
     } else if (times == 17) {
-      timesName = 't17';
+      timesName = 'Lavender';
     } else if (times == 18) {
-      timesName = 't18';
+      timesName = 'Seaside';
     } else if (times == 19) {
-      timesName = 't19';
+      timesName = 'Red Alert';
+    } else if (times == 20) {
+      timesName = 'Earthrise';
+    } else if (times == 21) {
+      timesName = 'Autumn';
+    } else if (times == 22) {
+      timesName = 'Popart';
+    } else if (times == 23) {
+      timesName = 'Forest';
+    } else if (times == 24) {
+      timesName = 'Spring Fling';
+    } else if (times == 25) {
+      timesName = "Nebula's Edge";
+    } else if (times == 26) {
+      timesName = 'Fire & Earth';
+    } else if (times == 27) {
+      timesName = 'Porto';
+    } else if (times == 28) {
+      timesName = 'Aljezur';
+    } else if (times == 29) {
+      timesName = 'Bromance';
+    } else if (times == 30) {
+      timesName = 't30';
     }
 
     return timesName;
@@ -860,11 +894,10 @@ library G0l {
     return cell;
   }
 
-  function renderGameSquare(Structs.CellData memory CellData, Structs.ColorMap memory colorMap)
-    internal
-    pure
-    returns (string memory)
-  {
+  function renderGameSquare(
+    Structs.CellData memory CellData,
+    Structs.ColorMap memory colorMap
+  ) internal pure returns (string memory) {
     //
     string memory square;
     string memory i_scale;
