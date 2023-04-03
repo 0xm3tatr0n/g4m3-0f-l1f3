@@ -77,7 +77,7 @@ library G0l {
       ['#d0cdcd', '#927961', '#3b456f', '#e3e3e7', '#232627', '#b795a4', '#a87b82'],
       // fillers
       // 30
-      ['#0c226e', '#000000', '#6f6269', '#fafeff', '#ccc0c4', '#3b63ba', '#7c9ace']
+      ['#681211', '#fde18d', '#371011', '#634382', '#865a97', '#f04726', '#d05c65']
     ];
 
     return colorPalettes[paletteNumber][colorPos];
@@ -134,16 +134,13 @@ library G0l {
     }
 
     {
-      // speed: 0: raw, 1: static, 2: animated1
+      // speed: 0: raw, 1: static, 2: animated1, 3: animated2, 4: animated3
       uint8 selector = uint8(seed % 23);
       if (selector < 5) {
-        // circle
         speed = 0;
       } else if (selector < 10) {
-        // block
         speed = 1;
       } else if (selector < 13) {
-        // triangle
         speed = 2;
       } else if (selector < 17) {
         speed = 3;
@@ -156,14 +153,13 @@ library G0l {
       if (speed <= 1) {
         pattern = 0;
       } else {
-        // pattern: 1: , 2:
         uint8 selector = uint8(seed % 31);
-        if (selector < 15) {
-          // circle
+        if (selector < 10) {
           pattern = 1;
-        } else {
-          // triangle
+        } else if (selector < 19) {
           pattern = 2;
+        } else {
+          pattern = 3;
         }
       }
     }
@@ -334,7 +330,8 @@ library G0l {
     uint8 i,
     uint8 j,
     uint8 bornCounter,
-    uint8 perishedCounter
+    uint8 perishedCounter,
+    bool alive
   ) public pure returns (string memory) {
     //
     if (speed <= 1) {
@@ -396,6 +393,42 @@ library G0l {
               's" repeatCount="indefinite"/>'
             )
           );
+      } else if (pattern == 3) {
+        uint8 dur;
+        // string memory offset;
+        if (speed == 2) {
+          dur = 3;
+        } else if (speed == 3) {
+          dur = 2;
+        } else if (speed == 4) {
+          dur = 1;
+        }
+
+        // if (alive) {
+        //   offset = '0';
+        // } else {
+        //   offset = Strings.toString(dur);
+        // }
+
+        return
+          string(
+            abi.encodePacked(
+              '<animate attributeType="XML" attributeName="fill" values="',
+              secondaryColor,
+              ';',
+              primaryColor,
+              ';',
+              secondaryColor,
+              ';',
+              secondaryColor,
+              '" dur="',
+              Strings.toString(dur),
+              's" begin="aa.begin +',
+              '0',
+              's" ',
+              'repeatCount="indefinite"/>'
+            )
+          );
       }
     }
   }
@@ -436,141 +469,177 @@ library G0l {
   //   }
   // }
 
-  function timeOffsetMap(uint256 elementIndex) public pure returns (string memory) {
-    // workaround:
-    // return a string for animation timing offset as getting fractions (float, fixed) is tricky to convert to strings
-    // mapping for all possible elements (64)
+  function timeOffsetMap(uint256 x) public pure returns (string memory) {
+    uint256 result = (x + 1) / 2;
+    uint256 integerPart = result;
+    uint256 decimalPart = (((x + 1) % 2) * 10) / 2;
 
-    if (elementIndex == 0) {
-      return '0.5';
-    } else if (elementIndex == 1) {
-      return '1';
-    } else if (elementIndex == 2) {
-      return '1.5';
-    } else if (elementIndex == 3) {
-      return '2';
-    } else if (elementIndex == 5) {
-      return '2.5';
-    } else if (elementIndex == 6) {
-      return '3';
-    } else if (elementIndex == 7) {
-      return '3.5';
-    } else if (elementIndex == 8) {
-      return '4';
-    } else if (elementIndex == 9) {
-      return '4.5';
-    } else if (elementIndex == 10) {
-      return '5';
-    } else if (elementIndex == 11) {
-      return '5.5';
-    } else if (elementIndex == 12) {
-      return '6';
-    } else if (elementIndex == 13) {
-      return '6.5';
-    } else if (elementIndex == 14) {
-      return '7';
-    } else if (elementIndex == 15) {
-      return '7.5';
-    } else if (elementIndex == 16) {
-      return '8';
-    } else if (elementIndex == 17) {
-      return '8.5';
-    } else if (elementIndex == 18) {
-      return '9';
-    } else if (elementIndex == 19) {
-      return '9.5';
-    } else if (elementIndex == 20) {
-      return '10';
-    } else if (elementIndex == 21) {
-      return '10.5';
-    } else if (elementIndex == 22) {
-      return '11';
+    bytes memory integerPartBytes = _uintToBytes(integerPart);
+    bytes memory decimalPartBytes = _uintToBytes(decimalPart);
+
+    bytes memory resultBytes = abi.encodePacked(integerPartBytes, '.', decimalPartBytes);
+
+    return string(resultBytes);
+  }
+
+  function _uintToBytes(uint256 n) private pure returns (bytes memory) {
+    if (n == 0) {
+      return '0';
     }
 
-    // else if (elementIndex == 23) {
-    //   return '';
-    // } else if (elementIndex == 24) {
-    //   return '';
-    // } else if (elementIndex == 25) {
-    //   return '';
-    // } else if (elementIndex == 26) {
-    //   return '';
-    // } else if (elementIndex == 27) {
-    //   return '';
-    // } else if (elementIndex == 28) {
-    //   return '';
-    // } else if (elementIndex == 29) {
-    //   return '';
-    // } else if (elementIndex == 30) {
-    //   return '';
-    // } else if (elementIndex == 31) {
-    //   return '';
-    // } else if (elementIndex == 32) {
-    //   return '';
-    // } else if (elementIndex == 33) {
-    //   return '';
-    // } else if (elementIndex == 34) {
-    //   return '';
-    // } else if (elementIndex == 35) {
-    //   return '';
-    // } else if (elementIndex == 36) {
-    //   return '';
-    // } else if (elementIndex == 37) {
-    //   return '';
-    // } else if (elementIndex == 38) {
-    //   return '';
-    // } else if (elementIndex == 39) {
-    //   return '';
-    // } else if (elementIndex == 40) {
-    //   return '';
-    // } else if (elementIndex == 41) {
-    //   return '';
-    // } else if (elementIndex == 42) {
-    //   return '';
-    // } else if (elementIndex == 43) {
-    //   return '';
-    // } else if (elementIndex == 44) {
-    //   return '';
-    // } else if (elementIndex == 45) {
-    //   return '';
-    // } else if (elementIndex == 46) {
-    //   return '';
-    // } else if (elementIndex == 47) {
-    //   return '';
-    // } else if (elementIndex == 48) {
-    //   return '';
-    // } else if (elementIndex == 49) {
-    //   return '';
-    // } else if (elementIndex == 50) {
-    //   return '';
-    // } else if (elementIndex == 51) {
-    //   return '';
-    // } else if (elementIndex == 52) {
-    //   return '';
-    // } else if (elementIndex == 53) {
-    //   return '';
-    // } else if (elementIndex == 54) {
-    //   return '';
-    // } else if (elementIndex == 55) {
-    //   return '';
-    // } else if (elementIndex == 56) {
-    //   return '';
-    // } else if (elementIndex == 57) {
-    //   return '';
-    // } else if (elementIndex == 58) {
-    //   return '';
-    // } else if (elementIndex == 59) {
-    //   return '';
-    // } else if (elementIndex == 60) {
-    //   return '';
-    // } else if (elementIndex == 61) {
-    //   return '';
-    // } else if (elementIndex == 62) {
-    //   return '';
-    // } else if (elementIndex == 63) {
-    //   return '';
-    // }
+    uint256 j = n;
+    uint256 len = 0;
+    while (j != 0) {
+      len++;
+      j /= 10;
+    }
+
+    bytes memory bstr = new bytes(len);
+    uint256 k = len - 1;
+    while (n != 0) {
+      bstr[k--] = bytes1(uint8(48 + (n % 10)));
+      n /= 10;
+    }
+
+    return bstr;
   }
+
+  //// Original timeOffsetMap
+  // function timeOffsetMap(uint256 elementIndex) public pure returns (string memory) {
+  //   // workaround:
+  //   // return a string for animation timing offset as getting fractions (float, fixed) is tricky to convert to strings
+  //   // mapping for all possible elements (64)
+
+  //   if (elementIndex == 0) {
+  //     return '0.5';
+  //   } else if (elementIndex == 1) {
+  //     return '1';
+  //   } else if (elementIndex == 2) {
+  //     return '1.5';
+  //   } else if (elementIndex == 3) {
+  //     return '2';
+  //   } else if (elementIndex == 5) {
+  //     return '2.5';
+  //   } else if (elementIndex == 6) {
+  //     return '3';
+  //   } else if (elementIndex == 7) {
+  //     return '3.5';
+  //   } else if (elementIndex == 8) {
+  //     return '4';
+  //   } else if (elementIndex == 9) {
+  //     return '4.5';
+  //   } else if (elementIndex == 10) {
+  //     return '5';
+  //   } else if (elementIndex == 11) {
+  //     return '5.5';
+  //   } else if (elementIndex == 12) {
+  //     return '6';
+  //   } else if (elementIndex == 13) {
+  //     return '6.5';
+  //   } else if (elementIndex == 14) {
+  //     return '7';
+  //   } else if (elementIndex == 15) {
+  //     return '7.5';
+  //   } else if (elementIndex == 16) {
+  //     return '8';
+  //   } else if (elementIndex == 17) {
+  //     return '8.5';
+  //   } else if (elementIndex == 18) {
+  //     return '9';
+  //   } else if (elementIndex == 19) {
+  //     return '9.5';
+  //   } else if (elementIndex == 20) {
+  //     return '10';
+  //   } else if (elementIndex == 21) {
+  //     return '10.5';
+  //   } else if (elementIndex == 22) {
+  //     return '11';
+  //   }
+
+  //   // else if (elementIndex == 23) {
+  //   //   return '';
+  //   // } else if (elementIndex == 24) {
+  //   //   return '';
+  //   // } else if (elementIndex == 25) {
+  //   //   return '';
+  //   // } else if (elementIndex == 26) {
+  //   //   return '';
+  //   // } else if (elementIndex == 27) {
+  //   //   return '';
+  //   // } else if (elementIndex == 28) {
+  //   //   return '';
+  //   // } else if (elementIndex == 29) {
+  //   //   return '';
+  //   // } else if (elementIndex == 30) {
+  //   //   return '';
+  //   // } else if (elementIndex == 31) {
+  //   //   return '';
+  //   // } else if (elementIndex == 32) {
+  //   //   return '';
+  //   // } else if (elementIndex == 33) {
+  //   //   return '';
+  //   // } else if (elementIndex == 34) {
+  //   //   return '';
+  //   // } else if (elementIndex == 35) {
+  //   //   return '';
+  //   // } else if (elementIndex == 36) {
+  //   //   return '';
+  //   // } else if (elementIndex == 37) {
+  //   //   return '';
+  //   // } else if (elementIndex == 38) {
+  //   //   return '';
+  //   // } else if (elementIndex == 39) {
+  //   //   return '';
+  //   // } else if (elementIndex == 40) {
+  //   //   return '';
+  //   // } else if (elementIndex == 41) {
+  //   //   return '';
+  //   // } else if (elementIndex == 42) {
+  //   //   return '';
+  //   // } else if (elementIndex == 43) {
+  //   //   return '';
+  //   // } else if (elementIndex == 44) {
+  //   //   return '';
+  //   // } else if (elementIndex == 45) {
+  //   //   return '';
+  //   // } else if (elementIndex == 46) {
+  //   //   return '';
+  //   // } else if (elementIndex == 47) {
+  //   //   return '';
+  //   // } else if (elementIndex == 48) {
+  //   //   return '';
+  //   // } else if (elementIndex == 49) {
+  //   //   return '';
+  //   // } else if (elementIndex == 50) {
+  //   //   return '';
+  //   // } else if (elementIndex == 51) {
+  //   //   return '';
+  //   // } else if (elementIndex == 52) {
+  //   //   return '';
+  //   // } else if (elementIndex == 53) {
+  //   //   return '';
+  //   // } else if (elementIndex == 54) {
+  //   //   return '';
+  //   // } else if (elementIndex == 55) {
+  //   //   return '';
+  //   // } else if (elementIndex == 56) {
+  //   //   return '';
+  //   // } else if (elementIndex == 57) {
+  //   //   return '';
+  //   // } else if (elementIndex == 58) {
+  //   //   return '';
+  //   // } else if (elementIndex == 59) {
+  //   //   return '';
+  //   // } else if (elementIndex == 60) {
+  //   //   return '';
+  //   // } else if (elementIndex == 61) {
+  //   //   return '';
+  //   // } else if (elementIndex == 62) {
+  //   //   return '';
+  //   // } else if (elementIndex == 63) {
+  //   //   return '';
+  //   // }
+  // }
 
   function generateTimesNumber(
     // individual variables to make function public
@@ -627,6 +696,8 @@ library G0l {
     times = uint8((times * 2) + ((seed % 2)));
 
     return times;
+
+    // return 30;
   }
 
   function generateTimesName(uint256 times) public pure returns (string memory) {
@@ -693,7 +764,7 @@ library G0l {
     } else if (times == 29) {
       timesName = 'Bromance';
     } else if (times == 30) {
-      timesName = 't30';
+      timesName = 'kepler 16b';
     }
 
     return timesName;
@@ -883,7 +954,8 @@ library G0l {
         CellData.i,
         CellData.j,
         CellData.bornCounter,
-        CellData.perishedCounter
+        CellData.perishedCounter,
+        CellData.alive
       );
 
       cell = string(

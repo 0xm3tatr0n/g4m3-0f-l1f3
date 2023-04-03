@@ -13,8 +13,7 @@ library Structs {
     string epoch;
     string trend;
     uint16 generation;
-    uint8 times; // 0: stable, 1: prosperous, 2: bad
-    // uint8 representation; // to be replaced by shape/speed/pattern
+    uint8 times;
     uint8 shape;
     uint8 speed;
     uint8 pattern;

@@ -104,7 +104,7 @@ contract G4m3 is ERC721, Pausable, Ownable {
   function mintForFree(address mintTo, uint256 noItems) public onlyOwner {
     // owner mint allocation of 1 item / day
     uint256 currentAlloc = (block.timestamp - createTime) / (1 days);
-    require((minted4free + noItems) <= currentAlloc, 'not enough free mints');
+    require((minted4free + noItems) <= currentAlloc, 'no free mints');
 
     for (uint256 i = 0; i < noItems; i++) {
       _tokenIds.increment();
@@ -468,6 +468,8 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
     // override for testing:
     // metadata.shape = 4;
+    metadata.pattern = 1;
+    // metadata.speed = 3;
 
     return metadata;
   }

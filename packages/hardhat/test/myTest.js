@@ -3,6 +3,10 @@ const { use, expect } = require('chai');
 const { solidity } = require('ethereum-waffle');
 const helpers = require('@nomicfoundation/hardhat-network-helpers');
 
+// for extracting files
+const path = require('path');
+const fs = require('fs');
+
 const BN = require('bn.js');
 
 // Enable and inject BN dependency
@@ -192,8 +196,8 @@ describe('My Dapp', function () {
       let latestToken = '';
 
       while (currentGeneration <= finalGeneration) {
-        const mintTx = await myContract.mintPack(owner.address, {
-          value: ethers.utils.parseEther((0.025).toString()),
+        const mintTx = await myContract.mintItem(owner.address, {
+          value: ethers.utils.parseEther((0.01).toString()),
         });
         const mintRc = await mintTx.wait();
         const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
@@ -206,6 +210,31 @@ describe('My Dapp', function () {
         latestToken = tokenId.toString();
         const tokenURI = await myContract.tokenURI(tokenId);
         const tokenMetadata = decodeTokenURI(tokenURI);
+        const nameEscaped = tokenMetadata.name.replace(/(\s|\#|\/)/gm, '_');
+
+        // // store metadata file
+        // const fileName = 'meta-' + latestToken + '-' + nameEscaped + '.json';
+        // const dirPath = path.resolve(__dirname, '..', 'exerpts');
+        // const filePath = path.join(dirPath, fileName);
+
+        // const svgFileName = 'svg-' + latestToken + '-' + nameEscaped + '.svg';
+        // const svgDirPath = path.resolve(__dirname, '..', 'exerpts', 'svg');
+        // const svgFilePath = path.join(svgDirPath, svgFileName);
+
+        // console.log('gonna try to write file: ', latestToken);
+        // try {
+        //   // write full metadata as json
+        //   fs.writeFileSync(filePath, JSON.stringify(tokenMetadata, null, 2));
+        //   // extract image field, write to separate file
+        //   const imageField = tokenMetadata.image;
+        //   const base64String = imageField.replace(/^data:image\/svg\+xml;base64,/, '');
+        //   const svgString = Buffer.from(base64String, 'base64').toString('utf-8');
+        //   fs.writeFileSync(svgFilePath, svgString);
+        //   console.log('written metadata for file: ' + latestToken);
+        // } catch (err) {
+        //   console.log('error writing token: ', latestToken);
+        //   console.log(err);
+        // }
 
         // console.log('token metadata:');
         // console.log(tokenMetadata);
