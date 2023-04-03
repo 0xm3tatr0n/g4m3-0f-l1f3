@@ -83,35 +83,10 @@ library G0l {
     return colorPalettes[paletteNumber][colorPos];
   }
 
-  // function returnRepresentationSelector(uint256 seed) public pure returns (uint8) {
-  //   uint256 arbitrarySelector = seed % 13;
-
-  //   if (arbitrarySelector < 1) {
-  //     // raw
-  //     return 0;
-  //   } else if (arbitrarySelector < 3) {
-  //     // static
-  //     return 1;
-  //   } else if (arbitrarySelector < 5) {
-  //     // animated arrows
-  //     return 2;
-  //   } else if (arbitrarySelector < 9) {
-  //     // animated blocks
-  //     return 3;
-  //   } else if (arbitrarySelector < 10) {
-  //     // animated pixel
-  //     return 4;
-  //   } else {
-  //     // animated circle
-  //     return 5;
-  //   }
-  // }
-
   function representationAttributes(uint256 seed) public pure returns (uint8, uint8, uint8) {
     uint8 shape;
     uint8 speed;
     uint8 pattern;
-    // uint256 arbitrarySelector = seed % 13;
 
     {
       // shape: 0: circle, 1: block, 2: triangle, 3: squares (alive) & circles (dead), 4: circles (alive) & squares (dead)
@@ -280,8 +255,6 @@ library G0l {
           perishedColor,
           '"></rect>'
         );
-
-        // defs = abi.encodePacked(defs, '<g id="p0"><use href="#d0" /> <use href="#pp" /></g>');
       } else if (shape == 3) {
         // mixed shapes
         defs = abi.encodePacked(
@@ -404,12 +377,6 @@ library G0l {
           dur = 1;
         }
 
-        // if (alive) {
-        //   offset = '0';
-        // } else {
-        //   offset = Strings.toString(dur);
-        // }
-
         return
           string(
             abi.encodePacked(
@@ -455,20 +422,6 @@ library G0l {
     return trends;
   }
 
-  // function generateRepresentationName(uint256 representation) public pure returns (string memory) {
-  //   if (representation == 0) {
-  //     return 'raw';
-  //   } else if (representation == 1) {
-  //     return 'static';
-  //   } else if (representation == 2) {
-  //     return 'slomo';
-  //   } else if (representation == 3) {
-  //     return 'realtime';
-  //   } else if (representation == 4) {
-  //     return 'montage';
-  //   }
-  // }
-
   function timeOffsetMap(uint256 x) public pure returns (string memory) {
     uint256 result = (x + 1) / 2;
     uint256 integerPart = result;
@@ -503,143 +456,6 @@ library G0l {
 
     return bstr;
   }
-
-  //// Original timeOffsetMap
-  // function timeOffsetMap(uint256 elementIndex) public pure returns (string memory) {
-  //   // workaround:
-  //   // return a string for animation timing offset as getting fractions (float, fixed) is tricky to convert to strings
-  //   // mapping for all possible elements (64)
-
-  //   if (elementIndex == 0) {
-  //     return '0.5';
-  //   } else if (elementIndex == 1) {
-  //     return '1';
-  //   } else if (elementIndex == 2) {
-  //     return '1.5';
-  //   } else if (elementIndex == 3) {
-  //     return '2';
-  //   } else if (elementIndex == 5) {
-  //     return '2.5';
-  //   } else if (elementIndex == 6) {
-  //     return '3';
-  //   } else if (elementIndex == 7) {
-  //     return '3.5';
-  //   } else if (elementIndex == 8) {
-  //     return '4';
-  //   } else if (elementIndex == 9) {
-  //     return '4.5';
-  //   } else if (elementIndex == 10) {
-  //     return '5';
-  //   } else if (elementIndex == 11) {
-  //     return '5.5';
-  //   } else if (elementIndex == 12) {
-  //     return '6';
-  //   } else if (elementIndex == 13) {
-  //     return '6.5';
-  //   } else if (elementIndex == 14) {
-  //     return '7';
-  //   } else if (elementIndex == 15) {
-  //     return '7.5';
-  //   } else if (elementIndex == 16) {
-  //     return '8';
-  //   } else if (elementIndex == 17) {
-  //     return '8.5';
-  //   } else if (elementIndex == 18) {
-  //     return '9';
-  //   } else if (elementIndex == 19) {
-  //     return '9.5';
-  //   } else if (elementIndex == 20) {
-  //     return '10';
-  //   } else if (elementIndex == 21) {
-  //     return '10.5';
-  //   } else if (elementIndex == 22) {
-  //     return '11';
-  //   }
-
-  //   // else if (elementIndex == 23) {
-  //   //   return '';
-  //   // } else if (elementIndex == 24) {
-  //   //   return '';
-  //   // } else if (elementIndex == 25) {
-  //   //   return '';
-  //   // } else if (elementIndex == 26) {
-  //   //   return '';
-  //   // } else if (elementIndex == 27) {
-  //   //   return '';
-  //   // } else if (elementIndex == 28) {
-  //   //   return '';
-  //   // } else if (elementIndex == 29) {
-  //   //   return '';
-  //   // } else if (elementIndex == 30) {
-  //   //   return '';
-  //   // } else if (elementIndex == 31) {
-  //   //   return '';
-  //   // } else if (elementIndex == 32) {
-  //   //   return '';
-  //   // } else if (elementIndex == 33) {
-  //   //   return '';
-  //   // } else if (elementIndex == 34) {
-  //   //   return '';
-  //   // } else if (elementIndex == 35) {
-  //   //   return '';
-  //   // } else if (elementIndex == 36) {
-  //   //   return '';
-  //   // } else if (elementIndex == 37) {
-  //   //   return '';
-  //   // } else if (elementIndex == 38) {
-  //   //   return '';
-  //   // } else if (elementIndex == 39) {
-  //   //   return '';
-  //   // } else if (elementIndex == 40) {
-  //   //   return '';
-  //   // } else if (elementIndex == 41) {
-  //   //   return '';
-  //   // } else if (elementIndex == 42) {
-  //   //   return '';
-  //   // } else if (elementIndex == 43) {
-  //   //   return '';
-  //   // } else if (elementIndex == 44) {
-  //   //   return '';
-  //   // } else if (elementIndex == 45) {
-  //   //   return '';
-  //   // } else if (elementIndex == 46) {
-  //   //   return '';
-  //   // } else if (elementIndex == 47) {
-  //   //   return '';
-  //   // } else if (elementIndex == 48) {
-  //   //   return '';
-  //   // } else if (elementIndex == 49) {
-  //   //   return '';
-  //   // } else if (elementIndex == 50) {
-  //   //   return '';
-  //   // } else if (elementIndex == 51) {
-  //   //   return '';
-  //   // } else if (elementIndex == 52) {
-  //   //   return '';
-  //   // } else if (elementIndex == 53) {
-  //   //   return '';
-  //   // } else if (elementIndex == 54) {
-  //   //   return '';
-  //   // } else if (elementIndex == 55) {
-  //   //   return '';
-  //   // } else if (elementIndex == 56) {
-  //   //   return '';
-  //   // } else if (elementIndex == 57) {
-  //   //   return '';
-  //   // } else if (elementIndex == 58) {
-  //   //   return '';
-  //   // } else if (elementIndex == 59) {
-  //   //   return '';
-  //   // } else if (elementIndex == 60) {
-  //   //   return '';
-  //   // } else if (elementIndex == 61) {
-  //   //   return '';
-  //   // } else if (elementIndex == 62) {
-  //   //   return '';
-  //   // } else if (elementIndex == 63) {
-  //   //   return '';
-  //   // }
-  // }
 
   function generateTimesNumber(
     // individual variables to make function public
@@ -692,12 +508,9 @@ library G0l {
     }
 
     // shift "randomly"
-
     times = uint8((times * 2) + ((seed % 2)));
 
     return times;
-
-    // return 30;
   }
 
   function generateTimesName(uint256 times) public pure returns (string memory) {
@@ -821,20 +634,16 @@ library G0l {
 
   function generateAttributeString(
     uint8 times,
-    // uint8 representation,
     string calldata epoch,
     uint16 generation,
     uint8 populationDensity,
     uint8 birthCount,
     uint8 deathCount,
-    // string calldata trend,
     uint8 popDiff,
     uint8 shape,
     uint8 speed,
     uint8 pattern
   ) public pure returns (string memory) {
-    // string memory representationName = generateRepresentationName(representation);
-
     bytes memory attributeBytes;
 
     {
@@ -854,9 +663,6 @@ library G0l {
         '{"trait_type" : "deaths", "value": "',
         Strings.toString(deathCount),
         '"},',
-        // '{"trait_type" : "trend", "value": "',
-        // trend,
-        // '"},',
         '{"trait_type" : "population_difference", "value": "',
         Strings.toString(popDiff),
         '"},'
@@ -869,11 +675,6 @@ library G0l {
         '{"trait_type" : "times", "value": "',
         generateTimesName(times),
         '"},',
-        // '{"trait_type" : "representation", "value": "',
-        // Strings.toString(shape),
-        // Strings.toString(speed),
-        // Strings.toString(pattern),
-        // '"},'
         '{"trait_type" : "shape", "value": "',
         generateShapeName(shape),
         '"},',
@@ -1047,9 +848,9 @@ library G0l {
       // case: long alive
       // never animated
       if (CellData.shape == 3 || CellData.shape == 4) {
-        square = renderUseTag('#l0', i_scale, j_scale); // string(
+        square = renderUseTag('#l0', i_scale, j_scale);
       } else {
-        square = renderUseTag('#l0', i_scale, j_scale); // string(
+        square = renderUseTag('#l0', i_scale, j_scale);
       }
     } else if (!CellData.alive && !CellData.hasChanged) {
       // case: long dead

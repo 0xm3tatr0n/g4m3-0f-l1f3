@@ -11,14 +11,9 @@ import '@openzeppelin/contracts/utils/Strings.sol';
 import 'base64-sol/base64.sol';
 
 import './Libraries/HexStrings.sol';
-// import './G4m3.sol';
 
 import './Libraries/G0l.sol';
 import './Libraries/BitOps.sol';
-// import './ToColor.sol';
-//learn more: https://docs.openzeppelin.com/contracts/3.x/erc721 16631332
-
-// GET LISTED ON OPENSEA: https://testnets.opensea.io/get-listed/step-two
 import {Structs} from './Libraries/Structs.sol';
 
 contract G4m3 is ERC721, Pausable, Ownable {
@@ -26,8 +21,6 @@ contract G4m3 is ERC721, Pausable, Ownable {
   using HexStrings for uint160;
   using Counters for Counters.Counter;
   using Strings for uint256;
-
-  // using ToColor for bytes3;
 
   constructor() ERC721('g4m3 0f l1f3', 'g0l') {
     createTime = block.timestamp;
@@ -142,7 +135,6 @@ contract G4m3 is ERC721, Pausable, Ownable {
     );
 
     uint256 r = uint256(seedBytes);
-    // uint256[] memory b;
     uint256 gridInt = r;
     for (uint256 i = 0; i < 8; i += 1) {
       uint8 m = uint8(r >> (i * 8));
@@ -227,7 +219,6 @@ contract G4m3 is ERC721, Pausable, Ownable {
           gameStateInt = gameStateIntNew;
         }
       } else {
-        // we can't look back 3 periods yet..
         _currentGeneration += 1;
         gameStateInt = gameStateIntNew;
       }
@@ -260,7 +251,6 @@ contract G4m3 is ERC721, Pausable, Ownable {
                   metadata.populationDensity,
                   metadata.birthCount,
                   metadata.deathCount,
-                  // metadata.trend,
                   metadata.popDiff,
                   metadata.shape,
                   metadata.speed,
@@ -280,7 +270,6 @@ contract G4m3 is ERC721, Pausable, Ownable {
   }
 
   function generateSVGofTokenById(uint256 id) internal view returns (string memory) {
-    // get token gameState as int, convert to grid
     string memory svg = string(
       abi.encodePacked(
         '<svg width="360" height="360" xmlns="http://www.w3.org/2000/svg">',
@@ -348,7 +337,6 @@ contract G4m3 is ERC721, Pausable, Ownable {
     CellData.perishedCounter = 0;
 
     // packing representation (present in metaData) into CellData struct for stacking reasons
-    // CellData.representation = metaData.representation;
     CellData.unitScale = scale;
 
     for (uint8 i = 0; i < grid.length; i += 1) {
@@ -423,7 +411,6 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
     // "arbitrary" value to mix things up (not random because deterministic)
     metadata.seed = uint256(keccak256(abi.encodePacked(metadata.generation, metadata.description)));
-    // metadata.representation = G0l.returnRepresentationSelector(metadata.seed);
     // get data for births & deaths
     uint256 stateDiff;
     if (id > 1) {
@@ -449,8 +436,6 @@ contract G4m3 is ERC721, Pausable, Ownable {
           )
         ) +
         uint8(tokenEpoch[id]);
-
-      // metadata.times = 19;
 
       if (populationTrends.up == 1) {
         metadata.trend = 'up';
