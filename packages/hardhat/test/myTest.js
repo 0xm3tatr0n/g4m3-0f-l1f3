@@ -212,29 +212,29 @@ describe('My Dapp', function () {
         const tokenMetadata = decodeTokenURI(tokenURI);
         const nameEscaped = tokenMetadata.name.replace(/(\s|\#|\/)/gm, '_');
 
-        // // store metadata file
-        // const fileName = 'meta-' + latestToken + '-' + nameEscaped + '.json';
-        // const dirPath = path.resolve(__dirname, '..', 'exerpts');
-        // const filePath = path.join(dirPath, fileName);
+        // store metadata file
+        const fileName = 'meta-' + latestToken + '-' + nameEscaped + '.json';
+        const dirPath = path.resolve(__dirname, '..', 'exerpts');
+        const filePath = path.join(dirPath, fileName);
 
-        // const svgFileName = 'svg-' + latestToken + '-' + nameEscaped + '.svg';
-        // const svgDirPath = path.resolve(__dirname, '..', 'exerpts', 'svg');
-        // const svgFilePath = path.join(svgDirPath, svgFileName);
+        const svgFileName = 'svg-' + latestToken + '-' + nameEscaped + '.svg';
+        const svgDirPath = path.resolve(__dirname, '..', 'exerpts', 'svg');
+        const svgFilePath = path.join(svgDirPath, svgFileName);
 
-        // console.log('gonna try to write file: ', latestToken);
-        // try {
-        //   // write full metadata as json
-        //   fs.writeFileSync(filePath, JSON.stringify(tokenMetadata, null, 2));
-        //   // extract image field, write to separate file
-        //   const imageField = tokenMetadata.image;
-        //   const base64String = imageField.replace(/^data:image\/svg\+xml;base64,/, '');
-        //   const svgString = Buffer.from(base64String, 'base64').toString('utf-8');
-        //   fs.writeFileSync(svgFilePath, svgString);
-        //   console.log('written metadata for file: ' + latestToken);
-        // } catch (err) {
-        //   console.log('error writing token: ', latestToken);
-        //   console.log(err);
-        // }
+        console.log('gonna try to write file: ', latestToken);
+        try {
+          // write full metadata as json
+          fs.writeFileSync(filePath, JSON.stringify(tokenMetadata, null, 2));
+          // extract image field, write to separate file
+          const imageField = tokenMetadata.image;
+          const base64String = imageField.replace(/^data:image\/svg\+xml;base64,/, '');
+          const svgString = Buffer.from(base64String, 'base64').toString('utf-8');
+          fs.writeFileSync(svgFilePath, svgString);
+          console.log('written metadata for file: ' + latestToken);
+        } catch (err) {
+          console.log('error writing token: ', latestToken);
+          console.log(err);
+        }
 
         // console.log('token metadata:');
         // console.log(tokenMetadata);
