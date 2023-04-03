@@ -155,8 +155,11 @@ contract G4m3 is ERC721, Pausable, Ownable {
         gridInt = BitOps.setBooleaOnIndex(gridInt, (i * 8) + j, result);
       }
     }
+    // Create a mask with the first 64 bits set to 1
+    uint256 mask = (1 << 64) - 1;
 
-    gameStateInt = gridInt;
+    // Bitwise AND the gridInt with the mask to set all bits after the first 64 to 0
+    gameStateInt = gridInt & mask;
   }
 
   function _iterateState() internal {
