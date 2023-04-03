@@ -4,11 +4,10 @@ import '@openzeppelin/contracts/utils/Strings.sol';
 import {Structs} from './Structs.sol';
 
 library BitOps {
-  function getBooleanFromIndex(uint256 _packedBools, uint256 _boolNumber)
-    public
-    pure
-    returns (bool)
-  {
+  function getBooleanFromIndex(
+    uint256 _packedBools,
+    uint256 _boolNumber
+  ) public pure returns (bool) {
     // get bool value from integer word at position _boolNumber
     uint256 flag = (_packedBools >> _boolNumber) & uint256(1);
     return (flag == 1 ? true : false);

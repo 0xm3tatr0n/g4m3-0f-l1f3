@@ -159,6 +159,12 @@ module.exports = {
   mocha: {
     timeout: 100000000,
   },
+  tenderly: {
+    consoleLogLevel: 'none',
+  },
+  logging: {
+    level: 'info',
+  },
 };
 
 const DEBUG = false;

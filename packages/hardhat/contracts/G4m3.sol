@@ -54,10 +54,10 @@ contract G4m3 is ERC721, Pausable, Ownable {
   Counters.Counter internal _tokenIds;
   Counters.Counter internal _currentEpoch;
   uint16 internal _currentGeneration = 0;
-  mapping(uint256 => uint256) internal tokenGridStatesInt;
+  mapping(uint256 => uint64) internal tokenGridStatesInt;
   mapping(uint256 => uint256) internal tokenEpoch;
   mapping(uint256 => uint16) internal tokenGeneration;
-  uint256 internal gameStateInt;
+  uint64 internal gameStateInt;
 
   // Functions: Mint
   function mintItem(address mintTo) public payable whenNotPaused returns (uint256) {
@@ -156,10 +156,10 @@ contract G4m3 is ERC721, Pausable, Ownable {
       }
     }
     // Create a mask with the first 64 bits set to 1
-    uint256 mask = (1 << 64) - 1;
+    // uint256 mask = (1 << 64) - 1;
 
     // Bitwise AND the gridInt with the mask to set all bits after the first 64 to 0
-    gameStateInt = gridInt & mask;
+    gameStateInt = uint64(gridInt); // & mask;
   }
 
   function _iterateState() internal {
@@ -219,11 +219,11 @@ contract G4m3 is ERC721, Pausable, Ownable {
           _initState();
         } else {
           _currentGeneration += 1;
-          gameStateInt = gameStateIntNew;
+          gameStateInt = uint64(gameStateIntNew);
         }
       } else {
         _currentGeneration += 1;
-        gameStateInt = gameStateIntNew;
+        gameStateInt = uint64(gameStateIntNew);
       }
     }
   }
