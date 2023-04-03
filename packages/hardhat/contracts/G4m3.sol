@@ -394,6 +394,9 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
   function generateMetadata(uint256 id) internal view returns (Structs.MetaData memory) {
     Structs.MetaData memory metadata;
+
+    metadata.epoch = Strings.toString(tokenEpoch[id]);
+    metadata.generation = tokenGeneration[id];
     metadata.populationDensity = BitOps.getCountOfOnBits(tokenGridStatesInt[id]);
     metadata.name = string(
       abi.encodePacked(
@@ -406,14 +409,12 @@ contract G4m3 is ERC721, Pausable, Ownable {
       )
     );
     metadata.description = string(abi.encodePacked('g4m3 0f l1f3 #', id.toString()));
-    metadata.epoch = Strings.toString(tokenEpoch[id]);
-    metadata.generation = tokenGeneration[id];
 
     // "arbitrary" value to mix things up (not random because deterministic)
     metadata.seed = uint256(keccak256(abi.encodePacked(metadata.generation, metadata.description)));
     // get data for births & deaths
     uint256 stateDiff;
-    if (id > 1) {
+    if (id > 1 && metadata.generation != 0) {
       stateDiff = tokenGridStatesInt[id - 1] ^ tokenGridStatesInt[id];
 
       uint8 bornCells = BitOps.getCountOfOnBits(tokenGridStatesInt[id] & stateDiff);
@@ -444,6 +445,13 @@ contract G4m3 is ERC721, Pausable, Ownable {
       } else {
         metadata.trend = 'constant';
       }
+    } else {
+      // fallback for new generations
+      metadata.birthCount = 0;
+      metadata.deathCount = 0;
+      metadata.popDiff = 0;
+      metadata.trend = 'fresh';
+      metadata.times = 0;
     }
 
     // dummy population of new representation data
