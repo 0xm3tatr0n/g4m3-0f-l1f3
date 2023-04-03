@@ -1,0 +1,48 @@
+{
+  "name": "g4m3 0f l1f3 #1864 7/8",
+  "description": "g4m3 0f l1f3 #1864",
+  "attributes": [
+    {
+      "trait_type": "epoch",
+      "value": "#7"
+    },
+    {
+      "trait_type": "generation",
+      "value": "8"
+    },
+    {
+      "trait_type": "density",
+      "value": "29"
+    },
+    {
+      "trait_type": "births",
+      "value": "14"
+    },
+    {
+      "trait_type": "deaths",
+      "value": "4"
+    },
+    {
+      "trait_type": "population_difference",
+      "value": "10"
+    },
+    {
+      "trait_type": "times",
+      "value": "Autumn"
+    },
+    {
+      "trait_type": "shape",
+      "value": "Oi!"
+    },
+    {
+      "trait_type": "speed",
+      "value": "raw"
+    },
+    {
+      "trait_type": "pattern",
+      "value": "none"
+    }
+  ],
+  "owner": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+  "image": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjM2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48YW5pbWF0ZSBpZD0iYWEiIGJlZ2luPSIwcyIvPjxyZWN0IGlkPSJkMCIgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2IiBmaWxsPSIjMDAxMjE5Ij48L3JlY3Q+PGNpcmNsZSBpZD0ibDAiIHI9IjE4IiBmaWxsPSIjRUU5QjAwIj48L2NpcmNsZT48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzAwNUY3MyIgLz48dXNlIGhyZWY9IiNkMCIgeD0iMjIiIHk9IjIyIiAvPjx1c2UgaHJlZj0iI2QwIiB4PSIyMiIgeT0iNjIiIC8+PHVzZSBocmVmPSIjbDAiIHg9IjQwIiB5PSIxMjAiIC8+PHVzZSBocmVmPSIjbDAiIHg9IjQwIiB5PSIxNjAiIC8+PHVzZSBocmVmPSIjZDAiIHg9IjIyIiB5PSIxODIiIC8+PHVzZSBocmVmPSIjbDAiIHg9IjQwIiB5PSIyNDAiIC8+PHVzZSBocmVmPSIjZDAiIHg9IjIyIiB5PSIyNjIiIC8+PHVzZSBocmVmPSIjZDAiIHg9IjIyIiB5PSIzMDIiIC8+PHVzZSBocmVmPSIjbDAiIHg9IjgwIiB5PSI0MCIgLz48dXNlIGhyZWY9IiNkMCIgeD0iNjIiIHk9IjYyIiAvPjx1c2UgaHJlZj0iI2QwIiB4PSI2MiIgeT0iMTAyIiAvPjx1c2UgaHJlZj0iI2wwIiB4PSI4MCIgeT0iMTYwIiAvPjx1c2UgaHJlZj0iI2QwIiB4PSI2MiIgeT0iMTgyIiAvPjx1c2UgaHJlZj0iI2wwIiB4PSI4MCIgeT0iMjQwIiAvPjx1c2UgaHJlZj0iI2QwIiB4PSI2MiIgeT0iMjYyIiAvPjx1c2UgaHJlZj0iI2QwIiB4PSI2MiIgeT0iMzAyIiAvPjx1c2UgaHJlZj0iI2wwIiB4PSIxMjAiIHk9IjQwIiAvPjx1c2UgaHJlZj0iI2wwIiB4PSIxMjAiIHk9IjgwIiAvPjx1c2UgaHJlZj0iI2wwIiB4PSIxMjAiIHk9IjEyMCIgLz48dXNlIGhyZWY9IiNkMCIgeD0iMTAyIiB5PSIxNDIiIC8+PHVzZSBocmVmPSIjbDAiIHg9IjEyMCIgeT0iMjAwIiAvPjx1c2UgaHJlZj0iI2wwIiB4PSIxMjAiIHk9IjI0MCIgLz48dXNlIGhyZWY9IiNsMCIgeD0iMTIwIiB5PSIyODAiIC8+PHVzZSBocmVmPSIjbDAiIHg9IjEyMCIgeT0iMzIwIiAvPjx1c2UgaHJlZj0iI2wwIiB4PSIxNjAiIHk9IjQwIiAvPjx1c2UgaHJlZj0iI2QwIiB4PSIxNDIiIHk9IjYyIiAvPjx1c2UgaHJlZj0iI2QwIiB4PSIxNDIiIHk9IjEwMiIgLz48dXNlIGhyZWY9IiNkMCIgeD0iMTQyIiB5PSIxNDIiIC8+PHVzZSBocmVmPSIjZDAiIHg9IjE0MiIgeT0iMTgyIiAvPjx1c2UgaHJlZj0iI2wwIiB4PSIxNjAiIHk9IjI0MCIgLz48dXNlIGhyZWY9IiNkMCIgeD0iMTQyIiB5PSIyNjIiIC8+PHVzZSBocmVmPSIjZDAiIHg9IjE0MiIgeT0iMzAyIiAvPjx1c2UgaHJlZj0iI2wwIiB4PSIyMDAiIHk9IjQwIiAvPjx1c2UgaHJlZj0iI2wwIiB4PSIyMDAiIHk9IjgwIiAvPjx1c2UgaHJlZj0iI2wwIiB4PSIyMDAiIHk9IjEyMCIgLz48dXNlIGhyZWY9IiNkMCIgeD0iMTgyIiB5PSIxNDIiIC8+PHVzZSBocmVmPSIjbDAiIHg9IjIwMCIgeT0iMjAwIiAvPjx1c2UgaHJlZj0iI2wwIiB4PSIyMDAiIHk9IjI0MCIgLz48dXNlIGhyZWY9IiNkMCIgeD0iMTgyIiB5PSIyNjIiIC8+PHVzZSBocmVmPSIjbDAiIHg9IjIwMCIgeT0iMzIwIiAvPjx1c2UgaHJlZj0iI2QwIiB4PSIyMjIiIHk9IjIyIiAvPjx1c2UgaHJlZj0iI2QwIiB4PSIyMjIiIHk9IjYyIiAvPjx1c2UgaHJlZj0iI2QwIiB4PSIyMjIiIHk9IjEwMiIgLz48dXNlIGhyZWY9IiNsMCIgeD0iMjQwIiB5PSIxNjAiIC8+PHVzZSBocmVmPSIjZDAiIHg9IjIyMiIgeT0iMTgyIiAvPjx1c2UgaHJlZj0iI2wwIiB4PSIyNDAiIHk9IjI0MCIgLz48dXNlIGhyZWY9IiNkMCIgeD0iMjIyIiB5PSIyNjIiIC8+PHVzZSBocmVmPSIjbDAiIHg9IjI0MCIgeT0iMzIwIiAvPjx1c2UgaHJlZj0iI2QwIiB4PSIyNjIiIHk9IjIyIiAvPjx1c2UgaHJlZj0iI2QwIiB4PSIyNjIiIHk9IjYyIiAvPjx1c2UgaHJlZj0iI2wwIiB4PSIyODAiIHk9IjEyMCIgLz48dXNlIGhyZWY9IiNsMCIgeD0iMjgwIiB5PSIxNjAiIC8+PHVzZSBocmVmPSIjZDAiIHg9IjI2MiIgeT0iMTgyIiAvPjx1c2UgaHJlZj0iI2wwIiB4PSIyODAiIHk9IjI0MCIgLz48dXNlIGhyZWY9IiNkMCIgeD0iMjYyIiB5PSIyNjIiIC8+PHVzZSBocmVmPSIjZDAiIHg9IjI2MiIgeT0iMzAyIiAvPjx1c2UgaHJlZj0iI2QwIiB4PSIzMDIiIHk9IjIyIiAvPjx1c2UgaHJlZj0iI2QwIiB4PSIzMDIiIHk9IjYyIiAvPjx1c2UgaHJlZj0iI2QwIiB4PSIzMDIiIHk9IjEwMiIgLz48dXNlIGhyZWY9IiNkMCIgeD0iMzAyIiB5PSIxNDIiIC8+PHVzZSBocmVmPSIjZDAiIHg9IjMwMiIgeT0iMTgyIiAvPjx1c2UgaHJlZj0iI2wwIiB4PSIzMjAiIHk9IjI0MCIgLz48dXNlIGhyZWY9IiNsMCIgeD0iMzIwIiB5PSIyODAiIC8+PHVzZSBocmVmPSIjZDAiIHg9IjMwMiIgeT0iMzAyIiAvPjwvc3ZnPg=="
+}
