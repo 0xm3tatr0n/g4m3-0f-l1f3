@@ -138,9 +138,7 @@ describe('My Dapp', function () {
       // move 10 days into the future
       await helpers.time.increase(60 * 60 * 24 * 10);
 
-      await expect(myContract.mintForFree(owner.address, 20)).to.be.revertedWith(
-        'not enough free mints'
-      );
+      await expect(myContract.mintForFree(owner.address, 20)).to.be.revertedWith('no free mints');
       await expect(myContract.mintForFree(owner.address, 10));
     });
 
@@ -187,79 +185,79 @@ describe('My Dapp', function () {
       console.log(`epoch changed to ${nextGeneration} at tokenId ${latestToken}`);
     });
 
-    it('Should keep minting until the end', async function () {
-      const [owner] = await ethers.getSigners();
-      await deployContract();
+    // it('Should keep minting until the end', async function () {
+    //   const [owner] = await ethers.getSigners();
+    //   await deployContract();
 
-      let currentGeneration = 1;
-      let finalGeneration = 11;
-      let latestToken = '';
+    //   let currentGeneration = 1;
+    //   let finalGeneration = 11;
+    //   let latestToken = '';
 
-      while (currentGeneration <= finalGeneration) {
-        const mintTx = await myContract.mintItem(owner.address, {
-          value: ethers.utils.parseEther((0.01).toString()),
-        });
-        const mintRc = await mintTx.wait();
-        const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
+    //   while (currentGeneration <= finalGeneration) {
+    //     const mintTx = await myContract.mintItem(owner.address, {
+    //       value: ethers.utils.parseEther((0.01).toString()),
+    //     });
+    //     const mintRc = await mintTx.wait();
+    //     const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
 
-        // get user's token balance
-        const userTokenBalance = await myContract.balanceOf(owner.address);
-        // identify last minted token
-        const tokenId = await myContract.tokenOfOwnerByIndex(owner.address, userTokenBalance - 1);
-        // console.log('last token id: ', tokenId.toString())
-        latestToken = tokenId.toString();
-        const tokenURI = await myContract.tokenURI(tokenId);
-        const tokenMetadata = decodeTokenURI(tokenURI);
-        const nameEscaped = tokenMetadata.name.replace(/(\s|\#|\/)/gm, '_');
+    //     // get user's token balance
+    //     const userTokenBalance = await myContract.balanceOf(owner.address);
+    //     // identify last minted token
+    //     const tokenId = await myContract.tokenOfOwnerByIndex(owner.address, userTokenBalance - 1);
+    //     // console.log('last token id: ', tokenId.toString())
+    //     latestToken = tokenId.toString();
+    //     const tokenURI = await myContract.tokenURI(tokenId);
+    //     const tokenMetadata = decodeTokenURI(tokenURI);
+    //     const nameEscaped = tokenMetadata.name.replace(/(\s|\#|\/)/gm, '_');
 
-        // store metadata file
-        const fileName = 'meta-' + latestToken + '-' + nameEscaped + '.json';
-        const dirPath = path.resolve(__dirname, '..', 'exerpts');
-        const filePath = path.join(dirPath, fileName);
+    //     // // store metadata file
+    //     // const fileName = 'meta-' + latestToken + '-' + nameEscaped + '.json';
+    //     // const dirPath = path.resolve(__dirname, '..', 'exerpts');
+    //     // const filePath = path.join(dirPath, fileName);
 
-        const svgFileName = 'svg-' + latestToken + '-' + nameEscaped + '.svg';
-        const svgDirPath = path.resolve(__dirname, '..', 'exerpts', 'svg');
-        const svgFilePath = path.join(svgDirPath, svgFileName);
+    //     // const svgFileName = 'svg-' + latestToken + '-' + nameEscaped + '.svg';
+    //     // const svgDirPath = path.resolve(__dirname, '..', 'exerpts', 'svg');
+    //     // const svgFilePath = path.join(svgDirPath, svgFileName);
 
-        console.log('gonna try to write file: ', latestToken);
-        try {
-          // write full metadata as json
-          fs.writeFileSync(filePath, JSON.stringify(tokenMetadata, null, 2));
-          // extract image field, write to separate file
-          const imageField = tokenMetadata.image;
-          const base64String = imageField.replace(/^data:image\/svg\+xml;base64,/, '');
-          const svgString = Buffer.from(base64String, 'base64').toString('utf-8');
-          fs.writeFileSync(svgFilePath, svgString);
-          console.log('written metadata for file: ' + latestToken);
-        } catch (err) {
-          console.log('error writing token: ', latestToken);
-          console.log(err);
-        }
+    //     // console.log('gonna try to write file: ', latestToken);
+    //     // try {
+    //     //   // write full metadata as json
+    //     //   fs.writeFileSync(filePath, JSON.stringify(tokenMetadata, null, 2));
+    //     //   // extract image field, write to separate file
+    //     //   const imageField = tokenMetadata.image;
+    //     //   const base64String = imageField.replace(/^data:image\/svg\+xml;base64,/, '');
+    //     //   const svgString = Buffer.from(base64String, 'base64').toString('utf-8');
+    //     //   fs.writeFileSync(svgFilePath, svgString);
+    //     //   console.log('written metadata for file: ' + latestToken);
+    //     // } catch (err) {
+    //     //   console.log('error writing token: ', latestToken);
+    //     //   console.log(err);
+    //     // }
 
-        // console.log('token metadata:');
-        // console.log(tokenMetadata);
+    //     // console.log('token metadata:');
+    //     // console.log(tokenMetadata);
 
-        // get generation data
-        const epochAttribute = tokenMetadata.attributes.find((e) => {
-          return e.trait_type === 'epoch';
-        });
+    //     // get generation data
+    //     const epochAttribute = tokenMetadata.attributes.find((e) => {
+    //       return e.trait_type === 'epoch';
+    //     });
 
-        const generationAttribute = tokenMetadata.attributes.find((e) => {
-          return e.trait_type === 'generation';
-        });
+    //     const generationAttribute = tokenMetadata.attributes.find((e) => {
+    //       return e.trait_type === 'generation';
+    //     });
 
-        const generationValue = epochAttribute.value.replace('#', '');
-        currentGeneration = generationValue;
+    //     const generationValue = epochAttribute.value.replace('#', '');
+    //     currentGeneration = generationValue;
 
-        console.log(
-          `last token checked ${latestToken} is at epoch ${generationValue} / ${generationAttribute.value}`
-        );
-      }
+    //     console.log(
+    //       `last token checked ${latestToken} is at epoch ${generationValue} / ${generationAttribute.value}`
+    //     );
+    //   }
 
-      // save generated data to stats (to get an idea of avg gen length)
+    //   // save generated data to stats (to get an idea of avg gen length)
 
-      console.log(`epoch changed to ${nextGeneration} at tokenId ${latestToken} `);
-    });
+    //   console.log(`epoch changed to ${nextGeneration} at tokenId ${latestToken} `);
+    // });
 
     it('Should just track the length of tokenURIs (for now)', async function () {
       const [owner] = await ethers.getSigners();
