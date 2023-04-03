@@ -468,7 +468,7 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
     // override for testing:
     // metadata.shape = 4;
-    metadata.pattern = 1;
+    // metadata.pattern = 1;
     // metadata.speed = 3;
 
     return metadata;
