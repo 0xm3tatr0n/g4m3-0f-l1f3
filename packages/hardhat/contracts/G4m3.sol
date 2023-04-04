@@ -6,7 +6,7 @@ import 'hardhat/console.sol';
 import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import '@openzeppelin/contracts/utils/Counters.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
-import '@openzeppelin/contracts/utils/Pausable.sol';
+// import '@openzeppelin/contracts/utils/Pausable.sol';
 import '@openzeppelin/contracts/utils/Strings.sol';
 import 'base64-sol/base64.sol';
 
@@ -16,7 +16,7 @@ import './Libraries/G0l.sol';
 import './Libraries/BitOps.sol';
 import {Structs} from './Libraries/Structs.sol';
 
-contract G4m3 is ERC721, Pausable, Ownable {
+contract G4m3 is ERC721, Ownable {
   using Strings for uint256;
   using HexStrings for uint160;
   using Counters for Counters.Counter;
@@ -27,13 +27,13 @@ contract G4m3 is ERC721, Pausable, Ownable {
     _initState();
   }
 
-  function pause() public onlyOwner {
-    _pause();
-  }
+  // function pause() public onlyOwner {
+  //   _pause();
+  // }
 
-  function unpause() public onlyOwner {
-    _unpause();
-  }
+  // function unpause() public onlyOwner {
+  //   _unpause();
+  // }
 
   // events
   event Withdrawal(address to, uint256 amount);
@@ -52,15 +52,15 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
   // Game state
   Counters.Counter internal _tokenIds;
-  Counters.Counter internal _currentEpoch;
+  uint8 internal _currentEpoch;
   uint16 internal _currentGeneration = 0;
   mapping(uint256 => uint64) internal tokenGridStatesInt;
-  mapping(uint256 => uint256) internal tokenEpoch;
+  mapping(uint256 => uint8) internal tokenEpoch;
   mapping(uint256 => uint16) internal tokenGeneration;
   uint64 internal gameStateInt;
 
   // Functions: Mint
-  function mintItem(address mintTo) public payable whenNotPaused returns (uint256) {
+  function mintItem(address mintTo) public payable returns (uint256) {
     require(msg.value >= mintOnePrice, 'funds');
     // tokenIdsIncrement();
     _tokenIds.increment();
@@ -71,13 +71,13 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
     // store token states
     tokenGridStatesInt[id] = gameStateInt;
-    tokenEpoch[id] = _currentEpoch.current();
+    tokenEpoch[id] = _currentEpoch;
     tokenGeneration[id] = _currentGeneration;
 
     return id;
   }
 
-  function mintPack(address mintTo) public payable whenNotPaused {
+  function mintPack(address mintTo) public payable {
     require(msg.value >= mintPackPrice, 'funds');
 
     for (uint256 i = 0; i < 5; i++) {
@@ -89,7 +89,7 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
       // store token states
       tokenGridStatesInt[id] = gameStateInt;
-      tokenEpoch[id] = _currentEpoch.current();
+      tokenEpoch[id] = _currentEpoch;
       tokenGeneration[id] = _currentGeneration;
     }
   }
@@ -109,15 +109,15 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
       // store token states
       tokenGridStatesInt[id] = gameStateInt;
-      tokenEpoch[id] = _currentEpoch.current();
+      tokenEpoch[id] = _currentEpoch;
     }
   }
 
   // State changing
   function _initState() internal {
-    require(_currentEpoch.current() < maxEpochs, 'minted out');
+    require(_currentEpoch < maxEpochs, 'minted out');
     // set epoch
-    _currentEpoch.increment();
+    _currentEpoch += 1;
     // set generation
     _currentGeneration = 0;
 
@@ -126,16 +126,11 @@ contract G4m3 is ERC721, Pausable, Ownable {
 
     // generate some "randomness"
     bytes32 seedBytes = keccak256(
-      abi.encodePacked(
-        address(this),
-        _currentEpoch.current(),
-        blockhash(block.number - 1),
-        block.timestamp
-      )
+      abi.encodePacked(address(this), _currentEpoch, blockhash(block.number - 1), block.timestamp)
     );
 
-    uint256 r = uint256(seedBytes);
-    uint256 gridInt = r;
+    uint64 r = uint64(uint256(seedBytes));
+    uint64 gridInt = r;
     for (uint256 i = 0; i < 8; i += 1) {
       uint8 m = uint8(r >> (i * 8));
 
@@ -152,14 +147,14 @@ contract G4m3 is ERC721, Pausable, Ownable {
         }
 
         results[i][j] = result;
-        gridInt = BitOps.setBooleaOnIndex(gridInt, (i * 8) + j, result);
+        gridInt = BitOps.setBooleaOnIndex64(gridInt, uint64((i * 8) + j), result);
       }
     }
     // Create a mask with the first 64 bits set to 1
     // uint256 mask = (1 << 64) - 1;
 
     // Bitwise AND the gridInt with the mask to set all bits after the first 64 to 0
-    gameStateInt = uint64(gridInt); // & mask;
+    gameStateInt = gridInt; // & mask;
   }
 
   function _iterateState() internal {
@@ -406,7 +401,7 @@ contract G4m3 is ERC721, Pausable, Ownable {
         'g4m3 0f l1f3 #',
         id.toString(),
         ' ',
-        tokenEpoch[id].toString(),
+        Strings.toString(tokenEpoch[id]),
         '/',
         uint256(tokenGeneration[id]).toString()
       )
