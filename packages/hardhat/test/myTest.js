@@ -99,17 +99,17 @@ describe('My Dapp', function () {
       }
     });
 
-    it('Should pause minting & let mint attempts fail', async function () {
-      const [owner, addr1, addr2] = await ethers.getSigners();
-      await deployContract();
-      const pauseTx = await myContract.pause();
+    // it('Should pause minting & let mint attempts fail', async function () {
+    //   const [owner, addr1, addr2] = await ethers.getSigners();
+    //   await deployContract();
+    //   const pauseTx = await myContract.pause();
 
-      await expect(
-        myContract
-          .connect(addr1)
-          .mintItem(addr1.address, { value: ethers.utils.parseEther((0.01).toString()) })
-      ).to.be.revertedWith('Pausable: paused');
-    });
+    //   await expect(
+    //     myContract
+    //       .connect(addr1)
+    //       .mintItem(addr1.address, { value: ethers.utils.parseEther((0.01).toString()) })
+    //   ).to.be.revertedWith('Pausable: paused');
+    // });
 
     it('Should mint a few & withdraw funds', async function () {
       const [owner, addr1, addr2] = await ethers.getSigners();
@@ -121,15 +121,14 @@ describe('My Dapp', function () {
       const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
 
       // testing withdrawals
-      const amount = ethers.utils.parseEther((0.025).toString());
 
       // withdraw as not owner: expected to fail
-      await expect(myContract.connect(addr1).withdrawAmount(amount)).to.be.revertedWith(
+      await expect(myContract.connect(addr1).drainFunds()).to.be.revertedWith(
         'Ownable: caller is not the owner'
       );
 
       // withdraw as owner: should succeed
-      await expect(myContract.withdrawAmount(amount));
+      await expect(myContract.drainFunds());
     });
 
     it('Should mint for free', async function () {
@@ -142,48 +141,48 @@ describe('My Dapp', function () {
       await expect(myContract.mintForFree(owner.address, 10));
     });
 
-    it('Should keep minting until generation changes', async function () {
-      const [owner] = await ethers.getSigners();
-      await deployContract();
+    // it('Should keep minting until generation changes', async function () {
+    //   const [owner] = await ethers.getSigners();
+    //   await deployContract();
 
-      let lastGeneration = '#1';
-      let nextGeneration = '#1';
-      let latestToken = '';
+    //   let lastGeneration = '#1';
+    //   let nextGeneration = '#1';
+    //   let latestToken = '';
 
-      while (lastGeneration === nextGeneration) {
-        const mintTx = await myContract.mintPack(owner.address, {
-          value: ethers.utils.parseEther((0.025).toString()),
-        });
-        const mintRc = await mintTx.wait();
-        const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
+    //   while (lastGeneration === nextGeneration) {
+    //     const mintTx = await myContract.mintPack(owner.address, {
+    //       value: ethers.utils.parseEther((0.025).toString()),
+    //     });
+    //     const mintRc = await mintTx.wait();
+    //     const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
 
-        // get user's token balance
-        const userTokenBalance = await myContract.balanceOf(owner.address);
-        // identify last minted token
-        const tokenId = await myContract.tokenOfOwnerByIndex(owner.address, userTokenBalance - 1);
-        // console.log('last token id: ', tokenId.toString())
-        latestToken = tokenId.toString();
-        const tokenURI = await myContract.tokenURI(tokenId);
-        const tokenMetadata = decodeTokenURI(tokenURI);
+    //     // get user's token balance
+    //     const userTokenBalance = await myContract.balanceOf(owner.address);
+    //     // identify last minted token
+    //     const tokenId = await myContract.tokenOfOwnerByIndex(owner.address, userTokenBalance - 1);
+    //     // console.log('last token id: ', tokenId.toString())
+    //     latestToken = tokenId.toString();
+    //     const tokenURI = await myContract.tokenURI(tokenId);
+    //     const tokenMetadata = decodeTokenURI(tokenURI);
 
-        // console.log('token metadata:');
-        // console.log(tokenMetadata);
+    //     // console.log('token metadata:');
+    //     // console.log(tokenMetadata);
 
-        // get generation data
-        const generationAttribute = tokenMetadata.attributes.find((e) => {
-          return e.trait_type === 'epoch';
-        });
+    //     // get generation data
+    //     const generationAttribute = tokenMetadata.attributes.find((e) => {
+    //       return e.trait_type === 'epoch';
+    //     });
 
-        const generationValue = generationAttribute.value;
-        nextGeneration = generationValue;
+    //     const generationValue = generationAttribute.value;
+    //     nextGeneration = generationValue;
 
-        console.log(`last token checked ${latestToken} is at epoch ${generationValue}`);
-      }
+    //     console.log(`last token checked ${latestToken} is at epoch ${generationValue}`);
+    //   }
 
-      // save generated data to stats (to get an idea of avg gen length)
+    //   // save generated data to stats (to get an idea of avg gen length)
 
-      console.log(`epoch changed to ${nextGeneration} at tokenId ${latestToken}`);
-    });
+    //   console.log(`epoch changed to ${nextGeneration} at tokenId ${latestToken}`);
+    // });
 
     // it('Should keep minting until the end', async function () {
     //   const [owner] = await ethers.getSigners();

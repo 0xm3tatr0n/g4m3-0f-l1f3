@@ -1,10 +1,21 @@
+//            ___             _____   _____   __   _  __    __  _____
+//           /   |           |____ | |  _  | / _| | |/  |  / _||____ |
+//    __ _  / /| | _ __ ___      / / | |/' || |_  | |`| | | |_     / /
+//   / _` |/ /_| || '_ ` _ \     \ \ |  /| ||  _| | | | | |  _|    \ \
+//  | (_| |\___  || | | | | |.___/ / \ |_/ /| |   | |_| |_| |  .___/ /
+//   \__, |    |_/|_| |_| |_|\____/   \___/ |_|   |_|\___/|_|  \____/
+//    __/ |
+//   |___/
+
+// This project is for experimentation. Should something breaks, I'm sorry. But have been warned.
+// SPDX-License-Identifier: MIT
+// https://twitter.com/0xm3tatr0n
+
 pragma solidity >=0.7.0 <0.8.0;
 pragma abicoder v2;
-//SPDX-License-Identifier: MIT
 
-import 'hardhat/console.sol';
 import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
-import '@openzeppelin/contracts/utils/Counters.sol';
+// import '@openzeppelin/contracts/utils/Counters.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 // import '@openzeppelin/contracts/utils/Pausable.sol';
 import '@openzeppelin/contracts/utils/Strings.sol';
@@ -19,7 +30,7 @@ import {Structs} from './Libraries/Structs.sol';
 contract G4m3 is ERC721, Ownable {
   using Strings for uint256;
   using HexStrings for uint160;
-  using Counters for Counters.Counter;
+  // using Counters for Counters.Counter;
   using Strings for uint256;
 
   constructor() ERC721('g4m3 0f l1f3', 'g0l') {
@@ -51,7 +62,7 @@ contract G4m3 is ERC721, Ownable {
   uint256 private createTime;
 
   // Game state
-  Counters.Counter internal _tokenIds;
+  uint16 internal _tokenIds = 0;
   uint8 internal _currentEpoch;
   uint16 internal _currentGeneration = 0;
   mapping(uint256 => uint64) internal tokenGridStatesInt;
@@ -63,34 +74,31 @@ contract G4m3 is ERC721, Ownable {
   function mintItem(address mintTo) public payable returns (uint256) {
     require(msg.value >= mintOnePrice, 'funds');
     // tokenIdsIncrement();
-    _tokenIds.increment();
+    _tokenIds += 1;
 
-    uint256 id = _tokenIds.current();
-    _mint(mintTo, id);
+    _tokenIds;
+    _mint(mintTo, _tokenIds);
     _iterateState();
 
     // store token states
-    tokenGridStatesInt[id] = gameStateInt;
-    tokenEpoch[id] = _currentEpoch;
-    tokenGeneration[id] = _currentGeneration;
-
-    return id;
+    tokenGridStatesInt[_tokenIds] = gameStateInt;
+    tokenEpoch[_tokenIds] = _currentEpoch;
+    tokenGeneration[_tokenIds] = _currentGeneration;
   }
 
   function mintPack(address mintTo) public payable {
     require(msg.value >= mintPackPrice, 'funds');
 
     for (uint256 i = 0; i < 5; i++) {
-      _tokenIds.increment();
+      _tokenIds += 1;
 
-      uint256 id = _tokenIds.current();
-      _mint(mintTo, id);
+      _mint(mintTo, _tokenIds);
       _iterateState();
 
       // store token states
-      tokenGridStatesInt[id] = gameStateInt;
-      tokenEpoch[id] = _currentEpoch;
-      tokenGeneration[id] = _currentGeneration;
+      tokenGridStatesInt[_tokenIds] = gameStateInt;
+      tokenEpoch[_tokenIds] = _currentEpoch;
+      tokenGeneration[_tokenIds] = _currentGeneration;
     }
   }
 
@@ -100,20 +108,19 @@ contract G4m3 is ERC721, Ownable {
     require((minted4free + noItems) <= currentAlloc, 'no free mints');
 
     for (uint256 i = 0; i < noItems; i++) {
-      _tokenIds.increment();
+      _tokenIds += 1;
 
-      uint256 id = _tokenIds.current();
-      _mint(mintTo, id);
+      _mint(mintTo, _tokenIds);
       minted4free += 1;
       _iterateState();
 
       // store token states
-      tokenGridStatesInt[id] = gameStateInt;
-      tokenEpoch[id] = _currentEpoch;
+      tokenGridStatesInt[_tokenIds] = gameStateInt;
+      tokenEpoch[_tokenIds] = _currentEpoch;
     }
   }
 
-  // State changing
+  // g4m3 0f l1f3 state functions
   function _initState() internal {
     require(_currentEpoch < maxEpochs, 'minted out');
     // set epoch
@@ -133,18 +140,12 @@ contract G4m3 is ERC721, Ownable {
     uint64 gridInt = r;
     for (uint256 i = 0; i < 8; i += 1) {
       uint8 m = uint8(r >> (i * 8));
+      // generate row seed
+      uint256 s = uint256(keccak256(abi.encodePacked(Strings.toString(m), address(this))));
 
       for (uint256 j = 0; j < 8; j += 1) {
-        // generate row seed
-        uint256 s = uint256(keccak256(abi.encodePacked(Strings.toString(m), address(this))));
-
         uint8 n = uint8(s >> (j * 8));
-        bool result;
-        if (n > 125) {
-          result = true;
-        } else {
-          result = false;
-        }
+        bool result = n > 125;
 
         results[i][j] = result;
         gridInt = BitOps.setBooleaOnIndex64(gridInt, uint64((i * 8) + j), result);
@@ -157,6 +158,7 @@ contract G4m3 is ERC721, Ownable {
     gameStateInt = gridInt; // & mask;
   }
 
+  // original iterate state function
   function _iterateState() internal {
     if (_currentGeneration >= 1024) {
       // start new epoch
@@ -201,10 +203,10 @@ contract G4m3 is ERC721, Ownable {
       // gameStateIntNew --> current
       uint256 gameStateIntNew = BitOps.gridToWord(newGameStateFromInt);
 
-      if (_tokenIds.current() > 3) {
+      if (_tokenIds > 3) {
         // game advanced enough to look back 3 periods
-        uint256 gameStateIntOldOld = tokenGridStatesInt[_tokenIds.current() - 1];
-        uint256 gameStateIntOld = tokenGridStatesInt[_tokenIds.current()];
+        uint256 gameStateIntOldOld = tokenGridStatesInt[_tokenIds - 1];
+        uint256 gameStateIntOld = tokenGridStatesInt[_tokenIds];
         if (
           gameStateInt == gameStateIntNew ||
           gameStateIntOld == gameStateIntNew ||
@@ -368,7 +370,7 @@ contract G4m3 is ERC721, Ownable {
     bytes memory output;
     // add general svg, e.g. background
     output = G0l.renderDefs(
-      colorMap.backgroundColor,
+      // colorMap.backgroundColor,
       colorMap.aliveColor,
       colorMap.deadColor,
       colorMap.bornColor,
@@ -466,8 +468,8 @@ contract G4m3 is ERC721, Ownable {
   }
 
   // Withdraw
-  function withdrawAmount(uint256 amount) public onlyOwner {
-    require(amount <= address(this).balance, 'withdraw amnt too high');
+  function drainFunds() public onlyOwner {
+    uint256 amount = address(this).balance;
     msg.sender.transfer(amount);
     emit Withdrawal(msg.sender, amount);
   }
