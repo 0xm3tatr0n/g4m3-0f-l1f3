@@ -1,4 +1,5 @@
 pragma solidity >=0.7.0 <0.8.0;
+// pragma solidity ^0.8.6;
 // pragma abicoder v2;
 // pragma abicoder v2;
 import '@openzeppelin/contracts/utils/Strings.sol';
@@ -143,7 +144,7 @@ library G0l {
   }
 
   function renderDefs(
-    string memory backgroundColor,
+    // string memory backgroundColor,
     string memory aliveColor,
     string memory deadColor,
     string memory bornColor,
@@ -303,9 +304,15 @@ library G0l {
     uint8 i,
     uint8 j,
     uint8 bornCounter,
-    uint8 perishedCounter,
-    bool alive
-  ) public pure returns (string memory) {
+    uint8 perishedCounter
+  )
+    public
+    pure
+    returns (
+      // bool alive
+      string memory
+    )
+  {
     //
     if (speed <= 1) {
       // raw or static
@@ -755,8 +762,8 @@ library G0l {
         CellData.i,
         CellData.j,
         CellData.bornCounter,
-        CellData.perishedCounter,
-        CellData.alive
+        CellData.perishedCounter
+        // CellData.alive
       );
 
       cell = string(
