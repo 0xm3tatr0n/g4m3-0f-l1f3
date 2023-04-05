@@ -71,34 +71,34 @@ contract G4m3 is ERC721, Ownable {
   uint64 internal gameStateInt;
 
   // Functions: Mint
-  function mintItem(address mintTo) public payable returns (uint256) {
+  function mintItem(address mintTo) public payable returns (uint256 lastTokenId) {
     require(msg.value >= mintOnePrice, 'funds');
-    // tokenIdsIncrement();
-    _tokenIds += 1;
 
-    _tokenIds;
-    _mint(mintTo, _tokenIds);
-    _iterateState();
+    // _tokenIds += 1;
+    // _mint(mintTo, _tokenIds);
+    // _iterateState();
 
-    // store token states
-    tokenGridStatesInt[_tokenIds] = gameStateInt;
-    tokenEpoch[_tokenIds] = _currentEpoch;
-    tokenGeneration[_tokenIds] = _currentGeneration;
+    // // store token states
+    // tokenGridStatesInt[_tokenIds] = gameStateInt;
+    // tokenEpoch[_tokenIds] = _currentEpoch;
+    // tokenGeneration[_tokenIds] = _currentGeneration;
+    return _mintBase(mintTo);
   }
 
   function mintPack(address mintTo) public payable {
     require(msg.value >= mintPackPrice, 'funds');
 
     for (uint256 i = 0; i < 5; i++) {
-      _tokenIds += 1;
+      // _tokenIds += 1;
 
-      _mint(mintTo, _tokenIds);
-      _iterateState();
+      // _mint(mintTo, _tokenIds);
+      // _iterateState();
 
-      // store token states
-      tokenGridStatesInt[_tokenIds] = gameStateInt;
-      tokenEpoch[_tokenIds] = _currentEpoch;
-      tokenGeneration[_tokenIds] = _currentGeneration;
+      // // store token states
+      // tokenGridStatesInt[_tokenIds] = gameStateInt;
+      // tokenEpoch[_tokenIds] = _currentEpoch;
+      // tokenGeneration[_tokenIds] = _currentGeneration;
+      _mintBase(mintTo);
     }
   }
 
@@ -108,16 +108,32 @@ contract G4m3 is ERC721, Ownable {
     require((minted4free + noItems) <= currentAlloc, 'no free mints');
 
     for (uint256 i = 0; i < noItems; i++) {
-      _tokenIds += 1;
+      // _tokenIds += 1;
 
-      _mint(mintTo, _tokenIds);
+      // _mint(mintTo, _tokenIds);
+      // minted4free += 1;
+      // _iterateState();
+
+      // // store token states
+      // tokenGridStatesInt[_tokenIds] = gameStateInt;
+      // tokenEpoch[_tokenIds] = _currentEpoch;
+      _mintBase(mintTo);
       minted4free += 1;
-      _iterateState();
-
-      // store token states
-      tokenGridStatesInt[_tokenIds] = gameStateInt;
-      tokenEpoch[_tokenIds] = _currentEpoch;
     }
+  }
+
+  // internal mint function called by all of the above
+  function _mintBase(address to) private returns (uint256 lastTokenId) {
+    // this assumes criteria like eligibility of minting & funding have been checked before!
+    _tokenIds += 1;
+    _iterateState();
+
+    // store token states
+    tokenGridStatesInt[_tokenIds] = gameStateInt;
+    tokenEpoch[_tokenIds] = _currentEpoch;
+    tokenGeneration[_tokenIds] = _currentGeneration;
+    _mint(to, _tokenIds);
+    return _tokenIds;
   }
 
   // g4m3 0f l1f3 state functions
