@@ -73,15 +73,6 @@ contract G4m3 is ERC721, Ownable {
   // Functions: Mint
   function mintItem(address mintTo) public payable returns (uint256 lastTokenId) {
     require(msg.value >= mintOnePrice, 'funds');
-
-    // _tokenIds += 1;
-    // _mint(mintTo, _tokenIds);
-    // _iterateState();
-
-    // // store token states
-    // tokenGridStatesInt[_tokenIds] = gameStateInt;
-    // tokenEpoch[_tokenIds] = _currentEpoch;
-    // tokenGeneration[_tokenIds] = _currentGeneration;
     return _mintBase(mintTo);
   }
 
@@ -89,15 +80,6 @@ contract G4m3 is ERC721, Ownable {
     require(msg.value >= mintPackPrice, 'funds');
 
     for (uint256 i = 0; i < 5; i++) {
-      // _tokenIds += 1;
-
-      // _mint(mintTo, _tokenIds);
-      // _iterateState();
-
-      // // store token states
-      // tokenGridStatesInt[_tokenIds] = gameStateInt;
-      // tokenEpoch[_tokenIds] = _currentEpoch;
-      // tokenGeneration[_tokenIds] = _currentGeneration;
       _mintBase(mintTo);
     }
   }
@@ -108,15 +90,6 @@ contract G4m3 is ERC721, Ownable {
     require((minted4free + noItems) <= currentAlloc, 'no free mints');
 
     for (uint256 i = 0; i < noItems; i++) {
-      // _tokenIds += 1;
-
-      // _mint(mintTo, _tokenIds);
-      // minted4free += 1;
-      // _iterateState();
-
-      // // store token states
-      // tokenGridStatesInt[_tokenIds] = gameStateInt;
-      // tokenEpoch[_tokenIds] = _currentEpoch;
       _mintBase(mintTo);
       minted4free += 1;
     }
@@ -167,11 +140,8 @@ contract G4m3 is ERC721, Ownable {
         gridInt = BitOps.setBooleaOnIndex64(gridInt, uint64((i * 8) + j), result);
       }
     }
-    // Create a mask with the first 64 bits set to 1
-    // uint256 mask = (1 << 64) - 1;
 
-    // Bitwise AND the gridInt with the mask to set all bits after the first 64 to 0
-    gameStateInt = gridInt; // & mask;
+    gameStateInt = gridInt;
   }
 
   // original iterate state function
