@@ -7,6 +7,9 @@ const R = require('ramda');
 const helpers = require('@nomicfoundation/hardhat-network-helpers');
 require('@nomiclabs/hardhat-etherscan');
 
+// ledger signer
+const { getLedgerSigner } = require('./ledgerSigner');
+
 const main = async () => {
   console.log(`\n\n 📡 Deploying to ${network.name}...\n`);
 
@@ -53,13 +56,36 @@ const main = async () => {
     }
   } else {
     // deploy to other environment
-    // linking libraries
-    G0lLib = await deploy('G0l');
+    // new script for deploying with ledger (not using deploy function...)
+    // const provider = hre.ethers.provider;
+    // const signer = await getLedgerSigner(provider);
+    // console.log('Deploying contracts with the account:', await signer.getAddress());
+
+    // G0lLib = await hre.ethers.getContractFactory('G0l', signer);
+    // g0llib = await G0lLib.deploy();
+    // await g0llib.deployed();
+    // console.log('Contract deployed to:', g0llib.address);
+    // // await g0llib.deployTransaction.wait(6);
+    // BitOpsLib = await hre.ethers.getContractFactory('BitOps', signer);
+    // bitopslib = await BitOpsLib.deploy();
+    // await bitopslib.deployed();
+    // console.log('Contract deployed to:', bitopslib.address);
+    // // bitopslib.deployTransaction.wait(6)
+
+    // yourCollectible = await hre.ethers.getContractFactory('G4m3', {
+    //   libraries: {
+    //     G0l: G0lLib.address,
+    //     BitOps: BitOpsLib.address,
+    //   },
+    //   signer,
+    // });
+
+    G0lLib = await deployLedger('G0l');
     await G0lLib.deployTransaction.wait(6);
-    BitOpsLib = await deploy('BitOps');
+    BitOpsLib = await deployLedger('BitOps');
     await BitOpsLib.deployTransaction.wait(6);
 
-    yourCollectible = await deploy(
+    yourCollectible = await deployLedger(
       'G4m3',
       [],
       {},
@@ -77,6 +103,32 @@ const main = async () => {
       address: yourCollectible.address,
       // constructorArguments: args // If your contract has constructor arguments, you can pass them as an array
     });
+
+    // // old script (working) for deploying from local wallet
+    // linking libraries
+    // G0lLib = await deploy('G0l');
+    // await G0lLib.deployTransaction.wait(6);
+    // BitOpsLib = await deploy('BitOps');
+    // await BitOpsLib.deployTransaction.wait(6);
+
+    // yourCollectible = await deploy(
+    //   'G4m3',
+    //   [],
+    //   {},
+    //   {
+    //     G0l: G0lLib.address,
+    //     BitOps: BitOpsLib.address,
+    //   }
+    // );
+
+    // // wait for a bit
+    // await yourCollectible.deployTransaction.wait(10);
+
+    // console.log(chalk.blue('verifying on etherscan'));
+    // await run('verify:verify', {
+    //   address: yourCollectible.address,
+    //   // constructorArguments: args // If your contract has constructor arguments, you can pass them as an array
+    // });
   }
 
   await yourCollectible.transferOwnership('0x5B310560815EaF364E5876908574b4a9c6eC1B7e');
@@ -103,6 +155,51 @@ const deploy = async (contractName, _args = [], overrides = {}, libraries = {}) 
 
   const contractArgs = _args || [];
   const contractArtifacts = await ethers.getContractFactory(contractName, { libraries: libraries });
+  const deployed = await contractArtifacts.deploy(...contractArgs, overrides);
+  const encoded = abiEncodeArgs(deployed, contractArgs);
+  fs.writeFileSync(`artifacts/${contractName}.address`, deployed.address);
+
+  let extraGasInfo = '';
+  if (deployed && deployed.deployTransaction) {
+    const gasUsed = deployed.deployTransaction.gasLimit.mul(deployed.deployTransaction.gasPrice);
+    extraGasInfo = `${utils.formatEther(gasUsed)} ETH, tx hash ${deployed.deployTransaction.hash}`;
+  }
+
+  console.log(' 📄', chalk.cyan(contractName), 'deployed to:', chalk.magenta(deployed.address));
+  console.log(' ⛽', chalk.grey(extraGasInfo));
+
+  // console.log("funding address 0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295", 100 )
+  // await helpers.setBalance("0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295", 10000000000);
+
+  await tenderly.persistArtifacts({
+    name: contractName,
+    address: deployed.address,
+  });
+
+  if (!encoded || encoded.length <= 2) return deployed;
+  fs.writeFileSync(`artifacts/${contractName}.args`, encoded.slice(2));
+
+  return deployed;
+};
+
+const deployLedger = async (contractName, _args = [], overrides = {}, libraries = {}) => {
+  // console.log(chalk.red('deploy is running'));
+  console.log(` 🛰  Deploying w/ Ledger: ${contractName}`);
+
+  // const provider = hre.ethers.provider;
+  const provider = ethers.getDefaultProvider(hre.network.config.url);
+  const signer = await getLedgerSigner(provider);
+  const gasPrice = await provider.getGasPrice();
+  console.log('Deploying contracts with the account:', await signer.getAddress());
+
+  const contractArgs = _args || [];
+  const contractArtifacts = await ethers.getContractFactory(contractName, {
+    libraries: libraries,
+    signer: signer,
+  });
+
+  // adding gas price to overrides:
+  overrides = { gasPrice: gasPrice.mul(12).div(10), gasLimit: 5000000, ...overrides };
   const deployed = await contractArtifacts.deploy(...contractArgs, overrides);
   const encoded = abiEncodeArgs(deployed, contractArgs);
   fs.writeFileSync(`artifacts/${contractName}.address`, deployed.address);
