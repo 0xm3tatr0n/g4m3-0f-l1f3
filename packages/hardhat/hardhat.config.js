@@ -111,9 +111,18 @@ module.exports = {
     },
     polygonMumbai: {
       url: 'https://rpc-mumbai.maticvigil.com',
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      chainId: 80001,
+      // accounts: {
+      //   type: 'ledger',
+      //   path: "m/44'/60'/0'/0", // Default Ledger Live derivation path
+      // },
+      gas: 'auto',
+      gasPrice: 20000000000, // 20 Gwei
+      gasMultiplier: 1.2,
+      timeout: 50000,
+      // accounts: {
+      //   mnemonic: mnemonic(),
+      // },
     },
   },
   solidity: {
