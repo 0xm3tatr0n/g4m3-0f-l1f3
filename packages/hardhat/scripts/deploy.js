@@ -1,14 +1,20 @@
 /* eslint no-use-before-define: "warn" */
 const fs = require('fs');
 const chalk = require('chalk');
-const { config, ethers, tenderly, run, network } = require('hardhat');
-const { utils } = require('ethers');
+const { config, tenderly, run, network } = require('hardhat');
+const { ethers } = require('hardhat');
+// const { JsonRpcProvider } = require('ethers/providers');
+// const { ethers } = require('ethers');
 const R = require('ramda');
 const helpers = require('@nomicfoundation/hardhat-network-helpers');
 require('@nomiclabs/hardhat-etherscan');
+// require('@nomiclabs/hardhat-ethers');
 
 // ledger signer
-const { getLedgerSigner } = require('./ledgerSigner');
+// const { getLedgerSigner } = require('./ledgerSigner');
+const TransportNodeHid = require('@ledgerhq/hw-transport-node-hid-noevents');
+const { default: LedgerEth } = require('@ledgerhq/hw-app-eth');
+// const { ethers } = require('ethers');
 
 const main = async () => {
   console.log(`\n\n 📡 Deploying to ${network.name}...\n`);
@@ -182,50 +188,47 @@ const deploy = async (contractName, _args = [], overrides = {}, libraries = {}) 
   return deployed;
 };
 
-const deployLedger = async (contractName, _args = [], overrides = {}, libraries = {}) => {
-  // console.log(chalk.red('deploy is running'));
-  console.log(` 🛰  Deploying w/ Ledger: ${contractName}`);
+async function deployLedger() {
+  const transport = await TransportNodeHid.default.create();
+  const eth = new LedgerEth(transport);
+  const derivationPath = "m/44'/60'/0'/0/0";
+  const result = await eth.getAddress(derivationPath);
 
-  // const provider = hre.ethers.provider;
-  const provider = ethers.getDefaultProvider(hre.network.config.url);
-  const signer = await getLedgerSigner(provider);
-  const gasPrice = await provider.getGasPrice();
-  console.log('Deploying contracts with the account:', await signer.getAddress());
+  async function getLedgerSigner(provider) {
+    const signer = provider.getSigner(result.address);
+    signer._signTypedData = signer.signTypedData;
+    signer.signTypedData = async function (domain, types, value) {
+      const typedData = JSON.stringify({
+        domain,
+        types,
+        value,
+      });
+      const signature = await eth.signEIP712TypedData(derivationPath, typedData);
+      return `0x${signature}`;
+    };
 
-  const contractArgs = _args || [];
-  const contractArtifacts = await ethers.getContractFactory(contractName, {
-    libraries: libraries,
-    signer: signer,
-  });
+    signer.signMessage = async function (message) {
+      const messageHash = ethers.utils.arrayify(ethers.utils.id(message));
+      const messageHashHex = ethers.utils.hexlify(messageHash).substring(2);
+      const rawSignature = await eth.signPersonalMessage(derivationPath, messageHashHex);
+      const v = rawSignature.v;
 
-  // adding gas price to overrides:
-  overrides = { gasPrice: gasPrice.mul(12).div(10), gasLimit: 5000000, ...overrides };
-  const deployed = await contractArtifacts.deploy(...contractArgs, overrides);
-  const encoded = abiEncodeArgs(deployed, contractArgs);
-  fs.writeFileSync(`artifacts/${contractName}.address`, deployed.address);
+      const signature = `0x${rawSignature.r}${rawSignature.s}${v.toString(16)}`;
+      return signature;
+    };
 
-  let extraGasInfo = '';
-  if (deployed && deployed.deployTransaction) {
-    const gasUsed = deployed.deployTransaction.gasLimit.mul(deployed.deployTransaction.gasPrice);
-    extraGasInfo = `${utils.formatEther(gasUsed)} ETH, tx hash ${deployed.deployTransaction.hash}`;
+    return signer;
   }
 
-  console.log(' 📄', chalk.cyan(contractName), 'deployed to:', chalk.magenta(deployed.address));
-  console.log(' ⛽', chalk.grey(extraGasInfo));
+  // const provider = new ethers.providers.JsonRpcProvider('https://rpc-mumbai.maticvigil.com');
+  // console.log(ethers);
+  const provider = new ethers.providers.JsonRpcProvider('https://rpc-mumbai.maticvigil.com');
+  const signer = await getLedgerSigner(provider);
+  const contractFactory = new ethers.ContractFactory(contractABI, contractBytecode, signer);
+  const contract = await contractFactory.deploy();
 
-  // console.log("funding address 0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295", 100 )
-  // await helpers.setBalance("0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295", 10000000000);
-
-  await tenderly.persistArtifacts({
-    name: contractName,
-    address: deployed.address,
-  });
-
-  if (!encoded || encoded.length <= 2) return deployed;
-  fs.writeFileSync(`artifacts/${contractName}.args`, encoded.slice(2));
-
-  return deployed;
-};
+  console.log('Deployed contract address:', contract.address);
+}
 
 // ------ utils -------
 
