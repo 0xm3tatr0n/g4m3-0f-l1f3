@@ -1,16 +1,16 @@
-const { utils } = require('ethers');
+const { utils, ethers, isAddress, getAddress, formatUnits, parseUnits } = require('ethers');
 const fs = require('fs');
 const chalk = require('chalk');
 
 require('@nomiclabs/hardhat-waffle');
 require('@tenderly/hardhat-tenderly');
-
+require('@nomiclabs/hardhat-ethers');
 require('@nomiclabs/hardhat-etherscan');
 require('hardhat-gas-reporter');
 require('hardhat-contract-sizer');
 require('@nomicfoundation/hardhat-network-helpers');
 
-const { isAddress, getAddress, formatUnits, parseUnits } = utils;
+// const { isAddress, getAddress, formatUnits, parseUnits } = ethers.utils;
 
 /*
       📡 This is where you configure your deploy configuration for 🏗 scaffold-eth
