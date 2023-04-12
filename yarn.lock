@@ -15,6 +15,15 @@
     "@jridgewell/gen-mapping" "^0.1.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
+"@anders-t/ethers-ledger@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@anders-t/ethers-ledger/-/ethers-ledger-1.0.4.tgz#07a981cf46cdeb9bdd86dfbc718038084d69739e"
+  integrity sha512-EVuIE5qe1rSbO4A/uHSHENtqA+OTA73aWNzWxiqo/kpUlXIpb6pWps31Pf4Zeh3XL5uW7iXWmkKjDYfJgQXAbw==
+  dependencies:
+    "@ledgerhq/hw-app-eth" "^6.24.0"
+    "@ledgerhq/hw-transport-node-hid" "^6.20.0"
+    ethers "^5.5.4"
+
 "@ant-design/colors@^6.0.0":
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/@ant-design/colors/-/colors-6.0.0.tgz#9b9366257cffcc47db42b9d0203bb592c13c0298"
@@ -2539,7 +2548,7 @@
     bignumber.js "^9.0.1"
     rlp "^2.2.6"
 
-"@ledgerhq/hw-app-eth@^6.32.2":
+"@ledgerhq/hw-app-eth@^6.24.0", "@ledgerhq/hw-app-eth@^6.32.2":
   version "6.32.2"
   resolved "https://registry.yarnpkg.com/@ledgerhq/hw-app-eth/-/hw-app-eth-6.32.2.tgz#a6dd250c327426ded1e825dd504d2844b20703a5"
   integrity sha512-5RmRw+vhzCE88hFPcpFOXelLTk9cjscweYJLritdAcTSkXV3jOdmAYvY1KLhG5Ungy561r8AQHm6NleR/Qjpjw==
@@ -2599,7 +2608,7 @@
     node-hid "1.3.0"
     usb "^1.6.3"
 
-"@ledgerhq/hw-transport-node-hid@^6.27.13":
+"@ledgerhq/hw-transport-node-hid@^6.20.0", "@ledgerhq/hw-transport-node-hid@^6.27.13":
   version "6.27.13"
   resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport-node-hid/-/hw-transport-node-hid-6.27.13.tgz#741644d7b8761f682b36eda36e1bf7876357efda"
   integrity sha512-j4c1UOMylX9cE9ebTh+qqMfzZDJpK8WZ7/kalxdY/MHWQcO+F2XAMvEqdZOaMjSIhI0vbgL/OoEvO2nxGFhObA==
@@ -9844,7 +9853,7 @@ ethers@^4.0.40, ethers@^4.0.46:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
-ethers@^5.0.1, ethers@^5.0.2, ethers@^5.0.31, ethers@^5.5.2, ethers@^5.5.3, ethers@^5.7.0:
+ethers@^5.0.1, ethers@^5.0.2, ethers@^5.0.31, ethers@^5.5.2, ethers@^5.5.3, ethers@^5.5.4, ethers@^5.7.0:
   version "5.7.2"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.7.2.tgz#3a7deeabbb8c030d4126b24f84e525466145872e"
   integrity sha512-wswUsmWo1aOK8rR7DIKiWSw9DbLWe6x98Jrn8wcTflTVvaXhAMaB5zGAXy0GYQEQp9iO1iSHWVyARQm11zUtyg==
