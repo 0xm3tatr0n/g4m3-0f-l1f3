@@ -1,6 +1,8 @@
 /* eslint no-use-before-define: "warn" */
 const fs = require('fs');
 const chalk = require('chalk');
+const hre = require('hardhat');
+const { LedgerSigner } = require('@anders-t/ethers-ledger');
 const { config, tenderly, run, network } = require('hardhat');
 const { ethers } = require('hardhat');
 // const { JsonRpcProvider } = require('ethers/providers');
@@ -86,12 +88,12 @@ const main = async () => {
     //   signer,
     // });
 
-    G0lLib = await deployLedger('G0l');
+    G0lLib = await deployTestNew('G0l');
     await G0lLib.deployTransaction.wait(6);
-    BitOpsLib = await deployLedger('BitOps');
+    BitOpsLib = await deployTestNew('BitOps');
     await BitOpsLib.deployTransaction.wait(6);
 
-    yourCollectible = await deployLedger(
+    yourCollectible = await deployTestNew(
       'G4m3',
       [],
       {},
@@ -188,6 +190,7 @@ const deploy = async (contractName, _args = [], overrides = {}, libraries = {}) 
   return deployed;
 };
 
+// deployLedger *not* working, keeping it as reference for now..
 async function deployLedger(contractName, _args = [], overrides = {}, libraries = {}) {
   console.log('deployLedger going to deploy contract', contractName);
   console.log('with overrides: ', overrides);
@@ -349,6 +352,47 @@ async function deployLedgerFrame(contractName, _args = [], overrides = {}, libra
 
   return deployed;
 }
+
+const deployTestNew = async (contractName, _args = [], overrides = {}, libraries = {}) => {
+  console.log(`deployTestNew running..`);
+  console.log(` 🛰  Deploying: ${contractName}`);
+  const contractArgs = _args || [];
+
+  // minimal-ish code
+  const ledger = new LedgerSigner(hre.ethers.provider);
+  const contractArtifacts = await hre.ethers.getContractFactory(contractName, {
+    libraries: libraries,
+  });
+
+  let contractFactory = await contractArtifacts.connect(ledger);
+  const deployed = await contractFactory.deploy();
+
+  // additional code for full deployment
+  const encoded = abiEncodeArgs(deployed, contractArgs);
+  fs.writeFileSync(`artifacts/${contractName}.address`, deployed.address);
+
+  let extraGasInfo = '';
+  if (deployed && deployed.deployTransaction) {
+    const gasUsed = deployed.deployTransaction.gasLimit.mul(deployed.deployTransaction.gasPrice);
+    extraGasInfo = `${utils.formatEther(gasUsed)} ETH, tx hash ${deployed.deployTransaction.hash}`;
+  }
+
+  console.log(' 📄', chalk.cyan(contractName), 'deployed to:', chalk.magenta(deployed.address));
+  console.log(' ⛽', chalk.grey(extraGasInfo));
+
+  // console.log("funding address 0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295", 100 )
+  // await helpers.setBalance("0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295", 10000000000);
+
+  await tenderly.persistArtifacts({
+    name: contractName,
+    address: deployed.address,
+  });
+
+  if (!encoded || encoded.length <= 2) return deployed;
+  fs.writeFileSync(`artifacts/${contractName}.args`, encoded.slice(2));
+
+  return deployed;
+};
 
 // ------ utils -------
 
