@@ -61,6 +61,15 @@ module.exports = {
         (you can put in a mnemonic here to set the deployer locally)
       */
     },
+    frame: {
+      url: 'http://127.0.0.1:1248', // this is the RPC endpoint exposed by Frame
+      chainId: 80001, // polygon mumbai
+      timeout: 60000,
+    },
+    mumbaiTest: {
+      url: `https://polygon-mumbai.g.alchemy.com/v2/wU_J_ennw72qE1j6ZHl5Eov4L1xkxi-r`,
+      chainId: 80001,
+    },
     hardhat: {
       allowUnlimitedContractSize: true,
     },
