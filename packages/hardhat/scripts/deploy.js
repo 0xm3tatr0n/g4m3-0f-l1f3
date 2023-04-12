@@ -18,6 +18,13 @@ const TransportNodeHid = require('@ledgerhq/hw-transport-node-hid-noevents');
 const { default: LedgerEth } = require('@ledgerhq/hw-app-eth');
 // const { ethers } = require('ethers');
 
+// trying to use frame
+const ethProvider = require('eth-provider'); // eth-provider is a simple EIP-1193 provider
+const frame = ethProvider('frame', {
+  network: 'mumbai',
+  rpcUrl: 'https://rpc-mumbai.maticvigil.com',
+}); // Connect to Frame
+
 const main = async () => {
   console.log(`\n\n 📡 Deploying to ${network.name}...\n`);
 
@@ -88,12 +95,14 @@ const main = async () => {
     //   signer,
     // });
 
-    G0lLib = await deployTestNew('G0l');
+    G0lLib = await deployLedgerFrame('G0l');
     await G0lLib.deployTransaction.wait(6);
-    BitOpsLib = await deployTestNew('BitOps');
+    console.log('>>>> G0l deployed!');
+    BitOpsLib = await deployLedgerFrame('BitOps');
     await BitOpsLib.deployTransaction.wait(6);
+    console.log('>>>> BitOps deployed!');
 
-    yourCollectible = await deployTestNew(
+    yourCollectible = await deployLedgerFrame(
       'G4m3',
       [],
       {},
@@ -105,6 +114,7 @@ const main = async () => {
 
     // wait for a bit
     await yourCollectible.deployTransaction.wait(10);
+    console.log('>>>> G4m3 deployed!');
 
     console.log(chalk.blue('verifying on etherscan'));
     await run('verify:verify', {
@@ -273,97 +283,61 @@ async function deployLedger(contractName, _args = [], overrides = {}, libraries 
 }
 
 async function deployLedgerFrame(contractName, _args = [], overrides = {}, libraries = {}) {
-  console.log('deployLedger going to deploy contract', contractName);
-  console.log('with overrides: ', overrides);
-  const transport = await TransportNodeHid.default.create();
-  const eth = new LedgerEth(transport);
-  const derivationPath = "m/44'/800'/0'/0/0"; // ethereum mainnet: "m/44'/60'/0'/0/0";
-  console.log('>> derivation path', derivationPath);
-  // console.log(eth);
-  const result = await eth.getAddress(derivationPath);
-  console.log('>> address', result);
+  console.log(` 🛰  Deploying: ${contractName}`);
 
-  async function getLedgerSigner(provider) {
-    const signer = provider.getSigner(result.address);
-    signer._signTypedData = signer.signTypedData;
-    signer.signTypedData = async function (domain, types, value) {
-      const typedData = JSON.stringify({
-        domain,
-        types,
-        value,
-      });
-      const signature = await eth.signEIP712TypedData(derivationPath, typedData);
-      return `0x${signature}`;
-    };
-
-    signer.signMessage = async function (message) {
-      const messageHash = ethers.utils.arrayify(ethers.utils.id(message));
-      const messageHashHex = ethers.utils.hexlify(messageHash).substring(2);
-      const rawSignature = await eth.signPersonalMessage(derivationPath, messageHashHex);
-      const v = rawSignature.v;
-
-      const signature = `0x${rawSignature.r}${rawSignature.s}${v.toString(16)}`;
-      return signature;
-    };
-
-    return signer;
-  }
-
-  // const provider = new ethers.providers.JsonRpcProvider('https://rpc-mumbai.maticvigil.com');
-  // console.log(ethers);
-  const provider = new ethers.providers.JsonRpcProvider('https://rpc-mumbai.maticvigil.com');
-  const signer = await getLedgerSigner(provider);
-
-  // deployment
   const contractArgs = _args || [];
-  overrides = {
-    gasLimit: 3000000,
-    gasPrice: ethers.utils.parseUnits('50', 'gwei'),
-    ...overrides,
-  };
-  const contractArtifacts = await ethers.getContractFactory(contractName, {
-    libraries: libraries,
-    signer: signer,
-  });
-  const deployed = await contractArtifacts.deploy(...contractArgs, overrides);
-  const encoded = abiEncodeArgs(deployed, contractArgs);
-  fs.writeFileSync(`artifacts/${contractName}.address`, deployed.address);
+  const contractArtifacts = await ethers.getContractFactory(contractName, { libraries: libraries });
 
-  let extraGasInfo = '';
-  if (deployed && deployed.deployTransaction) {
-    const gasUsed = deployed.deployTransaction.gasLimit.mul(deployed.deployTransaction.gasPrice);
-    extraGasInfo = `${ethers.utils.formatEther(gasUsed)} ETH, tx hash ${
-      deployed.deployTransaction.hash
-    }`;
-  }
+  //
+  const tx = await contractArtifacts.getDeployTransaction();
+  const networkId = 80001; // Polygon Mumbai network ID
+  tx.chainId = networkId;
 
-  console.log(' 📄', chalk.cyan(contractName), 'deployed to:', chalk.magenta(deployed.address));
-  console.log(' ⛽', chalk.grey(extraGasInfo));
+  tx.from = (await frame.request({ method: 'eth_requestAccounts' }))[0];
+  await frame.request({ method: 'eth_sendTransaction', params: [tx] });
 
-  console.log('Deployed contract address:', contract.address);
+  // const deployed = await contractArtifacts.deploy(...contractArgs, overrides);
+  // const encoded = abiEncodeArgs(deployed, contractArgs);
+  // fs.writeFileSync(`artifacts/${contractName}.address`, deployed.address);
 
-  await tenderly.persistArtifacts({
-    name: contractName,
-    address: deployed.address,
-  });
+  // let extraGasInfo = '';
+  // if (deployed && deployed.deployTransaction) {
+  //   const gasUsed = deployed.deployTransaction.gasLimit.mul(deployed.deployTransaction.gasPrice);
+  //   extraGasInfo = `${utils.formatEther(gasUsed)} ETH, tx hash ${deployed.deployTransaction.hash}`;
+  // }
 
-  if (!encoded || encoded.length <= 2) return deployed;
-  fs.writeFileSync(`artifacts/${contractName}.args`, encoded.slice(2));
+  // console.log(' 📄', chalk.cyan(contractName), 'deployed to:', chalk.magenta(deployed.address));
+  // console.log(' ⛽', chalk.grey(extraGasInfo));
 
-  return deployed;
+  // // console.log("funding address 0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295", 100 )
+  // // await helpers.setBalance("0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295", 10000000000);
+
+  // await tenderly.persistArtifacts({
+  //   name: contractName,
+  //   address: deployed.address,
+  // });
+
+  // if (!encoded || encoded.length <= 2) return deployed;
+  // fs.writeFileSync(`artifacts/${contractName}.args`, encoded.slice(2));
+
+  // return deployed;
 }
 
 const deployTestNew = async (contractName, _args = [], overrides = {}, libraries = {}) => {
-  console.log(`deployTestNew running..`);
+  // working (?) to deploy first transaction, but failing later on
+  console.log(`>>> deployTestNew running..`);
   console.log(` 🛰  Deploying: ${contractName}`);
   const contractArgs = _args || [];
 
   // minimal-ish code
+  const derivationPath = "m/44'/800'/0'/0/0"; // for polygon mumbai
+  // const ledger = new LedgerSigner(hre.ethers.provider, derivationPath);
   const ledger = new LedgerSigner(hre.ethers.provider);
   const contractArtifacts = await hre.ethers.getContractFactory(contractName, {
     libraries: libraries,
   });
 
+  console.log('>>> connecting to ledger..');
   let contractFactory = await contractArtifacts.connect(ledger);
   const deployed = await contractFactory.deploy();
 
@@ -371,10 +345,21 @@ const deployTestNew = async (contractName, _args = [], overrides = {}, libraries
   const encoded = abiEncodeArgs(deployed, contractArgs);
   fs.writeFileSync(`artifacts/${contractName}.address`, deployed.address);
 
+  let gasUsed = '';
+  if (
+    deployed &&
+    deployed.deployTransaction &&
+    deployed.deployTransaction.gasLimit &&
+    deployed.deployTransaction.gasPrice
+  ) {
+    gasUsed = deployed.deployTransaction.gasLimit.mul(deployed.deployTransaction.gasPrice);
+  }
+
   let extraGasInfo = '';
-  if (deployed && deployed.deployTransaction) {
-    const gasUsed = deployed.deployTransaction.gasLimit.mul(deployed.deployTransaction.gasPrice);
-    extraGasInfo = `${utils.formatEther(gasUsed)} ETH, tx hash ${deployed.deployTransaction.hash}`;
+  if (gasUsed) {
+    extraGasInfo = `${ethers.utils.formatEther(gasUsed)} ETH, tx hash ${
+      deployed.deployTransaction.hash
+    }`;
   }
 
   console.log(' 📄', chalk.cyan(contractName), 'deployed to:', chalk.magenta(deployed.address));
@@ -404,7 +389,10 @@ const abiEncodeArgs = (deployed, contractArgs) => {
   if (!contractArgs || !deployed || !R.hasPath(['interface', 'deploy'], deployed)) {
     return '';
   }
-  const encoded = utils.defaultAbiCoder.encode(deployed.interface.deploy.inputs, contractArgs);
+  const encoded = ethers.utils.defaultAbiCoder.encode(
+    deployed.interface.deploy.inputs,
+    contractArgs
+  );
   return encoded;
 };
 
