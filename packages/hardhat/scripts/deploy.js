@@ -10,7 +10,7 @@ const helpers = require('@nomicfoundation/hardhat-network-helpers');
 require('@nomiclabs/hardhat-etherscan');
 // require('@nomiclabs/hardhat-ethers');
 
-// ledger signer
+// ledger signerd
 // const { getLedgerSigner } = require('./ledgerSigner');
 const TransportNodeHid = require('@ledgerhq/hw-transport-node-hid-noevents');
 const { default: LedgerEth } = require('@ledgerhq/hw-app-eth');
@@ -188,11 +188,16 @@ const deploy = async (contractName, _args = [], overrides = {}, libraries = {}) 
   return deployed;
 };
 
-async function deployLedger() {
+async function deployLedger(contractName, _args = [], overrides = {}, libraries = {}) {
+  console.log('deployLedger going to deploy contract', contractName);
+  console.log('with overrides: ', overrides);
   const transport = await TransportNodeHid.default.create();
   const eth = new LedgerEth(transport);
-  const derivationPath = "m/44'/60'/0'/0/0";
+  const derivationPath = "m/44'/800'/0'/0/0"; // ethereum mainnet: "m/44'/60'/0'/0/0";
+  console.log('>> derivation path', derivationPath);
+  // console.log(eth);
   const result = await eth.getAddress(derivationPath);
+  console.log('>> address', result);
 
   async function getLedgerSigner(provider) {
     const signer = provider.getSigner(result.address);
@@ -224,10 +229,125 @@ async function deployLedger() {
   // console.log(ethers);
   const provider = new ethers.providers.JsonRpcProvider('https://rpc-mumbai.maticvigil.com');
   const signer = await getLedgerSigner(provider);
-  const contractFactory = new ethers.ContractFactory(contractABI, contractBytecode, signer);
-  const contract = await contractFactory.deploy();
+
+  // deployment
+  const contractArgs = _args || [];
+  overrides = {
+    gasLimit: 3000000,
+    gasPrice: ethers.utils.parseUnits('50', 'gwei'),
+    ...overrides,
+  };
+  const contractArtifacts = await ethers.getContractFactory(contractName, {
+    libraries: libraries,
+    signer: signer,
+  });
+  const deployed = await contractArtifacts.deploy(...contractArgs, overrides);
+  const encoded = abiEncodeArgs(deployed, contractArgs);
+  fs.writeFileSync(`artifacts/${contractName}.address`, deployed.address);
+
+  let extraGasInfo = '';
+  if (deployed && deployed.deployTransaction) {
+    const gasUsed = deployed.deployTransaction.gasLimit.mul(deployed.deployTransaction.gasPrice);
+    extraGasInfo = `${ethers.utils.formatEther(gasUsed)} ETH, tx hash ${
+      deployed.deployTransaction.hash
+    }`;
+  }
+
+  console.log(' 📄', chalk.cyan(contractName), 'deployed to:', chalk.magenta(deployed.address));
+  console.log(' ⛽', chalk.grey(extraGasInfo));
 
   console.log('Deployed contract address:', contract.address);
+
+  await tenderly.persistArtifacts({
+    name: contractName,
+    address: deployed.address,
+  });
+
+  if (!encoded || encoded.length <= 2) return deployed;
+  fs.writeFileSync(`artifacts/${contractName}.args`, encoded.slice(2));
+
+  return deployed;
+}
+
+async function deployLedgerFrame(contractName, _args = [], overrides = {}, libraries = {}) {
+  console.log('deployLedger going to deploy contract', contractName);
+  console.log('with overrides: ', overrides);
+  const transport = await TransportNodeHid.default.create();
+  const eth = new LedgerEth(transport);
+  const derivationPath = "m/44'/800'/0'/0/0"; // ethereum mainnet: "m/44'/60'/0'/0/0";
+  console.log('>> derivation path', derivationPath);
+  // console.log(eth);
+  const result = await eth.getAddress(derivationPath);
+  console.log('>> address', result);
+
+  async function getLedgerSigner(provider) {
+    const signer = provider.getSigner(result.address);
+    signer._signTypedData = signer.signTypedData;
+    signer.signTypedData = async function (domain, types, value) {
+      const typedData = JSON.stringify({
+        domain,
+        types,
+        value,
+      });
+      const signature = await eth.signEIP712TypedData(derivationPath, typedData);
+      return `0x${signature}`;
+    };
+
+    signer.signMessage = async function (message) {
+      const messageHash = ethers.utils.arrayify(ethers.utils.id(message));
+      const messageHashHex = ethers.utils.hexlify(messageHash).substring(2);
+      const rawSignature = await eth.signPersonalMessage(derivationPath, messageHashHex);
+      const v = rawSignature.v;
+
+      const signature = `0x${rawSignature.r}${rawSignature.s}${v.toString(16)}`;
+      return signature;
+    };
+
+    return signer;
+  }
+
+  // const provider = new ethers.providers.JsonRpcProvider('https://rpc-mumbai.maticvigil.com');
+  // console.log(ethers);
+  const provider = new ethers.providers.JsonRpcProvider('https://rpc-mumbai.maticvigil.com');
+  const signer = await getLedgerSigner(provider);
+
+  // deployment
+  const contractArgs = _args || [];
+  overrides = {
+    gasLimit: 3000000,
+    gasPrice: ethers.utils.parseUnits('50', 'gwei'),
+    ...overrides,
+  };
+  const contractArtifacts = await ethers.getContractFactory(contractName, {
+    libraries: libraries,
+    signer: signer,
+  });
+  const deployed = await contractArtifacts.deploy(...contractArgs, overrides);
+  const encoded = abiEncodeArgs(deployed, contractArgs);
+  fs.writeFileSync(`artifacts/${contractName}.address`, deployed.address);
+
+  let extraGasInfo = '';
+  if (deployed && deployed.deployTransaction) {
+    const gasUsed = deployed.deployTransaction.gasLimit.mul(deployed.deployTransaction.gasPrice);
+    extraGasInfo = `${ethers.utils.formatEther(gasUsed)} ETH, tx hash ${
+      deployed.deployTransaction.hash
+    }`;
+  }
+
+  console.log(' 📄', chalk.cyan(contractName), 'deployed to:', chalk.magenta(deployed.address));
+  console.log(' ⛽', chalk.grey(extraGasInfo));
+
+  console.log('Deployed contract address:', contract.address);
+
+  await tenderly.persistArtifacts({
+    name: contractName,
+    address: deployed.address,
+  });
+
+  if (!encoded || encoded.length <= 2) return deployed;
+  fs.writeFileSync(`artifacts/${contractName}.args`, encoded.slice(2));
+
+  return deployed;
 }
 
 // ------ utils -------
