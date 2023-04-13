@@ -25,6 +25,9 @@ const frame = ethProvider('frame', {
   rpcUrl: 'https://rpc-mumbai.maticvigil.com',
 }); // Connect to Frame
 
+const Web3 = require('web3');
+const web3 = new Web3(frame);
+
 const main = async () => {
   console.log(`\n\n 📡 Deploying to ${network.name}...\n`);
 
@@ -294,7 +297,36 @@ async function deployLedgerFrame(contractName, _args = [], overrides = {}, libra
   tx.chainId = networkId;
 
   tx.from = (await frame.request({ method: 'eth_requestAccounts' }))[0];
-  await frame.request({ method: 'eth_sendTransaction', params: [tx] });
+  const response = await frame.request({ method: 'eth_sendTransaction', params: [tx] });
+  console.log('>>> response: ', response);
+  // Wait for the transaction to be mined
+  const receipt = await web3.eth.getTransactionReceipt(response);
+  console.log('>>> receipt: ', receipt);
+
+  // Extract the deployed contract address from the receipt
+  const deployedAddress = receipt.contractAddress;
+
+  // Write the contract address to a file
+  fs.writeFileSync(`artifacts/${contractName}.address`, deployedAddress);
+
+  // Create the deployed contract object
+  const deployedContract = contractArtifacts.attach(deployedAddress);
+
+  // Encode the constructor arguments if necessary
+  const encoded = abiEncodeArgs(deployedContract, contractArgs);
+
+  // Persist the artifacts
+  await tenderly.persistArtifacts({
+    name: contractName,
+    address: deployedAddress,
+  });
+
+  if (!encoded || encoded.length <= 2) return deployedContract;
+
+  // Write the encoded constructor arguments to a file
+  fs.writeFileSync(`artifacts/${contractName}.args`, encoded.slice(2));
+
+  return deployedContract;
 
   // const deployed = await contractArtifacts.deploy(...contractArgs, overrides);
   // const encoded = abiEncodeArgs(deployed, contractArgs);
