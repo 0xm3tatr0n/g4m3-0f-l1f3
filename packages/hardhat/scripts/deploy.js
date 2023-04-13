@@ -26,7 +26,8 @@ const frame = ethProvider('frame', {
 }); // Connect to Frame
 
 const Web3 = require('web3');
-const web3 = new Web3(frame);
+// const web3 = new Web3(frame);
+const web3 = new Web3(`https://polygon-mumbai.g.alchemy.com/v2/wU_J_ennw72qE1j6ZHl5Eov4L1xkxi-r`);
 
 const main = async () => {
   console.log(`\n\n 📡 Deploying to ${network.name}...\n`);
@@ -99,10 +100,10 @@ const main = async () => {
     // });
 
     G0lLib = await deployLedgerFrame('G0l');
-    await G0lLib.deployTransaction.wait(6);
+    // await G0lLib.deployTransaction.wait(6);
     console.log('>>>> G0l deployed!');
     BitOpsLib = await deployLedgerFrame('BitOps');
-    await BitOpsLib.deployTransaction.wait(6);
+    // await BitOpsLib.deployTransaction.wait(6);
     console.log('>>>> BitOps deployed!');
 
     yourCollectible = await deployLedgerFrame(
@@ -116,7 +117,7 @@ const main = async () => {
     );
 
     // wait for a bit
-    await yourCollectible.deployTransaction.wait(10);
+    // await yourCollectible.deployTransaction.wait(10);
     console.log('>>>> G4m3 deployed!');
 
     console.log(chalk.blue('verifying on etherscan'));
@@ -152,7 +153,7 @@ const main = async () => {
     // });
   }
 
-  await yourCollectible.transferOwnership('0x5B310560815EaF364E5876908574b4a9c6eC1B7e');
+  // await yourCollectible.transferOwnership('0x5B310560815EaF364E5876908574b4a9c6eC1B7e');
 
   // //If you want to send value to an address from the deployer
   // const deployerWallet = ethers.provider.getSigner();
@@ -298,8 +299,23 @@ async function deployLedgerFrame(contractName, _args = [], overrides = {}, libra
 
   tx.from = (await frame.request({ method: 'eth_requestAccounts' }))[0];
   const response = await frame.request({ method: 'eth_sendTransaction', params: [tx] });
+
+  // wait for some time
+  console.log('>>> gonna wait');
+  await new Promise((resolve) => setTimeout(resolve, 30000));
+
   console.log('>>> response: ', response);
+  console.log('>>> web3 module params: ');
+  const chainIdRead = await web3.eth.getChainId();
+  const networkIdRead = await web3.eth.net.getId();
+  const accountsRead = await web3.eth.getAccounts();
+
+  console.log('Connected to Polygon Mumbai Testnet');
+  console.log('Chain ID:', chainIdRead);
+  console.log('Network ID:', networkIdRead);
+  console.log('Accounts:', accountsRead);
   // Wait for the transaction to be mined
+  // console.log('web3.eth', web3.eth);
   const receipt = await web3.eth.getTransactionReceipt(response);
   console.log('>>> receipt: ', receipt);
 
