@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const { utils, ethers, isAddress, getAddress, formatUnits, parseUnits } = require('ethers');
 const fs = require('fs');
 const chalk = require('chalk');
@@ -61,13 +63,8 @@ module.exports = {
         (you can put in a mnemonic here to set the deployer locally)
       */
     },
-    frame: {
-      url: 'http://127.0.0.1:1248', // this is the RPC endpoint exposed by Frame
-      chainId: 80001, // polygon mumbai
-      timeout: 60000,
-    },
-    mumbaiTest: {
-      url: `https://polygon-mumbai.g.alchemy.com/v2/wU_J_ennw72qE1j6ZHl5Eov4L1xkxi-r`,
+    mumbai: {
+      url: `${process.env.ALCHEMY_URL_MUMBAI}`,
       chainId: 80001,
     },
     hardhat: {
@@ -86,10 +83,7 @@ module.exports = {
       },
     },
     mainnet: {
-      url: 'https://mainnet.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad', //<---- YOUR INFURA ID! (or it won't work)
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      url: `${process.env.ALCHEMY_URL_MUMBAI}`, //<---- YOUR INFURA ID! (or it won't work)
       gasPrice: 128000000000,
     },
     ropsten: {
@@ -118,21 +112,21 @@ module.exports = {
         mnemonic: mnemonic(),
       },
     },
-    polygonMumbai: {
-      url: 'https://rpc-mumbai.maticvigil.com',
-      chainId: 80001,
-      // accounts: {
-      //   type: 'ledger',
-      //   path: "m/44'/60'/0'/0", // Default Ledger Live derivation path
-      // },
-      gas: 'auto',
-      gasPrice: 20000000000, // 20 Gwei
-      gasMultiplier: 1.2,
-      timeout: 50000,
-      // accounts: {
-      //   mnemonic: mnemonic(),
-      // },
-    },
+    // polygonMumbai: {
+    //   url: 'https://rpc-mumbai.maticvigil.com',
+    //   chainId: 80001,
+    //   // accounts: {
+    //   //   type: 'ledger',
+    //   //   path: "m/44'/60'/0'/0", // Default Ledger Live derivation path
+    //   // },
+    //   gas: 'auto',
+    //   gasPrice: 20000000000, // 20 Gwei
+    //   gasMultiplier: 1.2,
+    //   timeout: 50000,
+    //   // accounts: {
+    //   //   mnemonic: mnemonic(),
+    //   // },
+    // },
   },
   solidity: {
     compilers: [
