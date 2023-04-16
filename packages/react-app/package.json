@@ -1,7 +1,7 @@
 {
   "name": "@scaffold-eth/react-app",
   "version": "1.0.0",
-  "homepage": ".",
+  "homepage": "https://m3tatr0n.github.io/g4m3-0f-l1f3",
   "browserslist": {
     "production": [
       ">0.2%",
@@ -99,6 +99,6 @@
     "ship": "yarn surge",
     "theme": "npx gulp less",
     "watch": "node ./scripts/watch.js"
-  },
-  "homepage": "https://m3tatr0n.github.io/g4m3-0f-l1f3"
+  }
+  
 }
