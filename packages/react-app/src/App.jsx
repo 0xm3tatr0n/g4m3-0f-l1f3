@@ -71,7 +71,8 @@ const ipfs = ipfsAPI({ host: "ipfs.infura.io", port: "5001", protocol: "https" }
 
 /// 📡 What chain are your contracts deployed to?
 const targetNetwork = process.env.REACT_APP_BUILD_ENV === "production" ? NETWORKS.mumbai : NETWORKS.localhost; // NETWORKS.mumbai; // NETWORKS.localhost <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
-
+console.log(">>> selected target network: ");
+console.log(targetNetwork);
 // 😬 Sorry for all the console logging
 const DEBUG = true;
 
