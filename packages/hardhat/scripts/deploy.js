@@ -36,6 +36,11 @@ const main = async () => {
       value: ethers.utils.parseEther('10'),
     });
 
+    await deployerWallet.sendTransaction({
+      to: '0x5B310560815EaF364E5876908574b4a9c6eC1B7e',
+      value: ethers.utils.parseEther('10'),
+    });
+
     G0lLib = await deployLocal('G0l');
     BitOpsLib = await deployLocal('BitOps');
 
@@ -56,6 +61,7 @@ const main = async () => {
         value: ethers.utils.parseEther((0.025).toString()),
       });
       await minted.wait(1);
+      console.log(`minted pack no ${i}`);
       console.log(minted);
     }
   } else {
