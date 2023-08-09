@@ -30,21 +30,13 @@ import {Structs} from './Libraries/Structs.sol';
 contract G4m3 is ERC721, Ownable {
   using Strings for uint256;
   using HexStrings for uint160;
+
   // using Counters for Counters.Counter;
-  using Strings for uint256;
 
   constructor() ERC721('g4m3 0f l1f3', 'g0l') {
     createTime = block.timestamp;
     _initState();
   }
-
-  // function pause() public onlyOwner {
-  //   _pause();
-  // }
-
-  // function unpause() public onlyOwner {
-  //   _unpause();
-  // }
 
   // events
   event Withdrawal(address to, uint256 amount);
@@ -66,11 +58,7 @@ contract G4m3 is ERC721, Ownable {
   uint16 internal _tokenIds = 0;
   uint8 internal _currentEpoch;
   uint16 internal _currentGeneration = 0;
-  // mapping(uint256 => uint64) internal tokenGridStatesInt;
-  // mapping(uint256 => uint8) internal tokenEpoch;
-  // mapping(uint256 => uint16) internal tokenGeneration;
 
-  // TODO: remove mappings for tokenGridStatesInt, tokenEpoch and tokenGeneration with the one mapping below.
   mapping(uint256 => uint256) internal tokenState;
 
   uint64 internal gameStateInt;
@@ -106,12 +94,6 @@ contract G4m3 is ERC721, Ownable {
     _tokenIds += 1;
     _iterateState();
 
-    // store token states
-    // tokenGridStatesInt[_tokenIds] = gameStateInt;
-    // tokenEpoch[_tokenIds] = _currentEpoch;
-    // tokenGeneration[_tokenIds] = _currentGeneration;
-
-    // trying to simplify the above
     tokenState[_tokenIds] = BitOps.packState(gameStateInt, _currentEpoch, _currentGeneration);
 
     _mint(to, _tokenIds);
@@ -121,9 +103,8 @@ contract G4m3 is ERC721, Ownable {
   // g4m3 0f l1f3 state functions
   function _initState() internal {
     require(_currentEpoch < maxEpochs, 'minted out');
-    // set epoch
+    // set epoch & generation
     _currentEpoch += 1;
-    // set generation
     _currentGeneration = 0;
 
     // temporary storage
@@ -198,8 +179,6 @@ contract G4m3 is ERC721, Ownable {
 
       if (_tokenIds > 3) {
         // game advanced enough to look back 3 periods
-        // uint256 gameStateIntOldOld = tokenGridStatesInt[_tokenIds - 1];
-        // uint256 gameStateIntOld = tokenGridStatesInt[_tokenIds];
 
         // instead of using the states above, we need to retrieve from tokenState
         uint64 gameStateIntOld;
