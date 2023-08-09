@@ -74,4 +74,26 @@ library BitOps {
 
     return grid;
   }
+
+  function packState(
+    uint64 gameState,
+    uint8 epoch,
+    uint16 generation
+  ) internal pure returns (uint) {
+    // Check that the inputs are within their respective ranges // skip checks to save gas. assume all numbers in range
+    // require(epoch <= 255, 'Epoch should be within the range of uint8');
+    // require(generation <= 65535, 'Generation should be within the range of uint16');
+
+    uint result = uint(gameState);
+    result = (result << 8) | uint(epoch);
+    result = (result << 16) | uint(generation);
+    return result;
+  }
+
+  function unpackState(uint packedState) internal pure returns (uint64, uint8, uint16) {
+    uint64 gameState = uint64(packedState >> 24);
+    uint8 epoch = uint8((packedState >> 16) & 0xFF);
+    uint16 generation = uint16(packedState & 0xFFFF);
+    return (gameState, epoch, generation);
+  }
 }
