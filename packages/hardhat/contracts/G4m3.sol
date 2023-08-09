@@ -55,6 +55,7 @@ contract G4m3 is ERC721, Ownable {
   uint256 public constant mintPackPrice = 0.025 ether;
   uint8 public constant maxEpochs = 10;
   uint8 internal constant scale = 40;
+  uint8 internal constant N = 8;
   string s_scale = Strings.toString(scale - 4);
 
   // variables
@@ -65,9 +66,13 @@ contract G4m3 is ERC721, Ownable {
   uint16 internal _tokenIds = 0;
   uint8 internal _currentEpoch;
   uint16 internal _currentGeneration = 0;
-  mapping(uint256 => uint64) internal tokenGridStatesInt;
-  mapping(uint256 => uint8) internal tokenEpoch;
-  mapping(uint256 => uint16) internal tokenGeneration;
+  // mapping(uint256 => uint64) internal tokenGridStatesInt;
+  // mapping(uint256 => uint8) internal tokenEpoch;
+  // mapping(uint256 => uint16) internal tokenGeneration;
+
+  // TODO: remove mappings for tokenGridStatesInt, tokenEpoch and tokenGeneration with the one mapping below.
+  mapping(uint256 => uint256) internal tokenState;
+
   uint64 internal gameStateInt;
 
   // Functions: Mint
@@ -102,9 +107,13 @@ contract G4m3 is ERC721, Ownable {
     _iterateState();
 
     // store token states
-    tokenGridStatesInt[_tokenIds] = gameStateInt;
-    tokenEpoch[_tokenIds] = _currentEpoch;
-    tokenGeneration[_tokenIds] = _currentGeneration;
+    // tokenGridStatesInt[_tokenIds] = gameStateInt;
+    // tokenEpoch[_tokenIds] = _currentEpoch;
+    // tokenGeneration[_tokenIds] = _currentGeneration;
+
+    // trying to simplify the above
+    tokenState[_tokenIds] = BitOps.packState(gameStateInt, _currentEpoch, _currentGeneration);
+
     _mint(to, _tokenIds);
     return _tokenIds;
   }
@@ -146,18 +155,16 @@ contract G4m3 is ERC721, Ownable {
 
   // original iterate state function
   function _iterateState() internal {
-    if (_currentGeneration >= 1024) {
+    if (_currentGeneration >= 1023) {
       // start new epoch
       _initState();
     } else {
       // play game of life
-      uint8 N = 8;
+      bool[N][N] memory oldGameStateFromInt = BitOps.wordToGrid(gameStateInt);
+      bool[N][N] memory newGameStateFromInt = oldGameStateFromInt;
 
-      bool[8][8] memory oldGameStateFromInt = BitOps.wordToGrid(gameStateInt);
-      bool[8][8] memory newGameStateFromInt = oldGameStateFromInt;
-
-      for (uint256 i = 0; i < 8; i += 1) {
-        for (uint256 j = 0; j < 8; j += 1) {
+      for (uint256 i = 0; i < N; i += 1) {
+        for (uint256 j = 0; j < N; j += 1) {
           uint256 total = uint256(
             BitOps._b2u(oldGameStateFromInt[uint256((i - 1) % N)][uint256((j - 1) % N)]) +
               BitOps._b2u(oldGameStateFromInt[uint256((i - 1) % N)][j]) +
@@ -191,8 +198,15 @@ contract G4m3 is ERC721, Ownable {
 
       if (_tokenIds > 3) {
         // game advanced enough to look back 3 periods
-        uint256 gameStateIntOldOld = tokenGridStatesInt[_tokenIds - 1];
-        uint256 gameStateIntOld = tokenGridStatesInt[_tokenIds];
+        // uint256 gameStateIntOldOld = tokenGridStatesInt[_tokenIds - 1];
+        // uint256 gameStateIntOld = tokenGridStatesInt[_tokenIds];
+
+        // instead of using the states above, we need to retrieve from tokenState
+        uint64 gameStateIntOld;
+        uint64 gameStateIntOldOld;
+        (gameStateIntOld, , ) = BitOps.unpackState(tokenState[_tokenIds]);
+        (gameStateIntOldOld, , ) = BitOps.unpackState(tokenState[_tokenIds - 1]);
+
         if (
           gameStateInt == gameStateIntNew ||
           gameStateIntOld == gameStateIntNew ||
@@ -295,8 +309,10 @@ contract G4m3 is ERC721, Ownable {
 
   function renderGameGrid(uint256 id) public view returns (string memory) {
     // render that thing
-    bool[8][8] memory grid = BitOps.wordToGrid(tokenGridStatesInt[id]);
-    string[] memory squares = new string[](8 * 8);
+    uint64 gameState;
+    (gameState, , ) = BitOps.unpackState(tokenState[id]);
+    bool[N][N] memory grid = BitOps.wordToGrid(gameState);
+    string[] memory squares = new string[](N * N);
     uint256 slotCounter = 0;
     uint256 stateDiff;
     Structs.CellData memory CellData;
@@ -304,7 +320,9 @@ contract G4m3 is ERC721, Ownable {
     // figure out which cells have changed in this round
     if (id > 1) {
       // case: not the first item (todo: catch generation changes)
-      stateDiff = tokenGridStatesInt[id - 1] ^ tokenGridStatesInt[id];
+      uint64 gameStateOld;
+      (gameStateOld, , ) = BitOps.unpackState(tokenState[id - 1]);
+      stateDiff = gameStateOld ^ gameState;
     } else {
       // no changes since first born
     }
@@ -380,18 +398,21 @@ contract G4m3 is ERC721, Ownable {
 
   function generateMetadata(uint256 id) internal view returns (Structs.MetaData memory) {
     Structs.MetaData memory metadata;
-
-    metadata.epoch = Strings.toString(tokenEpoch[id]);
-    metadata.generation = tokenGeneration[id];
-    metadata.populationDensity = BitOps.getCountOfOnBits(tokenGridStatesInt[id]);
+    uint64 gameState;
+    uint8 epoch;
+    uint16 generation;
+    (gameState, epoch, generation) = BitOps.unpackState(tokenState[id]);
+    metadata.epoch = Strings.toString(epoch);
+    metadata.generation = generation;
+    metadata.populationDensity = BitOps.getCountOfOnBits(gameState);
     metadata.name = string(
       abi.encodePacked(
         'g4m3 0f l1f3 #',
         id.toString(),
         ' ',
-        Strings.toString(tokenEpoch[id]),
+        Strings.toString(epoch),
         '/',
-        uint256(tokenGeneration[id]).toString()
+        uint256(generation).toString()
       )
     );
     metadata.description = string(abi.encodePacked('g4m3 0f l1f3 #', id.toString()));
@@ -401,10 +422,12 @@ contract G4m3 is ERC721, Ownable {
     // get data for births & deaths
     uint256 stateDiff;
     if (id > 1 && metadata.generation != 0) {
-      stateDiff = tokenGridStatesInt[id - 1] ^ tokenGridStatesInt[id];
+      uint64 prevTokenState;
+      (prevTokenState, , ) = BitOps.unpackState(tokenState[id - 1]);
+      stateDiff = prevTokenState ^ gameState;
 
-      uint8 bornCells = BitOps.getCountOfOnBits(tokenGridStatesInt[id] & stateDiff);
-      uint8 perishedCells = BitOps.getCountOfOnBits(~tokenGridStatesInt[id] & stateDiff);
+      uint8 bornCells = BitOps.getCountOfOnBits(gameState & stateDiff);
+      uint8 perishedCells = BitOps.getCountOfOnBits(~gameState & stateDiff);
       // set counts
       metadata.birthCount = bornCells;
       metadata.deathCount = perishedCells;
@@ -422,7 +445,7 @@ contract G4m3 is ERC721, Ownable {
             metadata.seed
           )
         ) +
-        uint8(tokenEpoch[id]);
+        epoch;
 
       if (populationTrends.up == 1) {
         metadata.trend = 'up';
