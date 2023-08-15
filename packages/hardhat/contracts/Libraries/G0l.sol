@@ -953,21 +953,26 @@ library G0l {
     uint256 base_i = uint256(CellData.i) * uint256(CellData.unitScale);
     uint256 base_j = uint256(CellData.j) * uint256(CellData.unitScale);
 
-    if (CellData.shape == 0 || CellData.shape == 4) {
+    if (CellData.shape == 0) {
       i_scale = Strings.toString(base_i + 40);
       j_scale = Strings.toString(base_j + 40);
       i_scale_a = i_scale;
       j_scale_a = j_scale;
-    } else {
+    } else if (CellData.shape == 1 || CellData.shape == 2) {
       i_scale = Strings.toString(base_i + 22);
       j_scale = Strings.toString(base_j + 22);
       i_scale_a = i_scale;
       j_scale_a = j_scale;
-    }
-
-    if (CellData.shape == 3 || CellData.shape == 4) {
-      (i_scale, i_scale_a) = (i_scale_a, i_scale);
-      (j_scale, j_scale_a) = (j_scale_a, j_scale);
+    } else if (CellData.shape == 3) {
+      i_scale = Strings.toString(base_i + 22);
+      j_scale = Strings.toString(base_j + 22);
+      i_scale_a = Strings.toString(base_i + 40);
+      j_scale_a = Strings.toString(base_j + 40);
+    } else if (CellData.shape == 4) {
+      i_scale = Strings.toString(base_i + 40);
+      j_scale = Strings.toString(base_j + 40);
+      i_scale_a = Strings.toString(base_i + 22);
+      j_scale_a = Strings.toString(base_j + 22);
     }
   }
 
