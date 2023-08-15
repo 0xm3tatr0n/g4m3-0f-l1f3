@@ -56,7 +56,7 @@ contract G4m3 is ERC721, Ownable {
 
   // Game state
   uint16 internal _tokenIds = 0;
-  uint8 internal _currentEpoch;
+  uint8 internal _currentEpoch = 0;
   uint16 internal _currentGeneration = 0;
 
   mapping(uint256 => uint256) internal tokenState;
@@ -135,73 +135,157 @@ contract G4m3 is ERC721, Ownable {
   }
 
   // original iterate state function
+  // function _iterateState() internal {
+  //   if (_currentGeneration >= 1023) {
+  //     // start new epoch
+  //     _initState();
+  //   } else {
+  //     // play game of life
+  //     bool[N][N] memory oldGameStateFromInt = BitOps.wordToGrid(gameStateInt);
+  //     bool[N][N] memory newGameStateFromInt = oldGameStateFromInt;
+
+  //     for (uint256 i = 0; i < N; i += 1) {
+  //       for (uint256 j = 0; j < N; j += 1) {
+  //         uint256 total = uint256(
+  //           BitOps._b2u(oldGameStateFromInt[uint256((i - 1) % N)][uint256((j - 1) % N)]) +
+  //             BitOps._b2u(oldGameStateFromInt[uint256((i - 1) % N)][j]) +
+  //             BitOps._b2u(oldGameStateFromInt[uint256((i - 1) % N)][uint256((j + 1) % N)]) +
+  //             BitOps._b2u(oldGameStateFromInt[i][uint256((j + 1) % N)]) +
+  //             BitOps._b2u(oldGameStateFromInt[uint256((i + 1) % N)][uint256((j + 1) % N)]) +
+  //             BitOps._b2u(oldGameStateFromInt[uint256((i + 1) % N)][j]) +
+  //             BitOps._b2u(oldGameStateFromInt[uint256((i + 1) % N)][uint256((j - 1) % N)]) +
+  //             BitOps._b2u(oldGameStateFromInt[i][uint256((j - 1) % N)])
+  //         );
+
+  //         if (oldGameStateFromInt[i][j] == true) {
+  //           if (total < 2 || total > 3) {
+  //             newGameStateFromInt[i][j] = false;
+  //           }
+  //         } else {
+  //           if (total == 3) {
+  //             newGameStateFromInt[i][j] = true;
+  //           }
+  //         }
+  //       }
+  //     }
+
+  //     // check if generation ended (no change between iteration)
+  //     // naming suboptimal:
+  //     // gameStateIntOldOld --> old N-3
+  //     // gameStateIntOld --> old N-2
+  //     // gameStateInt --> old N-1
+  //     // gameStateIntNew --> current
+  //     uint256 gameStateIntNew = BitOps.gridToWord(newGameStateFromInt);
+
+  //     if (_tokenIds > 3) {
+  //       // game advanced enough to look back 3 periods
+
+  //       // instead of using the states above, we need to retrieve from tokenState
+  //       uint64 gameStateIntOld;
+  //       uint64 gameStateIntOldOld;
+  //       (gameStateIntOld, , ) = BitOps.unpackState(tokenState[_tokenIds]);
+  //       (gameStateIntOldOld, , ) = BitOps.unpackState(tokenState[_tokenIds - 1]);
+
+  //       if (
+  //         gameStateInt == gameStateIntNew ||
+  //         gameStateIntOld == gameStateIntNew ||
+  //         gameStateIntOldOld == gameStateIntNew
+  //       ) {
+  //         // init new state
+  //         _initState();
+  //       } else {
+  //         _currentGeneration += 1;
+  //         gameStateInt = uint64(gameStateIntNew);
+  //       }
+  //     } else {
+  //       _currentGeneration += 1;
+  //       gameStateInt = uint64(gameStateIntNew);
+  //     }
+  //   }
+  // }
+
   function _iterateState() internal {
     if (_currentGeneration >= 1023) {
-      // start new epoch
       _initState();
     } else {
-      // play game of life
-      bool[N][N] memory oldGameStateFromInt = BitOps.wordToGrid(gameStateInt);
-      bool[N][N] memory newGameStateFromInt = oldGameStateFromInt;
+      bool[N][N] memory newGameStateFromInt = _determineNextGeneration();
+      _checkForGenerationEnd(newGameStateFromInt);
+      _updateState(newGameStateFromInt);
+    }
+  }
 
-      for (uint256 i = 0; i < N; i += 1) {
-        for (uint256 j = 0; j < N; j += 1) {
-          uint256 total = uint256(
-            BitOps._b2u(oldGameStateFromInt[uint256((i - 1) % N)][uint256((j - 1) % N)]) +
-              BitOps._b2u(oldGameStateFromInt[uint256((i - 1) % N)][j]) +
-              BitOps._b2u(oldGameStateFromInt[uint256((i - 1) % N)][uint256((j + 1) % N)]) +
-              BitOps._b2u(oldGameStateFromInt[i][uint256((j + 1) % N)]) +
-              BitOps._b2u(oldGameStateFromInt[uint256((i + 1) % N)][uint256((j + 1) % N)]) +
-              BitOps._b2u(oldGameStateFromInt[uint256((i + 1) % N)][j]) +
-              BitOps._b2u(oldGameStateFromInt[uint256((i + 1) % N)][uint256((j - 1) % N)]) +
-              BitOps._b2u(oldGameStateFromInt[i][uint256((j - 1) % N)])
-          );
+  function _determineNextGeneration()
+    internal
+    view
+    returns (bool[N][N] memory newGameStateFromInt)
+  {
+    bool[N][N] memory oldGameStateFromInt = BitOps.wordToGrid(gameStateInt);
+    newGameStateFromInt = oldGameStateFromInt;
 
-          if (oldGameStateFromInt[i][j] == true) {
-            if (total < 2 || total > 3) {
-              newGameStateFromInt[i][j] = false;
-            }
-          } else {
-            if (total == 3) {
-              newGameStateFromInt[i][j] = true;
-            }
-          }
-        }
+    for (uint256 i = 0; i < N; i += 1) {
+      for (uint256 j = 0; j < N; j += 1) {
+        uint256 total = _calculateTotalNeighbors(oldGameStateFromInt, i, j);
+        newGameStateFromInt[i][j] = _determineCellState(oldGameStateFromInt[i][j], total);
       }
+    }
+    return newGameStateFromInt;
+  }
 
-      // check if generation ended (no change between iteration)
-      // naming suboptimal:
-      // gameStateIntOldOld --> old N-3
-      // gameStateIntOld --> old N-2
-      // gameStateInt --> old N-1
-      // gameStateIntNew --> current
-      uint256 gameStateIntNew = BitOps.gridToWord(newGameStateFromInt);
+  function _calculateTotalNeighbors(
+    bool[N][N] memory gameState,
+    uint256 i,
+    uint256 j
+  ) internal pure returns (uint256) {
+    return
+      uint256(
+        BitOps._b2u(gameState[uint256((i - 1) % N)][uint256((j - 1) % N)]) +
+          BitOps._b2u(gameState[uint256((i - 1) % N)][j]) +
+          BitOps._b2u(gameState[uint256((i - 1) % N)][uint256((j + 1) % N)]) +
+          BitOps._b2u(gameState[i][uint256((j + 1) % N)]) +
+          BitOps._b2u(gameState[uint256((i + 1) % N)][uint256((j + 1) % N)]) +
+          BitOps._b2u(gameState[uint256((i + 1) % N)][j]) +
+          BitOps._b2u(gameState[uint256((i + 1) % N)][uint256((j - 1) % N)]) +
+          BitOps._b2u(gameState[i][uint256((j - 1) % N)])
+      );
+  }
 
-      if (_tokenIds > 3) {
-        // game advanced enough to look back 3 periods
+  function _determineCellState(
+    bool currentCellState,
+    uint256 totalNeighbors
+  ) internal pure returns (bool) {
+    if (currentCellState) {
+      return !(totalNeighbors < 2 || totalNeighbors > 3);
+    } else {
+      return totalNeighbors == 3;
+    }
+  }
 
-        // instead of using the states above, we need to retrieve from tokenState
-        uint64 gameStateIntOld;
-        uint64 gameStateIntOldOld;
-        (gameStateIntOld, , ) = BitOps.unpackState(tokenState[_tokenIds]);
-        (gameStateIntOldOld, , ) = BitOps.unpackState(tokenState[_tokenIds - 1]);
+  function _checkForGenerationEnd(bool[N][N] memory newGameStateFromInt) internal {
+    uint256 gameStateIntNew = BitOps.gridToWord(newGameStateFromInt);
+    if (_tokenIds > 3) {
+      uint64 gameStateIntOld;
+      uint64 gameStateIntOldOld;
+      (gameStateIntOld, , ) = BitOps.unpackState(tokenState[_tokenIds]);
+      (gameStateIntOldOld, , ) = BitOps.unpackState(tokenState[_tokenIds - 1]);
 
-        if (
-          gameStateInt == gameStateIntNew ||
-          gameStateIntOld == gameStateIntNew ||
-          gameStateIntOldOld == gameStateIntNew
-        ) {
-          // init new state
-          _initState();
-        } else {
-          _currentGeneration += 1;
-          gameStateInt = uint64(gameStateIntNew);
-        }
+      if (
+        gameStateInt == gameStateIntNew ||
+        gameStateIntOld == gameStateIntNew ||
+        gameStateIntOldOld == gameStateIntNew
+      ) {
+        _initState();
       } else {
         _currentGeneration += 1;
         gameStateInt = uint64(gameStateIntNew);
       }
+    } else {
+      _currentGeneration += 1;
+      gameStateInt = uint64(gameStateIntNew);
     }
+  }
+
+  function _updateState(bool[N][N] memory newGameStateFromInt) internal {
+    gameStateInt = uint64(BitOps.gridToWord(newGameStateFromInt));
   }
 
   // Token Rendering
