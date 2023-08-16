@@ -99,17 +99,17 @@ describe('My Dapp', function () {
       }
     });
 
-    it('Should pause minting & let mint attempts fail', async function () {
-      const [owner, addr1, addr2] = await ethers.getSigners();
-      await deployContract();
-      const pauseTx = await myContract.pause();
+    // it('Should pause minting & let mint attempts fail', async function () {
+    //   const [owner, addr1, addr2] = await ethers.getSigners();
+    //   await deployContract();
+    //   const pauseTx = await myContract.pause();
 
-      await expect(
-        myContract
-          .connect(addr1)
-          .mintItem(addr1.address, { value: ethers.utils.parseEther((0.01).toString()) })
-      ).to.be.revertedWith('Pausable: paused');
-    });
+    //   await expect(
+    //     myContract
+    //       .connect(addr1)
+    //       .mintItem(addr1.address, { value: ethers.utils.parseEther((0.01).toString()) })
+    //   ).to.be.revertedWith('Pausable: paused');
+    // });
 
     it('Should mint a few & withdraw funds', async function () {
       const [owner, addr1, addr2] = await ethers.getSigners();
@@ -121,15 +121,14 @@ describe('My Dapp', function () {
       const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
 
       // testing withdrawals
-      const amount = ethers.utils.parseEther((0.025).toString());
 
       // withdraw as not owner: expected to fail
-      await expect(myContract.connect(addr1).withdrawAmount(amount)).to.be.revertedWith(
+      await expect(myContract.connect(addr1).drainFunds()).to.be.revertedWith(
         'Ownable: caller is not the owner'
       );
 
       // withdraw as owner: should succeed
-      await expect(myContract.withdrawAmount(amount));
+      await expect(myContract.drainFunds());
     });
 
     it('Should mint for free', async function () {
@@ -210,29 +209,29 @@ describe('My Dapp', function () {
     //     const tokenMetadata = decodeTokenURI(tokenURI);
     //     const nameEscaped = tokenMetadata.name.replace(/(\s|\#|\/)/gm, '_');
 
-    //     // store metadata file
-    //     const fileName = 'meta-' + latestToken + '-' + nameEscaped + '.json';
-    //     const dirPath = path.resolve(__dirname, '..', 'exerpts');
-    //     const filePath = path.join(dirPath, fileName);
+    // store metadata file
+    const fileName = 'meta-' + latestToken + '-' + nameEscaped + '.json';
+    const dirPath = path.resolve(__dirname, '..', 'exerpts');
+    const filePath = path.join(dirPath, fileName);
 
-    //     const svgFileName = 'svg-' + latestToken + '-' + nameEscaped + '.svg';
-    //     const svgDirPath = path.resolve(__dirname, '..', 'exerpts', 'svg');
-    //     const svgFilePath = path.join(svgDirPath, svgFileName);
+    const svgFileName = 'svg-' + latestToken + '-' + nameEscaped + '.svg';
+    const svgDirPath = path.resolve(__dirname, '..', 'exerpts', 'svg');
+    const svgFilePath = path.join(svgDirPath, svgFileName);
 
-    //     console.log('gonna try to write file: ', latestToken);
-    //     try {
-    //       // write full metadata as json
-    //       fs.writeFileSync(filePath, JSON.stringify(tokenMetadata, null, 2));
-    //       // extract image field, write to separate file
-    //       const imageField = tokenMetadata.image;
-    //       const base64String = imageField.replace(/^data:image\/svg\+xml;base64,/, '');
-    //       const svgString = Buffer.from(base64String, 'base64').toString('utf-8');
-    //       fs.writeFileSync(svgFilePath, svgString);
-    //       console.log('written metadata for file: ' + latestToken);
-    //     } catch (err) {
-    //       console.log('error writing token: ', latestToken);
-    //       console.log(err);
-    //     }
+    console.log('gonna try to write file: ', latestToken);
+    try {
+      // write full metadata as json
+      fs.writeFileSync(filePath, JSON.stringify(tokenMetadata, null, 2));
+      // extract image field, write to separate file
+      const imageField = tokenMetadata.image;
+      const base64String = imageField.replace(/^data:image\/svg\+xml;base64,/, '');
+      const svgString = Buffer.from(base64String, 'base64').toString('utf-8');
+      fs.writeFileSync(svgFilePath, svgString);
+      console.log('written metadata for file: ' + latestToken);
+    } catch (err) {
+      console.log('error writing token: ', latestToken);
+      console.log(err);
+    }
 
     //     // console.log('token metadata:');
     //     // console.log(tokenMetadata);

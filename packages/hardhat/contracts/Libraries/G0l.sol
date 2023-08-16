@@ -1,4 +1,5 @@
 pragma solidity >=0.7.0 <0.8.0;
+// pragma solidity ^0.8.6;
 // pragma abicoder v2;
 // pragma abicoder v2;
 import '@openzeppelin/contracts/utils/Strings.sol';
@@ -143,7 +144,7 @@ library G0l {
   }
 
   function renderDefs(
-    string memory backgroundColor,
+    // string memory backgroundColor,
     string memory aliveColor,
     string memory deadColor,
     string memory bornColor,
@@ -303,9 +304,15 @@ library G0l {
     uint8 i,
     uint8 j,
     uint8 bornCounter,
-    uint8 perishedCounter,
-    bool alive
-  ) public pure returns (string memory) {
+    uint8 perishedCounter
+  )
+    public
+    pure
+    returns (
+      // bool alive
+      string memory
+    )
+  {
     //
     if (speed <= 1) {
       // raw or static
@@ -755,8 +762,8 @@ library G0l {
         CellData.i,
         CellData.j,
         CellData.bornCounter,
-        CellData.perishedCounter,
-        CellData.alive
+        CellData.perishedCounter
+        // CellData.alive
       );
 
       cell = string(
@@ -767,165 +774,115 @@ library G0l {
     return cell;
   }
 
+  function _calculateScales(
+    Structs.CellData memory CellData
+  )
+    internal
+    pure
+    returns (
+      string memory i_scale,
+      string memory j_scale,
+      string memory i_scale_a,
+      string memory j_scale_a
+    )
+  {
+    uint256 base_i = uint256(CellData.i) * uint256(CellData.unitScale);
+    uint256 base_j = uint256(CellData.j) * uint256(CellData.unitScale);
+    uint256 offset = (CellData.shape == 0 || CellData.shape == 4) ? 40 : 22;
+    uint256 offset_a = (CellData.shape == 0 || CellData.shape == 4) ? 22 : 40;
+
+    i_scale = Strings.toString(base_i + offset);
+    j_scale = Strings.toString(base_j + offset);
+    i_scale_a = Strings.toString(base_i + offset_a);
+    j_scale_a = Strings.toString(base_j + offset_a);
+  }
+
+  function _renderAlive(
+    Structs.CellData memory CellData,
+    string memory i_scale,
+    string memory j_scale,
+    Structs.ColorMap memory colorMap
+  ) internal pure returns (string memory) {
+    if (CellData.speed == 0) {
+      return renderUseTag('#l0', i_scale, j_scale);
+    } else if (CellData.speed == 1) {
+      return renderUseTag('#b0', i_scale, j_scale);
+    } else {
+      return
+        renderAnimatedCell(
+          '#b0',
+          i_scale,
+          j_scale,
+          colorMap.bornColor,
+          colorMap.aliveColor,
+          CellData
+        );
+    }
+  }
+
+  function _renderDead(
+    Structs.CellData memory CellData,
+    string memory i_scale,
+    string memory j_scale,
+    string memory i_scale_a,
+    string memory j_scale_a,
+    Structs.ColorMap memory colorMap
+  ) internal pure returns (string memory) {
+    if (CellData.speed == 0) {
+      return
+        renderUseTag(
+          '#d0',
+          (CellData.shape == 3 || CellData.shape == 4) ? i_scale_a : i_scale,
+          (CellData.shape == 3 || CellData.shape == 4) ? j_scale_a : j_scale
+        );
+    } else if (CellData.speed == 1) {
+      return
+        renderUseTag(
+          '#p0',
+          (CellData.shape == 3 || CellData.shape == 4) ? i_scale_a : i_scale,
+          (CellData.shape == 3 || CellData.shape == 4) ? j_scale_a : j_scale
+        );
+    } else {
+      return
+        renderAnimatedCell(
+          '#p0',
+          (CellData.shape == 3 || CellData.shape == 4) ? i_scale_a : i_scale,
+          (CellData.shape == 3 || CellData.shape == 4) ? j_scale_a : j_scale,
+          colorMap.perishedColor,
+          colorMap.deadColor,
+          CellData
+        );
+    }
+  }
+
   function renderGameSquare(
     Structs.CellData memory CellData,
     Structs.ColorMap memory colorMap
   ) internal pure returns (string memory) {
-    //
-    string memory square;
-    string memory i_scale;
-    string memory j_scale;
-    string memory i_scale_a; // a for alternative
-    string memory j_scale_a; // a for alternative
+    (
+      string memory i_scale,
+      string memory j_scale,
+      string memory i_scale_a,
+      string memory j_scale_a
+    ) = _calculateScales(CellData);
 
-    if (CellData.shape == 0) {
-      // circle case
-      i_scale = Strings.toString(
-        uint256(uint256(CellData.i) * uint256(CellData.unitScale) + 20 + 20)
-      );
-
-      i_scale_a = Strings.toString(
-        uint256(uint256(CellData.i) * uint256(CellData.unitScale) + 20 + 20)
-      );
-      j_scale = Strings.toString(
-        uint256(uint256(CellData.j) * uint256(CellData.unitScale) + 20 + 20)
-      );
-
-      j_scale_a = Strings.toString(
-        uint256(uint256(CellData.j) * uint256(CellData.unitScale) + 20 + 20)
-      );
-    } else if (CellData.shape == 1 || CellData.shape == 2) {
-      // rectangle case
-      i_scale = Strings.toString(
-        uint256(uint256(CellData.i) * uint256(CellData.unitScale) + 2 + 20)
-      );
-
-      i_scale_a = Strings.toString(
-        uint256(uint256(CellData.i) * uint256(CellData.unitScale) + 2 + 20)
-      );
-      j_scale = Strings.toString(
-        uint256(uint256(CellData.j) * uint256(CellData.unitScale) + 2 + 20)
-      );
-
-      j_scale_a = Strings.toString(
-        uint256(uint256(CellData.j) * uint256(CellData.unitScale) + 2 + 20)
-      );
-    } else if (CellData.shape == 3) {
-      i_scale = Strings.toString(
-        uint256(uint256(CellData.i) * uint256(CellData.unitScale) + 2 + 20)
-      );
-      j_scale = Strings.toString(
-        uint256(uint256(CellData.j) * uint256(CellData.unitScale) + 2 + 20)
-      );
-
-      i_scale_a = Strings.toString(
-        uint256(uint256(CellData.i) * uint256(CellData.unitScale) + 20 + 20)
-      );
-      j_scale_a = Strings.toString(
-        uint256(uint256(CellData.j) * uint256(CellData.unitScale) + 20 + 20)
-      );
-    } else if (CellData.shape == 4) {
-      // inverting *_scale // *_scale_a
-
-      i_scale = Strings.toString(
-        uint256(uint256(CellData.i) * uint256(CellData.unitScale) + 20 + 20)
-      );
-
-      j_scale = Strings.toString(
-        uint256(uint256(CellData.j) * uint256(CellData.unitScale) + 20 + 20)
-      );
-
-      i_scale_a = Strings.toString(
-        uint256(uint256(CellData.i) * uint256(CellData.unitScale) + 2 + 20)
-      );
-
-      j_scale_a = Strings.toString(
-        uint256(uint256(CellData.j) * uint256(CellData.unitScale) + 2 + 20)
-      );
-    }
-
-    if (CellData.alive && !CellData.hasChanged) {
-      // case: long alive
-      // never animated
-      if (CellData.shape == 3 || CellData.shape == 4) {
-        square = renderUseTag('#l0', i_scale, j_scale);
+    if (CellData.alive) {
+      if (!CellData.hasChanged) {
+        return renderUseTag('#l0', i_scale, j_scale);
       } else {
-        square = renderUseTag('#l0', i_scale, j_scale);
+        return _renderAlive(CellData, i_scale, j_scale, colorMap);
       }
-    } else if (!CellData.alive && !CellData.hasChanged) {
-      // case: long dead
-      // never animated
-      if (CellData.shape == 3 || CellData.shape == 4) {
-        square = renderUseTag('#d0', i_scale_a, j_scale_a);
+    } else {
+      if (!CellData.hasChanged) {
+        return
+          renderUseTag(
+            '#d0',
+            (CellData.shape == 3 || CellData.shape == 4) ? i_scale_a : i_scale,
+            (CellData.shape == 3 || CellData.shape == 4) ? j_scale_a : j_scale
+          );
       } else {
-        square = renderUseTag('#d0', i_scale, j_scale);
-      }
-    } else if (CellData.alive && CellData.hasChanged) {
-      // case: new born
-      if (CellData.speed == 0) {
-        // raw
-        square = renderUseTag('#l0', i_scale, j_scale);
-      } else if (CellData.speed == 1) {
-        // static
-        square = renderUseTag('#b0', i_scale, j_scale);
-      } else if (CellData.speed >= 2) {
-        if (CellData.shape == 3 || CellData.shape == 4) {
-          square = renderAnimatedCell(
-            '#b0',
-            i_scale,
-            j_scale,
-            colorMap.bornColor,
-            colorMap.aliveColor,
-            CellData
-          );
-        } else {
-          square = renderAnimatedCell(
-            '#b0',
-            i_scale,
-            j_scale,
-            colorMap.bornColor,
-            colorMap.aliveColor,
-            CellData
-          );
-        }
-      }
-    } else if (!CellData.alive && CellData.hasChanged) {
-      // case: died this round
-      if (CellData.speed == 0) {
-        if (CellData.shape == 3 || CellData.shape == 4) {
-          square = renderUseTag('#d0', i_scale_a, j_scale_a);
-        } else {
-          square = renderUseTag('#d0', i_scale, j_scale);
-        }
-      } else if (CellData.speed == 1) {
-        if (CellData.shape == 3 || CellData.shape == 4) {
-          square = renderUseTag('#p0', i_scale_a, j_scale_a);
-        } else {
-          square = renderUseTag('#p0', i_scale, j_scale);
-        }
-      } else if (CellData.speed >= 2) {
-        if (CellData.shape == 3 || CellData.shape == 4) {
-          square = renderAnimatedCell(
-            '#p0',
-            i_scale_a,
-            j_scale_a,
-            colorMap.perishedColor,
-            colorMap.deadColor,
-            CellData
-          );
-        } else {
-          square = renderAnimatedCell(
-            '#p0',
-            i_scale,
-            j_scale,
-            colorMap.perishedColor,
-            colorMap.deadColor,
-            CellData
-          );
-        }
+        return _renderDead(CellData, i_scale, j_scale, i_scale_a, j_scale_a, colorMap);
       }
     }
-
-    return square;
   }
 }

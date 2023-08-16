@@ -1,16 +1,18 @@
-const { utils } = require('ethers');
+require('dotenv').config();
+
+const { utils, ethers, isAddress, getAddress, formatUnits, parseUnits } = require('ethers');
 const fs = require('fs');
 const chalk = require('chalk');
 
 require('@nomiclabs/hardhat-waffle');
 require('@tenderly/hardhat-tenderly');
-
+require('@nomiclabs/hardhat-ethers');
 require('@nomiclabs/hardhat-etherscan');
 require('hardhat-gas-reporter');
 require('hardhat-contract-sizer');
 require('@nomicfoundation/hardhat-network-helpers');
 
-const { isAddress, getAddress, formatUnits, parseUnits } = utils;
+// const { isAddress, getAddress, formatUnits, parseUnits } = ethers.utils;
 
 /*
       📡 This is where you configure your deploy configuration for 🏗 scaffold-eth
@@ -55,11 +57,16 @@ module.exports = {
     localhost: {
       url: 'http://localhost:8545',
       allowUnlimitedContractSize: true,
-      //gasPrice: 125000000000,//you can adjust gasPrice locally to see how much it will cost on production
+      gasPrice: 65000000000, //you can adjust gasPrice locally to see how much it will cost on production
+
       /*
         notice no mnemonic here? it will just use account 0 of the hardhat node to deploy
         (you can put in a mnemonic here to set the deployer locally)
       */
+    },
+    mumbai: {
+      url: `${process.env.ALCHEMY_URL_MUMBAI}`,
+      chainId: 80001,
     },
     hardhat: {
       allowUnlimitedContractSize: true,
@@ -77,10 +84,7 @@ module.exports = {
       },
     },
     mainnet: {
-      url: 'https://mainnet.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad', //<---- YOUR INFURA ID! (or it won't work)
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      url: `${process.env.ALCHEMY_URL_MUMBAI}`, //<---- YOUR INFURA ID! (or it won't work)
       gasPrice: 128000000000,
     },
     ropsten: {
@@ -109,12 +113,21 @@ module.exports = {
         mnemonic: mnemonic(),
       },
     },
-    polygonMumbai: {
-      url: 'https://rpc-mumbai.maticvigil.com',
-      accounts: {
-        mnemonic: mnemonic(),
-      },
-    },
+    // polygonMumbai: {
+    //   url: 'https://rpc-mumbai.maticvigil.com',
+    //   chainId: 80001,
+    //   // accounts: {
+    //   //   type: 'ledger',
+    //   //   path: "m/44'/60'/0'/0", // Default Ledger Live derivation path
+    //   // },
+    //   gas: 'auto',
+    //   gasPrice: 20000000000, // 20 Gwei
+    //   gasMultiplier: 1.2,
+    //   timeout: 50000,
+    //   // accounts: {
+    //   //   mnemonic: mnemonic(),
+    //   // },
+    // },
   },
   solidity: {
     compilers: [
@@ -158,6 +171,12 @@ module.exports = {
   },
   mocha: {
     timeout: 100000000,
+  },
+  tenderly: {
+    consoleLogLevel: 'none',
+  },
+  logging: {
+    level: 'info',
   },
 };
 

@@ -1,34 +1,16 @@
-import { LinkOutlined } from "@ant-design/icons";
 import { StaticJsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import { formatEther, parseEther, parseUnits } from "@ethersproject/units";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import { Alert, Button, Card, Col, Input, List, Menu, Row } from "antd";
+import { Alert, Col, Row } from "antd";
 import "antd/dist/antd.css";
 import { useUserAddress } from "eth-hooks";
-import { utils } from "ethers";
 import React, { useCallback, useEffect, useState } from "react";
-import ReactJson from "react-json-view";
-import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
-import StackGrid from "react-stack-grid";
+import { BrowserRouter, Route, Switch } from "react-router-dom";
 import Web3Modal from "web3modal";
 import "./App.css";
 // import assets from "./assets.js";
-import { BlockPicker } from "react-color";
-import {
-  Account,
-  Address,
-  AddressInput,
-  Contract,
-  Faucet,
-  GasGauge,
-  Header,
-  Ramp,
-  ThemeSwitch,
-  ItemCard,
-  Gallery,
-  MintInfo,
-} from "./components";
-import { DAI_ABI, DAI_ADDRESS, INFURA_ID, NETWORK, NETWORKS } from "./constants";
+import { Account, Address, AddressInput, Contract, GasGauge, Header, ItemCard, Gallery, MintInfo } from "./components";
+import { INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
 import {
   useBalance,
@@ -44,9 +26,9 @@ import {
 
 const { BufferList } = require("bl");
 // https://www.npmjs.com/package/ipfs-http-client
-const ipfsAPI = require("ipfs-http-client");
+// const ipfsAPI = require("ipfs-http-client");
 
-const ipfs = ipfsAPI({ host: "ipfs.infura.io", port: "5001", protocol: "https" });
+// const ipfs = ipfsAPI({ host: "ipfs.infura.io", port: "5001", protocol: "https" });
 
 // console.log("📦 Assets: ", assets);
 
@@ -70,25 +52,26 @@ const ipfs = ipfsAPI({ host: "ipfs.infura.io", port: "5001", protocol: "https" }
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
-
+const targetNetwork = process.env.REACT_APP_BUILD_ENV === "production" ? NETWORKS.mumbai : NETWORKS.localhost; // NETWORKS.mumbai; // NETWORKS.localhost <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+console.log(">>> selected target network: ");
+console.log(targetNetwork);
 // 😬 Sorry for all the console logging
 const DEBUG = true;
 
 // helper function to "Get" from IPFS
 // you usually go content.toString() after this...
-const getFromIPFS = async hashToGet => {
-  for await (const file of ipfs.get(hashToGet)) {
-    console.log(file.path);
-    if (!file.content) continue;
-    const content = new BufferList();
-    for await (const chunk of file.content) {
-      content.append(chunk);
-    }
-    console.log(content);
-    return content;
-  }
-};
+// const getFromIPFS = async hashToGet => {
+//   for await (const file of ipfs.get(hashToGet)) {
+//     console.log(file.path);
+//     if (!file.content) continue;
+//     const content = new BufferList();
+//     for await (const chunk of file.content) {
+//       content.append(chunk);
+//     }
+//     console.log(content);
+//     return content;
+//   }
+// };
 
 // 🛰 providers
 if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
@@ -178,7 +161,7 @@ function App(props) {
   //
   // If you want to bring in the mainnet DAI contract it would look like:
   const isSigner = injectedProvider && injectedProvider.getSigner && injectedProvider.getSigner()._isSigner;
-
+  console.log(">>> isSigner: ", isSigner);
   // // If you want to call a function on a new block
   // useOnBlock(mainnetProvider, () => {
   //   console.log(`⛓ A new mainnet block is here: ${mainnetProvider._lastBlockNumber}`);
@@ -410,7 +393,7 @@ function App(props) {
                 and give you a form to interact with it locally
             */}
 
-            <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
+            <div id={"controls"} style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
               {isSigner ? (
                 <>
                   <button
