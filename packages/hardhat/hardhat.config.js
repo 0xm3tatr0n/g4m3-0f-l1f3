@@ -70,6 +70,10 @@ module.exports = {
     },
     hardhat: {
       allowUnlimitedContractSize: true,
+      forking: {
+        url: 'https://mainnet.infura.io/v3/4993d3ba57244f2096d77d1e5b44e436', // Replace with your Infura URL or other provider
+        // blockNumber: 13823000, // Optional, if you want to fork from a specific block
+      },
     },
     rinkeby: {
       url: 'https://rinkeby.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad', //<---- YOUR INFURA ID! (or it won't work)

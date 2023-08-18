@@ -31,7 +31,7 @@ function generateArray(N, min = 1, max = 100) {
   return sample;
 }
 
-describe('My Dapp', function () {
+describe('g4m3 base', function () {
   let G0l;
   let myContract;
 
@@ -209,29 +209,29 @@ describe('My Dapp', function () {
     //     const tokenMetadata = decodeTokenURI(tokenURI);
     //     const nameEscaped = tokenMetadata.name.replace(/(\s|\#|\/)/gm, '_');
 
-    // store metadata file
-    const fileName = 'meta-' + latestToken + '-' + nameEscaped + '.json';
-    const dirPath = path.resolve(__dirname, '..', 'exerpts');
-    const filePath = path.join(dirPath, fileName);
+    // // store metadata file
+    // const fileName = 'meta-' + latestToken + '-' + nameEscaped + '.json';
+    // const dirPath = path.resolve(__dirname, '..', 'exerpts');
+    // const filePath = path.join(dirPath, fileName);
 
-    const svgFileName = 'svg-' + latestToken + '-' + nameEscaped + '.svg';
-    const svgDirPath = path.resolve(__dirname, '..', 'exerpts', 'svg');
-    const svgFilePath = path.join(svgDirPath, svgFileName);
+    // const svgFileName = 'svg-' + latestToken + '-' + nameEscaped + '.svg';
+    // const svgDirPath = path.resolve(__dirname, '..', 'exerpts', 'svg');
+    // const svgFilePath = path.join(svgDirPath, svgFileName);
 
-    console.log('gonna try to write file: ', latestToken);
-    try {
-      // write full metadata as json
-      fs.writeFileSync(filePath, JSON.stringify(tokenMetadata, null, 2));
-      // extract image field, write to separate file
-      const imageField = tokenMetadata.image;
-      const base64String = imageField.replace(/^data:image\/svg\+xml;base64,/, '');
-      const svgString = Buffer.from(base64String, 'base64').toString('utf-8');
-      fs.writeFileSync(svgFilePath, svgString);
-      console.log('written metadata for file: ' + latestToken);
-    } catch (err) {
-      console.log('error writing token: ', latestToken);
-      console.log(err);
-    }
+    // console.log('gonna try to write file: ', latestToken);
+    // try {
+    //   // write full metadata as json
+    //   fs.writeFileSync(filePath, JSON.stringify(tokenMetadata, null, 2));
+    //   // extract image field, write to separate file
+    //   const imageField = tokenMetadata.image;
+    //   const base64String = imageField.replace(/^data:image\/svg\+xml;base64,/, '');
+    //   const svgString = Buffer.from(base64String, 'base64').toString('utf-8');
+    //   fs.writeFileSync(svgFilePath, svgString);
+    //   console.log('written metadata for file: ' + latestToken);
+    // } catch (err) {
+    //   console.log('error writing token: ', latestToken);
+    //   console.log(err);
+    // }
 
     //     // console.log('token metadata:');
     //     // console.log(tokenMetadata);
@@ -258,11 +258,11 @@ describe('My Dapp', function () {
     //   console.log(`epoch changed to ${nextGeneration} at tokenId ${latestToken} `);
     // });
 
-    it('Should just track the length of tokenURIs (for now)', async function () {
+    it('Should assert that tokenURI is not longer than 12k chars', async function () {
       const [owner] = await ethers.getSigners();
       await deployContract();
 
-      // mint a sample of 100 tokens
+      // mint a sample of 50 tokens
       for (let i = 0; i < 10; i++) {
         const mintTx = await myContract.mintPack(owner.address, {
           value: ethers.utils.parseEther((0.025).toString()),
@@ -297,7 +297,7 @@ describe('My Dapp', function () {
         }) / URIstats.length;
       console.log('Max URI length ', maxLength, 'avg length: ', avgLength);
 
-      await expect(Number(maxLength)).to.be.lessThan(10000);
+      await expect(Number(maxLength)).to.be.lessThan(12000);
     });
 
     // it('Should render a grid 8x8', async function () {

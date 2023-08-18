@@ -50,6 +50,10 @@ contract G4m3 is ERC721, Ownable {
   uint8 internal constant N = 8;
   string s_scale = Strings.toString(scale - 4);
 
+  // external free minting
+  mapping(address => bool) private whitelist;
+  address[] private nftCollections;
+
   // variables
   uint256 private minted4free = 0;
   uint256 private createTime;
@@ -58,10 +62,27 @@ contract G4m3 is ERC721, Ownable {
   uint16 internal _tokenIds = 0;
   uint8 internal _currentEpoch = 0;
   uint16 internal _currentGeneration = 0;
-
   mapping(uint256 => uint256) internal tokenState;
-
   uint64 internal gameStateInt;
+
+  // Functions: Whitelist user & collections
+  function addToWhitelist(address user) public onlyOwner {
+    whitelist[user] = true;
+  }
+
+  function removeFromWhitelist(address user) public onlyOwner {
+    whitelist[user] = false;
+  }
+
+  function addNftCollection(address collection) public onlyOwner {
+    nftCollections.push(collection);
+  }
+
+  function removeNftCollection(uint256 index) public onlyOwner {
+    require(index < nftCollections.length, 'Index out of bounds');
+    nftCollections[index] = nftCollections[nftCollections.length - 1];
+    nftCollections.pop();
+  }
 
   // Functions: Mint
   function mintItem(address mintTo) public payable returns (uint256 lastTokenId) {
@@ -77,6 +98,23 @@ contract G4m3 is ERC721, Ownable {
     }
   }
 
+  function mintFreeGated() public {
+    require(isEligibleForFreeMint(msg.sender), 'Not eligible for free mint');
+    _mintBase(msg.sender);
+  }
+
+  function isEligibleForFreeMint(address user) private view returns (bool) {
+    if (whitelist[user]) return true;
+
+    for (uint256 i = 0; i < nftCollections.length; i++) {
+      IERC721 nftCollection = IERC721(nftCollections[i]);
+      if (nftCollection.balanceOf(user) > 0) return true;
+    }
+
+    return false;
+  }
+
+  // owner allocation over time (todo: probably better remove)
   function mintForFree(address mintTo, uint256 noItems) public onlyOwner {
     // owner mint allocation of 1 item / day
     uint256 currentAlloc = (block.timestamp - createTime) / (1 days);
@@ -133,76 +171,6 @@ contract G4m3 is ERC721, Ownable {
 
     gameStateInt = gridInt;
   }
-
-  // original iterate state function
-  // function _iterateState() internal {
-  //   if (_currentGeneration >= 1023) {
-  //     // start new epoch
-  //     _initState();
-  //   } else {
-  //     // play game of life
-  //     bool[N][N] memory oldGameStateFromInt = BitOps.wordToGrid(gameStateInt);
-  //     bool[N][N] memory newGameStateFromInt = oldGameStateFromInt;
-
-  //     for (uint256 i = 0; i < N; i += 1) {
-  //       for (uint256 j = 0; j < N; j += 1) {
-  //         uint256 total = uint256(
-  //           BitOps._b2u(oldGameStateFromInt[uint256((i - 1) % N)][uint256((j - 1) % N)]) +
-  //             BitOps._b2u(oldGameStateFromInt[uint256((i - 1) % N)][j]) +
-  //             BitOps._b2u(oldGameStateFromInt[uint256((i - 1) % N)][uint256((j + 1) % N)]) +
-  //             BitOps._b2u(oldGameStateFromInt[i][uint256((j + 1) % N)]) +
-  //             BitOps._b2u(oldGameStateFromInt[uint256((i + 1) % N)][uint256((j + 1) % N)]) +
-  //             BitOps._b2u(oldGameStateFromInt[uint256((i + 1) % N)][j]) +
-  //             BitOps._b2u(oldGameStateFromInt[uint256((i + 1) % N)][uint256((j - 1) % N)]) +
-  //             BitOps._b2u(oldGameStateFromInt[i][uint256((j - 1) % N)])
-  //         );
-
-  //         if (oldGameStateFromInt[i][j] == true) {
-  //           if (total < 2 || total > 3) {
-  //             newGameStateFromInt[i][j] = false;
-  //           }
-  //         } else {
-  //           if (total == 3) {
-  //             newGameStateFromInt[i][j] = true;
-  //           }
-  //         }
-  //       }
-  //     }
-
-  //     // check if generation ended (no change between iteration)
-  //     // naming suboptimal:
-  //     // gameStateIntOldOld --> old N-3
-  //     // gameStateIntOld --> old N-2
-  //     // gameStateInt --> old N-1
-  //     // gameStateIntNew --> current
-  //     uint256 gameStateIntNew = BitOps.gridToWord(newGameStateFromInt);
-
-  //     if (_tokenIds > 3) {
-  //       // game advanced enough to look back 3 periods
-
-  //       // instead of using the states above, we need to retrieve from tokenState
-  //       uint64 gameStateIntOld;
-  //       uint64 gameStateIntOldOld;
-  //       (gameStateIntOld, , ) = BitOps.unpackState(tokenState[_tokenIds]);
-  //       (gameStateIntOldOld, , ) = BitOps.unpackState(tokenState[_tokenIds - 1]);
-
-  //       if (
-  //         gameStateInt == gameStateIntNew ||
-  //         gameStateIntOld == gameStateIntNew ||
-  //         gameStateIntOldOld == gameStateIntNew
-  //       ) {
-  //         // init new state
-  //         _initState();
-  //       } else {
-  //         _currentGeneration += 1;
-  //         gameStateInt = uint64(gameStateIntNew);
-  //       }
-  //     } else {
-  //       _currentGeneration += 1;
-  //       gameStateInt = uint64(gameStateIntNew);
-  //     }
-  //   }
-  // }
 
   function _iterateState() internal {
     if (_currentGeneration >= 1023) {
@@ -532,18 +500,18 @@ contract G4m3 is ERC721, Ownable {
     );
 
     // override for testing:
-    // metadata.shape = 4;
-    // metadata.pattern = 1;
-    // metadata.speed = 3;
+    metadata.shape = 4;
+    metadata.pattern = 1;
+    metadata.speed = 3;
 
     return metadata;
   }
 
   // Withdraw
   function drainFunds() public onlyOwner {
-    uint256 amount = address(this).balance;
-    msg.sender.transfer(amount);
-    emit Withdrawal(msg.sender, amount);
+    uint256 balance = address(this).balance;
+    payable(owner()).transfer(balance);
+    emit Withdrawal(msg.sender, balance);
   }
 
   receive() external payable {}
