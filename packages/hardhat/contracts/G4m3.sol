@@ -52,8 +52,11 @@ contract G4m3 is ERC721, Ownable {
 
   // external free minting
   mapping(address => bool) private whitelist;
-  address[] private nftCollections;
+  address[] private nftCollections = [0x4E1f41613c9084FdB9E34E11fAE9412427480e56];
 
+  // track number of free mints
+  uint8 private MAX_FREE_MINTS = 10;
+  mapping(address => uint8) freemints;
   // variables
   uint256 private minted4free = 0;
   uint256 private createTime;
@@ -74,20 +77,20 @@ contract G4m3 is ERC721, Ownable {
     whitelist[user] = false;
   }
 
-  function addNftCollection(address collection) public onlyOwner {
-    nftCollections.push(collection);
-  }
+  // function addNftCollection(address collection) public onlyOwner {
+  //   nftCollections.push(collection);
+  // }
 
-  function removeNftCollection(uint256 index) public onlyOwner {
-    require(index < nftCollections.length, 'Index out of bounds');
-    nftCollections[index] = nftCollections[nftCollections.length - 1];
-    nftCollections.pop();
-  }
+  // function removeNftCollection(uint256 index) public onlyOwner {
+  //   require(index < nftCollections.length, 'Index out of bounds');
+  //   nftCollections[index] = nftCollections[nftCollections.length - 1];
+  //   nftCollections.pop();
+  // }
 
   // Functions: Mint
-  function mintItem(address mintTo) public payable returns (uint256 lastTokenId) {
+  function mintItem(address mintTo) public payable {
     require(msg.value >= mintOnePrice, 'funds');
-    return _mintBase(mintTo);
+    _mintBase(mintTo);
   }
 
   function mintPack(address mintTo) public payable {
@@ -98,12 +101,16 @@ contract G4m3 is ERC721, Ownable {
     }
   }
 
-  function mintFreeGated() public {
+  function mintFreeGated(uint8 noTokens) public {
     require(isEligibleForFreeMint(msg.sender), 'Not eligible for free mint');
-    _mintBase(msg.sender);
+    require(freemints[msg.sender] + noTokens <= MAX_FREE_MINTS, 'Not eligible for free mint');
+    for (uint8 i = 0; i < noTokens; i++) {
+      _mintBase(msg.sender);
+      freemints[msg.sender] += 1;
+    }
   }
 
-  function isEligibleForFreeMint(address user) private view returns (bool) {
+  function isEligibleForFreeMint(address user) public view returns (bool) {
     if (whitelist[user]) return true;
 
     for (uint256 i = 0; i < nftCollections.length; i++) {
@@ -127,7 +134,7 @@ contract G4m3 is ERC721, Ownable {
   }
 
   // internal mint function called by all of the above
-  function _mintBase(address to) private returns (uint256 lastTokenId) {
+  function _mintBase(address to) private {
     // this assumes criteria like eligibility of minting & funding have been checked before!
     _tokenIds += 1;
     _iterateState();
@@ -135,7 +142,6 @@ contract G4m3 is ERC721, Ownable {
     tokenState[_tokenIds] = BitOps.packState(gameStateInt, _currentEpoch, _currentGeneration);
 
     _mint(to, _tokenIds);
-    return _tokenIds;
   }
 
   // g4m3 0f l1f3 state functions
@@ -499,10 +505,10 @@ contract G4m3 is ERC721, Ownable {
       metadata.seed
     );
 
-    // override for testing:
-    metadata.shape = 4;
-    metadata.pattern = 1;
-    metadata.speed = 3;
+    // // override for testing:
+    // metadata.shape = 4;
+    // metadata.pattern = 1;
+    // metadata.speed = 3;
 
     return metadata;
   }
