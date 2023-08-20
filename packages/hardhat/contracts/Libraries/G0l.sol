@@ -166,14 +166,14 @@ library G0l {
 
     if (shape == 0) {
       // circle
-      defs = abi.encodePacked(defs, '<circle id="l0" r="18" fill="', aliveColor, '"></circle>');
+      defs = abi.encodePacked(defs, '<circle id="l" r="18" fill="', aliveColor, '"></circle>');
       // add dead
-      defs = abi.encodePacked(defs, '<circle id="d0" r="18" fill="', deadColor, '"></circle>');
+      defs = abi.encodePacked(defs, '<circle id="d" r="18" fill="', deadColor, '"></circle>');
     } else if (shape == 1 || shape == 2) {
       // blocks & triangles
       defs = abi.encodePacked(
         defs,
-        '<rect id="l0" width="',
+        '<rect id="l" width="',
         scaling,
         '" height="',
         scaling,
@@ -184,7 +184,7 @@ library G0l {
       // add dead
       defs = abi.encodePacked(
         defs,
-        '<rect id="d0" width="',
+        '<rect id="d" width="',
         scaling,
         '" height="',
         scaling,
@@ -196,7 +196,7 @@ library G0l {
       // shape 3: alive: square, dead: circle
       defs = abi.encodePacked(
         defs,
-        '<rect id="l0" width="',
+        '<rect id="l" width="',
         scaling,
         '" height="',
         scaling,
@@ -205,12 +205,12 @@ library G0l {
         '"></rect>'
       );
 
-      defs = abi.encodePacked(defs, '<circle id="d0" r="18" fill="', deadColor, '"></circle>');
+      defs = abi.encodePacked(defs, '<circle id="d" r="18" fill="', deadColor, '"></circle>');
     } else if (shape == 4) {
       // shape 3: alive: square, dead: circle
       defs = abi.encodePacked(
         defs,
-        '<rect id="d0" width="',
+        '<rect id="d" width="',
         scaling,
         '" height="',
         scaling,
@@ -219,25 +219,20 @@ library G0l {
         '"></rect>'
       );
 
-      defs = abi.encodePacked(defs, '<circle id="l0" r="18" fill="', aliveColor, '"></circle>');
+      defs = abi.encodePacked(defs, '<circle id="l" r="18" fill="', aliveColor, '"></circle>');
     }
 
     if (speed == 1) {
       // case: static
       if (shape == 0) {
         // circles
-        defs = abi.encodePacked(defs, '<circle id="b0" r="18" fill="', bornColor, '"></circle>');
-        defs = abi.encodePacked(
-          defs,
-          '<circle id="p0" r="18" fill="',
-          perishedColor,
-          '"></circle>'
-        );
+        defs = abi.encodePacked(defs, '<circle id="b" r="18" fill="', bornColor, '"></circle>');
+        defs = abi.encodePacked(defs, '<circle id="p" r="18" fill="', perishedColor, '"></circle>');
       } else if (shape == 1 || shape == 2) {
         // blocks & triangles
         defs = abi.encodePacked(
           defs,
-          '<rect id="b0" width="',
+          '<rect id="b" width="',
           scaling,
           '" height="',
           scaling,
@@ -248,7 +243,7 @@ library G0l {
 
         defs = abi.encodePacked(
           defs,
-          '<rect id="p0" width="',
+          '<rect id="p" width="',
           scaling,
           '" height="',
           scaling,
@@ -260,7 +255,7 @@ library G0l {
         // mixed shapes
         defs = abi.encodePacked(
           defs,
-          '<rect id="b0" width="',
+          '<rect id="b" width="',
           scaling,
           '" height="',
           scaling,
@@ -269,16 +264,11 @@ library G0l {
           '"></rect>'
         );
 
-        defs = abi.encodePacked(
-          defs,
-          '<circle id="p0" r="18" fill="',
-          perishedColor,
-          '"></circle>'
-        );
+        defs = abi.encodePacked(defs, '<circle id="p" r="18" fill="', perishedColor, '"></circle>');
       } else if (shape == 4) {
         defs = abi.encodePacked(
           defs,
-          '<rect id="p0" width="',
+          '<rect id="p" width="',
           scaling,
           '" height="',
           scaling,
@@ -287,7 +277,7 @@ library G0l {
           '"></rect>'
         );
 
-        defs = abi.encodePacked(defs, '<circle id="b0" r="18" fill="', bornColor, '"></circle>');
+        defs = abi.encodePacked(defs, '<circle id="b" r="18" fill="', bornColor, '"></circle>');
       }
     }
 
@@ -804,13 +794,13 @@ library G0l {
     Structs.ColorMap memory colorMap
   ) internal pure returns (string memory) {
     if (CellData.speed == 0) {
-      return renderUseTag('#l0', i_scale, j_scale);
+      return renderUseTag('#l', i_scale, j_scale);
     } else if (CellData.speed == 1) {
-      return renderUseTag('#b0', i_scale, j_scale);
+      return renderUseTag('#b', i_scale, j_scale);
     } else {
       return
         renderAnimatedCell(
-          '#b0',
+          '#b',
           i_scale,
           j_scale,
           colorMap.bornColor,
@@ -831,21 +821,21 @@ library G0l {
     if (CellData.speed == 0) {
       return
         renderUseTag(
-          '#d0',
+          '#d',
           (CellData.shape == 3 || CellData.shape == 4) ? i_scale_a : i_scale,
           (CellData.shape == 3 || CellData.shape == 4) ? j_scale_a : j_scale
         );
     } else if (CellData.speed == 1) {
       return
         renderUseTag(
-          '#p0',
+          '#p',
           (CellData.shape == 3 || CellData.shape == 4) ? i_scale_a : i_scale,
           (CellData.shape == 3 || CellData.shape == 4) ? j_scale_a : j_scale
         );
     } else {
       return
         renderAnimatedCell(
-          '#p0',
+          '#p',
           (CellData.shape == 3 || CellData.shape == 4) ? i_scale_a : i_scale,
           (CellData.shape == 3 || CellData.shape == 4) ? j_scale_a : j_scale,
           colorMap.perishedColor,
@@ -868,7 +858,7 @@ library G0l {
 
     if (CellData.alive) {
       if (!CellData.hasChanged) {
-        return renderUseTag('#l0', i_scale, j_scale);
+        return renderUseTag('#l', i_scale, j_scale);
       } else {
         return _renderAlive(CellData, i_scale, j_scale, colorMap);
       }
@@ -876,7 +866,7 @@ library G0l {
       if (!CellData.hasChanged) {
         return
           renderUseTag(
-            '#d0',
+            '#d',
             (CellData.shape == 3 || CellData.shape == 4) ? i_scale_a : i_scale,
             (CellData.shape == 3 || CellData.shape == 4) ? j_scale_a : j_scale
           );
