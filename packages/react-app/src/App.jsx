@@ -176,6 +176,7 @@ function App(props) {
   // keep track of a variable from the contract in the local React state:
   const balance = useContractReader(readContracts, "G4m3", "balanceOf", [address]);
   console.log("🤗 balance:", balance);
+  const isFreeMintEligible = useContractReader(readContracts, "G4m3", "isEligibleForFreeMint", [address]);
 
   // track total supply
   const totalSupply = useContractReader(readContracts, "G4m3", "totalSupply");
@@ -294,6 +295,7 @@ function App(props) {
       console.log("💵 yourMainnetBalance", yourMainnetBalance ? formatEther(yourMainnetBalance) : "...");
       console.log("📝 readContracts", readContracts);
       console.log("🔐 writeContracts", writeContracts);
+      console.log("🏃‍♀️ is eleigible for free mint ", isFreeMintEligible);
     }
   }, [mainnetProvider, address, selectedChainId, yourLocalBalance, yourMainnetBalance, readContracts, writeContracts]);
 
@@ -426,6 +428,27 @@ function App(props) {
                   >
                     mint pack (5 tokens)
                   </button>
+                  {isFreeMintEligible ? (
+                    <>
+                      <button
+                        style={{
+                          margin: "30px",
+                          color: "black",
+                          padding: "10px 30px 10px 30px",
+                          fontSize: "20px",
+                          fontFamily: "monospace",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => {
+                          tx(writeContracts.G4m3.mintPack(address, { value: parseEther("0.025") }));
+                        }}
+                      >
+                        mint free (*)
+                      </button>
+                    </>
+                  ) : (
+                    <></>
+                  )}
                 </>
               ) : (
                 <button

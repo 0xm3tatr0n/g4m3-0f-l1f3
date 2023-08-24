@@ -51,8 +51,8 @@ describe('g4m3 base', function () {
     myContract = await YourContract.deploy();
   }
 
-  describe('YourContract', function () {
-    it('Should deploy YourContract', async function () {
+  describe('g4m3 0f l1f3 minting', function () {
+    it('Should deploy g4m3 contract', async function () {
       await deployContract();
     });
 
@@ -191,72 +191,121 @@ describe('g4m3 base', function () {
     //   let currentGeneration = 1;
     //   let finalGeneration = 11;
     //   let latestToken = '';
+    //   let dataArray = [];
 
     //   while (currentGeneration <= finalGeneration) {
-    //     const mintTx = await myContract.mintItem(owner.address, {
-    //       value: ethers.utils.parseEther((0.01).toString()),
-    //     });
-    //     const mintRc = await mintTx.wait();
-    //     const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
+    //     try {
+    //       const mintTx = await myContract.mintItem(owner.address, {
+    //         value: ethers.utils.parseEther((0.01).toString()),
+    //       });
+    //       await mintTx.wait();
+    //       // const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
 
-    //     // get user's token balance
-    //     const userTokenBalance = await myContract.balanceOf(owner.address);
-    //     // identify last minted token
-    //     const tokenId = await myContract.tokenOfOwnerByIndex(owner.address, userTokenBalance - 1);
-    //     // console.log('last token id: ', tokenId.toString())
-    //     latestToken = tokenId.toString();
-    //     const tokenURI = await myContract.tokenURI(tokenId);
-    //     const tokenMetadata = decodeTokenURI(tokenURI);
-    //     const nameEscaped = tokenMetadata.name.replace(/(\s|\#|\/)/gm, '_');
+    //       // get user's token balance
+    //       const userTokenBalance = await myContract.balanceOf(owner.address);
+    //       // identify last minted token
+    //       const tokenId = await myContract.tokenOfOwnerByIndex(owner.address, userTokenBalance - 1);
+    //       // console.log('last token id: ', tokenId.toString())
+    //       latestToken = tokenId.toString();
+    //       const tokenURI = await myContract.tokenURI(tokenId);
+    //       const tokenMetadata = decodeTokenURI(tokenURI);
 
-    // // store metadata file
-    // const fileName = 'meta-' + latestToken + '-' + nameEscaped + '.json';
-    // const dirPath = path.resolve(__dirname, '..', 'exerpts');
-    // const filePath = path.join(dirPath, fileName);
+    //       dataArray.push(tokenMetadata);
 
-    // const svgFileName = 'svg-' + latestToken + '-' + nameEscaped + '.svg';
-    // const svgDirPath = path.resolve(__dirname, '..', 'exerpts', 'svg');
-    // const svgFilePath = path.join(svgDirPath, svgFileName);
+    //       // get generation data
+    //       const epochAttribute = tokenMetadata.attributes.find((e) => {
+    //         return e.trait_type === 'epoch';
+    //       });
 
-    // console.log('gonna try to write file: ', latestToken);
-    // try {
-    //   // write full metadata as json
-    //   fs.writeFileSync(filePath, JSON.stringify(tokenMetadata, null, 2));
-    //   // extract image field, write to separate file
-    //   const imageField = tokenMetadata.image;
-    //   const base64String = imageField.replace(/^data:image\/svg\+xml;base64,/, '');
-    //   const svgString = Buffer.from(base64String, 'base64').toString('utf-8');
-    //   fs.writeFileSync(svgFilePath, svgString);
-    //   console.log('written metadata for file: ' + latestToken);
-    // } catch (err) {
-    //   console.log('error writing token: ', latestToken);
-    //   console.log(err);
-    // }
+    //       const generationAttribute = tokenMetadata.attributes.find((e) => {
+    //         return e.trait_type === 'generation';
+    //       });
 
-    //     // console.log('token metadata:');
-    //     // console.log(tokenMetadata);
+    //       const generationValue = epochAttribute.value.replace('#', '');
+    //       currentGeneration = generationValue;
 
-    //     // get generation data
-    //     const epochAttribute = tokenMetadata.attributes.find((e) => {
-    //       return e.trait_type === 'epoch';
-    //     });
-
-    //     const generationAttribute = tokenMetadata.attributes.find((e) => {
-    //       return e.trait_type === 'generation';
-    //     });
-
-    //     const generationValue = epochAttribute.value.replace('#', '');
-    //     currentGeneration = generationValue;
-
-    //     console.log(
-    //       `last token checked ${latestToken} is at epoch ${generationValue} / ${generationAttribute.value}`
-    //     );
+    //       console.log(
+    //         `last token checked ${latestToken} is at epoch ${generationValue} / ${generationAttribute.value}`
+    //       );
+    //     } catch (e) {
+    //       console.log(
+    //         `!!! ERROR: last token checked ${latestToken} is at epoch ${generationValue} / ${generationAttribute.value}`
+    //       );
+    //       fs.writeFileSync(
+    //         path.resolve(__dirname, '..', 'exerpts', Date.now() + '-Summary.json'),
+    //         JSON.stringify(dataArray, null, 2)
+    //       );
+    //     }
     //   }
-
-    //   // save generated data to stats (to get an idea of avg gen length)
-
-    //   console.log(`epoch changed to ${nextGeneration} at tokenId ${latestToken} `);
     // });
+
+    const { expect } = require('chai');
+
+    it('Should keep minting until the end', async function () {
+      const [owner] = await ethers.getSigners();
+      await deployContract();
+
+      let currentGeneration = 1;
+      let finalGeneration = 11;
+      let latestToken = '';
+      let dataArray = [];
+      let mintingEnded = false;
+
+      while (currentGeneration <= finalGeneration && !mintingEnded) {
+        try {
+          await expect(async () => {
+            const mintTx = await myContract.mintItem(owner.address, {
+              value: ethers.utils.parseEther((0.01).toString()),
+            });
+            // console.log(mintTx);
+            await mintTx.wait();
+          }).to.not.throw(); // Expect no error
+
+          const userTokenBalance = await myContract.balanceOf(owner.address);
+          const tokenId = await myContract.tokenOfOwnerByIndex(owner.address, userTokenBalance - 1);
+          latestToken = tokenId.toString();
+          const tokenURI = await myContract.tokenURI(tokenId);
+          const tokenMetadata = decodeTokenURI(tokenURI);
+
+          dataArray.push(tokenMetadata);
+
+          const epochAttribute = tokenMetadata.attributes.find((e) => e.trait_type === 'epoch');
+          const generationAttribute = tokenMetadata.attributes.find(
+            (e) => e.trait_type === 'generation'
+          );
+          const generationValue = epochAttribute.value.replace('#', '');
+          currentGeneration = generationValue;
+
+          console.log(
+            `last token checked ${latestToken} is at epoch ${generationValue} / ${generationAttribute.value}. minting ended: ${mintingEnded}`
+          );
+        } catch (e) {
+          console.log('Some error happened');
+          console.log(e);
+          if (e.message.includes('minted out')) {
+            mintingEnded = true;
+          } else {
+            console.error(e);
+          }
+        }
+
+        if (mintingEnded) {
+          fs.writeFileSync(
+            path.resolve(__dirname, '..', 'exerpts', Date.now() + '-Summary.json'),
+            JSON.stringify(dataArray, null, 2)
+          );
+          console.log(
+            `Minting has ended. Last token checked ${latestToken} is at epoch ${currentGeneration}`
+          );
+          break;
+        }
+      }
+
+      fs.writeFileSync(
+        path.resolve(__dirname, '..', 'exerpts', Date.now() + '-Summary.json'),
+        JSON.stringify(dataArray, null, 2)
+      );
+    });
 
     it('Should assert that tokenURI is not longer than 12k chars', async function () {
       const [owner] = await ethers.getSigners();
