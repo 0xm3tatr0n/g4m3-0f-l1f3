@@ -236,7 +236,7 @@ contract G4m3 is ERC721, Ownable {
 
   function _checkForEpochEnd(bool[N][N] memory newGameStateFromInt) internal {
     uint256 gameStateIntNew = BitOps.gridToWord(newGameStateFromInt);
-    if (_currentGeneration > 3) {
+    if (_currentGeneration > 4) {
       uint64 gameStateIntOld;
       uint64 gameStateIntOldOld;
       (gameStateIntOld, , ) = BitOps.unpackState(tokenState[_tokenIds]);
