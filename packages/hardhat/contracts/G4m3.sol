@@ -179,12 +179,12 @@ contract G4m3 is ERC721, Ownable {
   }
 
   function _iterateState() internal {
-    if (_currentGeneration >= 1023) {
+    if (_currentGeneration >= 511) {
       _initState();
     } else {
       bool[N][N] memory newGameStateFromInt = _determineNextGeneration();
       _checkForEpochEnd(newGameStateFromInt);
-      _updateState(newGameStateFromInt);
+      // _updateState(newGameStateFromInt);
     }
   }
 
@@ -236,7 +236,7 @@ contract G4m3 is ERC721, Ownable {
 
   function _checkForEpochEnd(bool[N][N] memory newGameStateFromInt) internal {
     uint256 gameStateIntNew = BitOps.gridToWord(newGameStateFromInt);
-    if (_currentGeneration > 4) {
+    if (_currentGeneration > 3) {
       uint64 gameStateIntOld;
       uint64 gameStateIntOldOld;
       (gameStateIntOld, , ) = BitOps.unpackState(tokenState[_tokenIds]);
@@ -258,9 +258,9 @@ contract G4m3 is ERC721, Ownable {
     }
   }
 
-  function _updateState(bool[N][N] memory newGameStateFromInt) internal {
-    gameStateInt = uint64(BitOps.gridToWord(newGameStateFromInt));
-  }
+  // function _updateState(bool[N][N] memory newGameStateFromInt) internal {
+  //   gameStateInt = uint64(BitOps.gridToWord(newGameStateFromInt));
+  // }
 
   // Token Rendering
 
