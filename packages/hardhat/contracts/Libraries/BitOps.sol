@@ -24,12 +24,31 @@ library BitOps {
     else return _packedBools & ~(uint256(1) << _boolNumber);
   }
 
-  function setBooleaOnIndex64(
+  // function setBooleaOnIndex64(
+  //   uint64 _packedBools,
+  //   uint64 _boolNumber,
+  //   bool _value
+  // ) public pure returns (uint64) {
+  //   // set bool value on integer word at position _bolNumber
+  //   if (_value) return _packedBools | (uint64(1) << _boolNumber);
+  //   else return _packedBools & ~(uint64(1) << _boolNumber);
+  // }
+
+  function getBooleanFromIndex64(
+    uint64 _packedBools,
+    uint64 _boolNumber
+  ) public pure returns (bool) {
+    // get bool value from integer word at position _boolNumber
+    uint64 flag = (_packedBools >> _boolNumber) & uint64(1);
+    return (flag == 1 ? true : false);
+  }
+
+  function setBooleanOnIndex64(
     uint64 _packedBools,
     uint64 _boolNumber,
     bool _value
   ) public pure returns (uint64) {
-    // set bool value on integer word at position _bolNumber
+    // set bool value on integer word at position _boolNumber
     if (_value) return _packedBools | (uint64(1) << _boolNumber);
     else return _packedBools & ~(uint64(1) << _boolNumber);
   }
@@ -51,24 +70,24 @@ library BitOps {
     return input ? 1 : 0;
   }
 
-  function gridToWord(bool[8][8] memory grid) internal pure returns (uint256) {
+  function gridToWord(bool[8][8] memory grid) internal pure returns (uint64) {
     // convert bool[][] to word (after completing iterating state)
-    uint256 word;
-    for (uint256 i = 0; i < 8; i += 1) {
-      for (uint256 j = 0; j < 8; j += 1) {
-        word = setBooleaOnIndex(word, (i * 8 + j), grid[i][j]);
+    uint64 word;
+    for (uint8 i = 0; i < 8; i += 1) {
+      for (uint8 j = 0; j < 8; j += 1) {
+        word = setBooleanOnIndex64(word, (i * 8 + j), grid[i][j]);
       }
     }
     return word;
   }
 
-  function wordToGrid(uint256 word) internal pure returns (bool[8][8] memory) {
+  function wordToGrid(uint64 word) internal pure returns (bool[8][8] memory) {
     // convert word to bool[][] (prior to iterate state)
     bool[8][8] memory grid;
     for (uint256 i = 0; i < 8; i += 1) {
       for (uint256 j = 0; j < 8; j += 1) {
         //
-        grid[i][j] = getBooleanFromIndex(word, (i * 8 + j));
+        grid[i][j] = getBooleanFromIndex64(word, uint64(i * 8 + j));
       }
     }
 

@@ -67,6 +67,7 @@ contract G4m3 is ERC721, Ownable {
   uint16 internal _currentGeneration = 0;
   mapping(uint256 => uint256) internal tokenState;
   uint64 internal gameStateInt;
+  mapping(uint8 => mapping(uint64 => bool)) internal occurredGameStates;
 
   // Functions: Whitelist user & collections
   function addToWhitelist(address user) public onlyOwner {
@@ -171,7 +172,7 @@ contract G4m3 is ERC721, Ownable {
         bool result = n > 125;
 
         results[i][j] = result;
-        gridInt = BitOps.setBooleaOnIndex64(gridInt, uint64((i * 8) + j), result);
+        gridInt = BitOps.setBooleanOnIndex64(gridInt, uint64((i * 8) + j), result);
       }
     }
 
@@ -235,31 +236,39 @@ contract G4m3 is ERC721, Ownable {
   }
 
   function _checkForEpochEnd(bool[N][N] memory newGameStateFromInt) internal {
-    uint256 gameStateIntNew = BitOps.gridToWord(newGameStateFromInt);
-    if (_currentGeneration > 3) {
-      uint64 gameStateIntOld;
-      uint64 gameStateIntOldOld;
-      (gameStateIntOld, , ) = BitOps.unpackState(tokenState[_tokenIds]);
-      (gameStateIntOldOld, , ) = BitOps.unpackState(tokenState[_tokenIds - 1]);
+    uint64 gameStateIntNew = BitOps.gridToWord(newGameStateFromInt);
 
-      if (
-        gameStateInt == gameStateIntNew ||
-        gameStateIntOld == gameStateIntNew ||
-        gameStateIntOldOld == gameStateIntNew
-      ) {
-        _initState();
-      } else {
-        _currentGeneration += 1;
-        gameStateInt = uint64(gameStateIntNew);
-      }
+    if (occurredGameStates[_currentEpoch][gameStateIntNew]) {
+      _initState();
     } else {
       _currentGeneration += 1;
-      gameStateInt = uint64(gameStateIntNew);
+      gameStateInt = gameStateIntNew;
+      occurredGameStates[_currentEpoch][gameStateIntNew] = true;
     }
   }
 
-  // function _updateState(bool[N][N] memory newGameStateFromInt) internal {
-  //   gameStateInt = uint64(BitOps.gridToWord(newGameStateFromInt));
+  // function _checkForEpochEnd(bool[N][N] memory newGameStateFromInt) internal {
+  //   uint256 gameStateIntNew = BitOps.gridToWord(newGameStateFromInt);
+  //   if (_currentGeneration > 3) {
+  //     uint64 gameStateIntOld;
+  //     uint64 gameStateIntOldOld;
+  //     (gameStateIntOld, , ) = BitOps.unpackState(tokenState[_tokenIds]);
+  //     (gameStateIntOldOld, , ) = BitOps.unpackState(tokenState[_tokenIds - 1]);
+
+  //     if (
+  //       gameStateInt == gameStateIntNew ||
+  //       gameStateIntOld == gameStateIntNew ||
+  //       gameStateIntOldOld == gameStateIntNew
+  //     ) {
+  //       _initState();
+  //     } else {
+  //       _currentGeneration += 1;
+  //       gameStateInt = uint64(gameStateIntNew);
+  //     }
+  //   } else {
+  //     _currentGeneration += 1;
+  //     gameStateInt = uint64(gameStateIntNew);
+  //   }
   // }
 
   // Token Rendering
@@ -351,7 +360,7 @@ contract G4m3 is ERC721, Ownable {
     bool[N][N] memory grid = BitOps.wordToGrid(gameState);
     string[] memory squares = new string[](N * N);
     uint256 slotCounter = 0;
-    uint256 stateDiff;
+    uint64 stateDiff;
     Structs.CellData memory CellData;
 
     // figure out which cells have changed in this round
@@ -390,7 +399,7 @@ contract G4m3 is ERC721, Ownable {
         string memory square;
 
         // check for stateDiff
-        CellData.hasChanged = BitOps.getBooleanFromIndex(stateDiff, (i * 8 + j));
+        CellData.hasChanged = BitOps.getBooleanFromIndex64(stateDiff, (i * 8 + j));
 
         // update tracking counters
         if (CellData.hasChanged && CellData.alive) {
