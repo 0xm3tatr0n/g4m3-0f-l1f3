@@ -17,7 +17,7 @@ use(require('chai-bn')(BN));
 use(solidity);
 
 // check for --data flag to make extracting data conditional
-const data = process.argv.includes('--data');
+const data = process.env.DATA;
 
 // generate an ID for this test run to be used for filenames of extracted data, gas
 const randomName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] });
