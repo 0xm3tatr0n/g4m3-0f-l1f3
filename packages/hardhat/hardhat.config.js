@@ -182,6 +182,11 @@ module.exports = {
   logging: {
     level: 'info',
   },
+  gasReporter: {
+    currency: 'CHF',
+    gasPrice: 21,
+    outputFile: `./exerpts//gas-reports/${process.env.TEST_RUN_ID}-gas-report.txt`,
+  },
 };
 
 const DEBUG = false;
