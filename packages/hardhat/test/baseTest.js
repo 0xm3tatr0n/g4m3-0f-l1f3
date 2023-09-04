@@ -9,10 +9,20 @@ const fs = require('fs');
 
 const BN = require('bn.js');
 
+const { uniqueNamesGenerator, adjectives, colors, animals } = require('unique-names-generator');
+
 // Enable and inject BN dependency
 use(require('chai-bn')(BN));
 
 use(solidity);
+
+// check for --data flag to make extracting data conditional
+const data = process.argv.includes('--data');
+
+// generate an ID for this test run to be used for filenames of extracted data, gas
+const randomName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] });
+console.log(`random name >> ${randomName}`);
+process.env.TEST_RUN_ID = randomName;
 
 function decodeTokenURI(tokenURI64) {
   // parse base64 tokenURI for later consumption
@@ -323,45 +333,47 @@ describe('g4m3 base', function () {
     //   );
     // });
 
-    it('Should mint all tokens and aggregate tokenURI data', async function () {
-      const [owner] = await ethers.getSigners();
-      await deployContract();
+    if (data) {
+      it('Should mint all tokens and aggregate tokenURI data', async function () {
+        const [owner] = await ethers.getSigners();
+        await deployContract();
 
-      const tokenURIs = [];
-      let minting = true;
-      let i = 1;
+        const tokenURIs = [];
+        let minting = true;
+        let i = 1;
 
-      while (minting) {
-        // console.log(`minting token:  ${i}`);
-        try {
-          const mintTx = await myContract.mintItem(owner.address, {
-            value: ethers.utils.parseEther((0.01).toString()),
-          });
-          await mintTx.wait();
-          const tokenURI = await myContract.tokenURI(i);
-          const tokenMetaData = decodeTokenURI(tokenURI);
-          const tokenAttributes = extractTokenDescriptionData(tokenMetaData);
-          tokenURIs.push(tokenMetaData);
-          console.log(`${i}:${tokenAttributes}`);
-          i++;
-        } catch (error) {
-          console.log('minting error: ', error);
-          if (error.message.includes('minted out')) {
-            console.log('minting ended');
-            minting = false;
-          } else {
-            throw error;
+        while (minting) {
+          // console.log(`minting token:  ${i}`);
+          try {
+            const mintTx = await myContract.mintItem(owner.address, {
+              value: ethers.utils.parseEther((0.01).toString()),
+            });
+            await mintTx.wait();
+            const tokenURI = await myContract.tokenURI(i);
+            const tokenMetaData = decodeTokenURI(tokenURI);
+            const tokenAttributes = extractTokenDescriptionData(tokenMetaData);
+            tokenURIs.push(tokenMetaData);
+            console.log(`${i}:${tokenAttributes}`);
+            i++;
+          } catch (error) {
+            console.log('minting error: ', error);
+            if (error.message.includes('minted out')) {
+              console.log('minting ended');
+              minting = false;
+            } else {
+              throw error;
+            }
           }
         }
-      }
 
-      // Write the tokenURIs array to a JSON file
-      const timestamp = Date.now();
-      const filePath = path.join(__dirname, '..', 'exerpts', 'runs', `${timestamp}.json`);
-      fs.writeFileSync(filePath, JSON.stringify(tokenURIs, null, 2));
+        // Write the tokenURIs array to a JSON file
+        const timestamp = Date.now();
+        const filePath = path.join(__dirname, '..', 'exerpts', 'runs', `${randomName}.json`);
+        fs.writeFileSync(filePath, JSON.stringify(tokenURIs, null, 2));
 
-      console.log(`Token URIs written to ${filePath}`);
-    });
+        console.log(`Token URIs written to ${filePath}`);
+      });
+    }
 
     it('Should assert that tokenURI is not longer than 12k chars', async function () {
       const [owner] = await ethers.getSigners();
