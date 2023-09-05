@@ -78,16 +78,6 @@ contract G4m3 is ERC721, Ownable {
     whitelist[user] = false;
   }
 
-  // function addNftCollection(address collection) public onlyOwner {
-  //   nftCollections.push(collection);
-  // }
-
-  // function removeNftCollection(uint256 index) public onlyOwner {
-  //   require(index < nftCollections.length, 'Index out of bounds');
-  //   nftCollections[index] = nftCollections[nftCollections.length - 1];
-  //   nftCollections.pop();
-  // }
-
   // Functions: Mint
   function mintItem(address mintTo) public payable {
     require(msg.value >= mintOnePrice, 'funds');
@@ -185,7 +175,6 @@ contract G4m3 is ERC721, Ownable {
     } else {
       bool[N][N] memory newGameStateFromInt = _determineNextGeneration();
       _checkForEpochEnd(newGameStateFromInt);
-      // _updateState(newGameStateFromInt);
     }
   }
 
@@ -246,30 +235,6 @@ contract G4m3 is ERC721, Ownable {
       occurredGameStates[_currentEpoch][gameStateIntNew] = true;
     }
   }
-
-  // function _checkForEpochEnd(bool[N][N] memory newGameStateFromInt) internal {
-  //   uint256 gameStateIntNew = BitOps.gridToWord(newGameStateFromInt);
-  //   if (_currentGeneration > 3) {
-  //     uint64 gameStateIntOld;
-  //     uint64 gameStateIntOldOld;
-  //     (gameStateIntOld, , ) = BitOps.unpackState(tokenState[_tokenIds]);
-  //     (gameStateIntOldOld, , ) = BitOps.unpackState(tokenState[_tokenIds - 1]);
-
-  //     if (
-  //       gameStateInt == gameStateIntNew ||
-  //       gameStateIntOld == gameStateIntNew ||
-  //       gameStateIntOldOld == gameStateIntNew
-  //     ) {
-  //       _initState();
-  //     } else {
-  //       _currentGeneration += 1;
-  //       gameStateInt = uint64(gameStateIntNew);
-  //     }
-  //   } else {
-  //     _currentGeneration += 1;
-  //     gameStateInt = uint64(gameStateIntNew);
-  //   }
-  // }
 
   // Token Rendering
 
@@ -420,7 +385,6 @@ contract G4m3 is ERC721, Ownable {
     bytes memory output;
     // add general svg, e.g. background
     output = G0l.renderDefs(
-      // colorMap.backgroundColor,
       colorMap.aliveColor,
       colorMap.deadColor,
       colorMap.bornColor,

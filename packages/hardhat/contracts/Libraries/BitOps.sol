@@ -24,16 +24,6 @@ library BitOps {
     else return _packedBools & ~(uint256(1) << _boolNumber);
   }
 
-  // function setBooleaOnIndex64(
-  //   uint64 _packedBools,
-  //   uint64 _boolNumber,
-  //   bool _value
-  // ) public pure returns (uint64) {
-  //   // set bool value on integer word at position _bolNumber
-  //   if (_value) return _packedBools | (uint64(1) << _boolNumber);
-  //   else return _packedBools & ~(uint64(1) << _boolNumber);
-  // }
-
   function getBooleanFromIndex64(
     uint64 _packedBools,
     uint64 _boolNumber
