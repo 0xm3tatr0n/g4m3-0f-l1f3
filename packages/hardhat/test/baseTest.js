@@ -153,15 +153,36 @@ describe('g4m3 base', function () {
       await expect(myContract.drainFunds());
     });
 
-    it('Should mint for free', async function () {
+    it('Should check free mint eligibility &  correctly return free mints remaining', async function () {
       const [owner, addr1, addr2] = await ethers.getSigners();
+      const terraformsOwnerAddress = '0x5b310560815eaf364e5876908574b4a9c6ec1b7e';
       await deployContract();
-      // move 10 days into the future
-      await helpers.time.increase(60 * 60 * 24 * 10);
-
-      await expect(myContract.mintForFree(owner.address, 20)).to.be.revertedWith('no free mints');
-      await expect(myContract.mintForFree(owner.address, 10));
+      // case: address not eligible
+      await expect(await myContract.isEligibleForFreeMint(addr2.address)).to.be.false;
+      // case: address is eligible
+      await expect(await myContract.isEligibleForFreeMint(terraformsOwnerAddress)).to.be.true;
+      // case: user is eligible but hasn't minted yet, there should be a 10 remaining free mints
+      await expect(await myContract.freeMintsRemaining(terraformsOwnerAddress)).to.equal(10);
+      // case: mint a few, check that free mints remaining returns correct value
+      // Impersonate the owner's address
+      await hre.network.provider.request({
+        method: 'hardhat_impersonateAccount',
+        params: [terraformsOwnerAddress],
+      });
+      const terraformsOwner = await ethers.provider.getSigner(terraformsOwnerAddress);
+      await expect(myContract.connect(terraformsOwner).mintFreeGated(5)).to.not.be.reverted;
+      await expect(await myContract.freeMintsRemaining(terraformsOwnerAddress)).to.equal(5);
     });
+
+    // it('Should mint for free', async function () {
+    //   const [owner, addr1, addr2] = await ethers.getSigners();
+    //   await deployContract();
+    //   // move 10 days into the future
+    //   await helpers.time.increase(60 * 60 * 24 * 10);
+
+    //   await expect(myContract.mintForFree(owner.address, 20)).to.be.revertedWith('no free mints');
+    //   await expect(myContract.mintForFree(owner.address, 10));
+    // });
 
     // it('Should keep minting until generation changes', async function () {
     //   const [owner] = await ethers.getSigners();

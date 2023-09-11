@@ -177,6 +177,7 @@ function App(props) {
   const balance = useContractReader(readContracts, "G4m3", "balanceOf", [address]);
   console.log("🤗 balance:", balance);
   const isFreeMintEligible = useContractReader(readContracts, "G4m3", "isEligibleForFreeMint", [address]);
+  const freeMintsRemaining = useContractReader(readContracts, "G4m3", "freeMintsRemaining", [address]);
 
   // track total supply
   const totalSupply = useContractReader(readContracts, "G4m3", "totalSupply");
@@ -295,7 +296,8 @@ function App(props) {
       console.log("💵 yourMainnetBalance", yourMainnetBalance ? formatEther(yourMainnetBalance) : "...");
       console.log("📝 readContracts", readContracts);
       console.log("🔐 writeContracts", writeContracts);
-      console.log("🏃‍♀️ is eleigible for free mint ", isFreeMintEligible);
+      console.log("🏃‍♀️ is eligible for free mint ", isFreeMintEligible);
+      console.log("🏃‍♀️ free mints remaining ", freeMintsRemaining);
     }
   }, [mainnetProvider, address, selectedChainId, yourLocalBalance, yourMainnetBalance, readContracts, writeContracts]);
 

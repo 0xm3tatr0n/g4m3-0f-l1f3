@@ -34,7 +34,7 @@ contract G4m3 is ERC721, Ownable {
   // using Counters for Counters.Counter;
 
   constructor() ERC721('g4m3 0f l1f3', 'g0l') {
-    createTime = block.timestamp;
+    // createTime = block.timestamp;
     _initState();
   }
 
@@ -62,8 +62,8 @@ contract G4m3 is ERC721, Ownable {
   uint8 private MAX_FREE_MINTS = 10;
   mapping(address => uint8) freemints;
   // variables
-  uint256 private minted4free = 0;
-  uint256 private createTime;
+  // uint256 private minted4free = 0;
+  // uint256 private createTime;
 
   // Game state
   uint16 internal _tokenIds = 0;
@@ -116,17 +116,21 @@ contract G4m3 is ERC721, Ownable {
     return false;
   }
 
-  // owner allocation over time (todo: probably better remove)
-  function mintForFree(address mintTo, uint256 noItems) public onlyOwner {
-    // owner mint allocation of 1 item / day
-    uint256 currentAlloc = (block.timestamp - createTime) / (1 days);
-    require((minted4free + noItems) <= currentAlloc, 'no free mints');
-
-    for (uint256 i = 0; i < noItems; i++) {
-      _mintBase(mintTo);
-      minted4free += 1;
-    }
+  function freeMintsRemaining(address user) public view returns (uint256) {
+    return MAX_FREE_MINTS - freemints[user];
   }
+
+  // owner allocation over time (todo: probably better remove)
+  // function mintForFree(address mintTo, uint256 noItems) public onlyOwner {
+  //   // owner mint allocation of 1 item / day
+  //   uint256 currentAlloc = (block.timestamp - createTime) / (1 days);
+  //   require((minted4free + noItems) <= currentAlloc, 'no free mints');
+
+  //   for (uint256 i = 0; i < noItems; i++) {
+  //     _mintBase(mintTo);
+  //     minted4free += 1;
+  //   }
+  // }
 
   // internal mint function called by all of the above
   function _mintBase(address to) private {
