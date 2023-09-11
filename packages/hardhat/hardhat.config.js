@@ -12,6 +12,8 @@ require('hardhat-gas-reporter');
 require('hardhat-contract-sizer');
 require('@nomicfoundation/hardhat-network-helpers');
 
+const file_uuid = require('./scripts/customTestfileName');
+
 // const { isAddress, getAddress, formatUnits, parseUnits } = ethers.utils;
 
 /*
@@ -185,7 +187,7 @@ module.exports = {
   gasReporter: {
     currency: 'CHF',
     gasPrice: 21,
-    outputFile: `./exerpts//gas-reports/${process.env.TEST_RUN_ID}-gas-report.txt`,
+    outputFile: `./exerpts//gas-reports/${file_uuid}-gas-report.txt`,
   },
 };
 

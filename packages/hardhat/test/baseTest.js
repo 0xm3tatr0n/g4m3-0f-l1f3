@@ -2,14 +2,13 @@ const { ethers } = require('hardhat');
 const { use, expect } = require('chai');
 const { solidity } = require('ethereum-waffle');
 const helpers = require('@nomicfoundation/hardhat-network-helpers');
+const file_uuid = require('../scripts/customTestfileName');
 
 // for extracting files
 const path = require('path');
 const fs = require('fs');
 
 const BN = require('bn.js');
-
-const { uniqueNamesGenerator, adjectives, colors, animals } = require('unique-names-generator');
 
 // Enable and inject BN dependency
 use(require('chai-bn')(BN));
@@ -20,9 +19,6 @@ use(solidity);
 const data = process.env.DATA;
 
 // generate an ID for this test run to be used for filenames of extracted data, gas
-const randomName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] });
-console.log(`random name >> ${randomName}`);
-process.env.TEST_RUN_ID = randomName;
 
 function decodeTokenURI(tokenURI64) {
   // parse base64 tokenURI for later consumption
@@ -368,7 +364,7 @@ describe('g4m3 base', function () {
 
         // Write the tokenURIs array to a JSON file
         const timestamp = Date.now();
-        const filePath = path.join(__dirname, '..', 'exerpts', 'runs', `${randomName}.json`);
+        const filePath = path.join(__dirname, '..', 'exerpts', 'runs', `${file_uuid}.json`);
         fs.writeFileSync(filePath, JSON.stringify(tokenURIs, null, 2));
 
         console.log(`Token URIs written to ${filePath}`);
