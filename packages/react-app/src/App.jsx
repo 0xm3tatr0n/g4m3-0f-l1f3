@@ -297,7 +297,7 @@ function App(props) {
       console.log("📝 readContracts", readContracts);
       console.log("🔐 writeContracts", writeContracts);
       console.log("🏃‍♀️ is eligible for free mint ", isFreeMintEligible);
-      console.log("🏃‍♀️ free mints remaining ", freeMintsRemaining);
+      console.log("🏃‍♀️ free mints remaining ", freeMintsRemaining.toString());
     }
   }, [mainnetProvider, address, selectedChainId, yourLocalBalance, yourMainnetBalance, readContracts, writeContracts]);
 
@@ -400,6 +400,32 @@ function App(props) {
             <div id={"controls"} style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
               {isSigner ? (
                 <>
+                  {isFreeMintEligible ? (
+                    <>
+                      {" "}
+                      <form>
+                        {/* <label htmlFor="freeMintInput">mint for free:</label> */}
+                        <input type="text" id="freeMintInput" name="freeMintInput"></input>
+                      </form>
+                      <button
+                        style={{
+                          margin: "30px",
+                          color: "black",
+                          padding: "10px 30px 10px 30px",
+                          fontSize: "20px",
+                          fontFamily: "monospace",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => {
+                          tx(writeContracts.G4m3.mintPack(address, { value: parseEther("0.025") }));
+                        }}
+                      >
+                        mint free ({freeMintsRemaining.toString() | "*"})
+                      </button>
+                    </>
+                  ) : (
+                    <></>
+                  )}
                   <button
                     style={{
                       margin: "30px",
@@ -430,27 +456,6 @@ function App(props) {
                   >
                     mint pack (5 tokens)
                   </button>
-                  {isFreeMintEligible ? (
-                    <>
-                      <button
-                        style={{
-                          margin: "30px",
-                          color: "black",
-                          padding: "10px 30px 10px 30px",
-                          fontSize: "20px",
-                          fontFamily: "monospace",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => {
-                          tx(writeContracts.G4m3.mintPack(address, { value: parseEther("0.025") }));
-                        }}
-                      >
-                        mint free (*)
-                      </button>
-                    </>
-                  ) : (
-                    <></>
-                  )}
                 </>
               ) : (
                 <button

@@ -59,7 +59,10 @@ contract G4m3 is ERC721, Ownable {
   ];
 
   // track number of free mints
-  uint8 private MAX_FREE_MINTS = 10;
+  uint8 private constant OWNER_ALLOCATION = 100;
+  uint8 private ownerMints;
+
+  uint8 private constant MAX_FREE_MINTS = 10;
   mapping(address => uint8) freemints;
   // variables
   // uint256 private minted4free = 0;
@@ -103,6 +106,11 @@ contract G4m3 is ERC721, Ownable {
       _mintBase(msg.sender);
       freemints[msg.sender] += 1;
     }
+  }
+
+  function mintFreeOwner(uint8 noTokens) public onlyOwner {
+    require(noTokens + ownerMints <= OWNER_ALLOCATION, 'fully allocated');
+    for (uint i = 0; i < noTokens; i++) {}
   }
 
   function isEligibleForFreeMint(address user) public view returns (bool) {
