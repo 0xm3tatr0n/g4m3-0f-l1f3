@@ -381,6 +381,8 @@ function App(props) {
 
   const galleryList = [];
 
+  const [noTokensForFreeMint, setNoTokensForFreeMint] = useState(0);
+
   return (
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
@@ -400,12 +402,20 @@ function App(props) {
             <div id={"controls"} style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
               {isSigner ? (
                 <>
-                  {isFreeMintEligible ? (
+                  {isFreeMintEligible && freeMintsRemaining && freeMintsRemaining.toString() > 0 ? (
                     <>
                       {" "}
                       <form>
-                        {/* <label htmlFor="freeMintInput">mint for free:</label> */}
-                        <input type="text" id="freeMintInput" name="freeMintInput"></input>
+                        <label htmlFor="freeMintInput">mint for free:</label>
+                        <input
+                          type="text"
+                          id="freeMintInput"
+                          name="freeMintInput"
+                          style={{
+                            color: "black",
+                          }}
+                          onChange={e => setNoTokensForFreeMint(e.target.value)}
+                        ></input>
                       </form>
                       <button
                         style={{
@@ -417,10 +427,10 @@ function App(props) {
                           cursor: "pointer",
                         }}
                         onClick={() => {
-                          tx(writeContracts.G4m3.mintPack(address, { value: parseEther("0.025") }));
+                          tx(writeContracts.G4m3.mintPack(noTokensForFreeMint));
                         }}
                       >
-                        mint free ({freeMintsRemaining.toString() | "*"})
+                        mint free ({noTokensForFreeMint} of {freeMintsRemaining.toString()})
                       </button>
                     </>
                   ) : (
