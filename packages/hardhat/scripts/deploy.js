@@ -55,7 +55,7 @@ const main = async () => {
     );
 
     // mint a bunch at deploy time to have a collection right away
-    const MINTS_10 = 10; // how many times to mintMany, max 10 per transaction
+    const MINTS_10 = 3; // how many times to mintMany, max 10 per transaction
     for (let i = 0; i < MINTS_10; i++) {
       const minted = await yourCollectible.mintPack('0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295', {
         value: ethers.utils.parseEther((0.025).toString()),
@@ -64,6 +64,11 @@ const main = async () => {
       console.log(`minted pack no ${i}`);
       console.log(minted);
     }
+
+    // add address to whitelist to test free mint (should not be affected by previous mints as they're not free)
+    await yourCollectible
+      .connect(deployerWallet)
+      .addToWhitelist('0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295');
   } else {
     // deploy to other environment
     // new script for deploying with ledger (not using deploy function...)

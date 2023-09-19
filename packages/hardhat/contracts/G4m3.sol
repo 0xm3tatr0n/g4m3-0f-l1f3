@@ -110,7 +110,10 @@ contract G4m3 is ERC721, Ownable {
 
   function mintFreeOwner(uint8 noTokens) public onlyOwner {
     require(noTokens + ownerMints <= OWNER_ALLOCATION, 'fully allocated');
-    for (uint i = 0; i < noTokens; i++) {}
+    for (uint i = 0; i < noTokens; i++) {
+      _mintBase(msg.sender);
+      ownerMints += 1;
+    }
   }
 
   function isEligibleForFreeMint(address user) public view returns (bool) {
@@ -125,7 +128,11 @@ contract G4m3 is ERC721, Ownable {
   }
 
   function freeMintsRemaining(address user) public view returns (uint256) {
-    return MAX_FREE_MINTS - freemints[user];
+    if (isEligibleForFreeMint(user)) {
+      return MAX_FREE_MINTS - freemints[user];
+    } else {
+      return 0;
+    }
   }
 
   // owner allocation over time (todo: probably better remove)

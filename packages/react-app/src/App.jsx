@@ -161,7 +161,6 @@ function App(props) {
   //
   // If you want to bring in the mainnet DAI contract it would look like:
   const isSigner = injectedProvider && injectedProvider.getSigner && injectedProvider.getSigner()._isSigner;
-  console.log(">>> isSigner: ", isSigner);
   // // If you want to call a function on a new block
   // useOnBlock(mainnetProvider, () => {
   //   console.log(`⛓ A new mainnet block is here: ${mainnetProvider._lastBlockNumber}`);
@@ -176,6 +175,7 @@ function App(props) {
   // keep track of a variable from the contract in the local React state:
   const balance = useContractReader(readContracts, "G4m3", "balanceOf", [address]);
   console.log("🤗 balance:", balance);
+  console.log(">>> reading free mint eligibility for", address);
   const isFreeMintEligible = useContractReader(readContracts, "G4m3", "isEligibleForFreeMint", [address]);
   const freeMintsRemaining = useContractReader(readContracts, "G4m3", "freeMintsRemaining", [address]);
 
@@ -193,6 +193,15 @@ function App(props) {
   const [yourCollectibles, setYourCollectibles] = useState();
   const [fullGallery, setFullGallery] = useState();
   const [galleryLoadRange, setGalleryLoadRange] = useState([1, 10]);
+  // const [isFreeMintEligible, setIsFreeMintEligible] = useState(false);
+  // const [freeMintsRemaining, setFreeMintsRemaining] = useState(0);
+
+  // useEffect(() => {
+  //   const freeMintEligible = useContractReader(readContracts, "G4m3", "isEligibleForFreeMint", [address]);
+  //   setIsFreeMintEligible(freeMintEligible);
+  //   const noFreeMintsRemaining = useContractReader(readContracts, "G4m3", "freeMintsRemaining", [address]);
+  //   setFreeMintsRemaining(noFreeMintsRemaining);
+  // }, [address]);
 
   useEffect(() => {
     // new update your collectibles approach in two steps: 1) get owner's token IDs, 2) get tokenURIs for all IDs
@@ -427,7 +436,7 @@ function App(props) {
                           cursor: "pointer",
                         }}
                         onClick={() => {
-                          tx(writeContracts.G4m3.mintPack(noTokensForFreeMint));
+                          tx(writeContracts.G4m3.mintFreeGated(noTokensForFreeMint));
                         }}
                       >
                         mint free ({noTokensForFreeMint} of {freeMintsRemaining.toString()})
