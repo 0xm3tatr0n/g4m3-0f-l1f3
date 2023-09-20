@@ -185,8 +185,8 @@ function App(props) {
   const totalSupply = useContractReader(readContracts, "G4m3", "totalSupply");
 
   // 📟 Listen for broadcast events
-  const transferEvents = useEventListener(readContracts, "G4m3", "Transfer", localProvider, 1);
-  console.log("📟 Transfer events:", transferEvents);
+  // const transferEvents = useEventListener(readContracts, "G4m3", "Transfer", localProvider, 1);
+  // console.log("📟 Transfer events:", transferEvents);
 
   //
   // 🧠 This effect will update yourCollectibles by polling when your balance changes
@@ -205,8 +205,6 @@ function App(props) {
   useEffect(() => {
     // new update your collectibles approach in two steps: 1) get owner's token IDs, 2) get tokenURIs for all IDs
     const updateOwenersCollectibles = async () => {
-      console.log(">>> updating owner collectibles: START");
-      setIsLoadingCollection(true);
       const collectibleIdPromises = [];
       for (let i = 0; i < balance; i++) {
         collectibleIdPromises.push(readContracts.G4m3.tokenOfOwnerByIndex(address, i));
@@ -216,6 +214,8 @@ function App(props) {
 
       // check if any collectibles owned
       if (ids.length > 0) {
+        console.log(">>> updating owner collectibles: START");
+        setIsLoadingCollection(true);
         // console.log(">>> trying to update collectibles now ");
         const uriPromises = [];
         ids.forEach(e => {
@@ -240,6 +240,7 @@ function App(props) {
           setIsLoadingCollection(false);
         } catch (error) {
           console.log("error updating your collectibles: ", error);
+          console.log(">>> updating owner collectibles: ERROR");
         }
       }
     };
@@ -518,7 +519,7 @@ function App(props) {
                   })
                 ) : isLoadingCollection ? (
                   <Col span={24} style={{ fontFamily: "monospace" }}>
-                    LOADING COLLECTIBLES
+                    loading your {balance.toString()} collectibles
                   </Col>
                 ) : (
                   <Col span={24} style={{ fontFamily: "monospace" }}>
