@@ -174,8 +174,10 @@ function App(props) {
 
   // keep track of a variable from the contract in the local React state:
   const balance = useContractReader(readContracts, "G4m3", "balanceOf", [address]);
-  console.log("🤗 balance:", balance);
-  console.log(">>> reading free mint eligibility for", address);
+  if (balance) {
+    console.log("🤗 balance:", balance.toString());
+  }
+  // console.log(">>> reading free mint eligibility for", address);
   const isFreeMintEligible = useContractReader(readContracts, "G4m3", "isEligibleForFreeMint", [address]);
   const freeMintsRemaining = useContractReader(readContracts, "G4m3", "freeMintsRemaining", [address]);
 
@@ -190,22 +192,21 @@ function App(props) {
   // 🧠 This effect will update yourCollectibles by polling when your balance changes
   //
   const yourBalance = balance && balance.toNumber && balance.toNumber();
+  // console.log(">>> yourBallance: ", yourBalance);
   const [yourCollectibles, setYourCollectibles] = useState();
   const [fullGallery, setFullGallery] = useState();
   const [galleryLoadRange, setGalleryLoadRange] = useState([1, 10]);
-  // const [isFreeMintEligible, setIsFreeMintEligible] = useState(false);
-  // const [freeMintsRemaining, setFreeMintsRemaining] = useState(0);
+  const [isLoadingCollection, setIsLoadingCollection] = useState(false);
 
-  // useEffect(() => {
-  //   const freeMintEligible = useContractReader(readContracts, "G4m3", "isEligibleForFreeMint", [address]);
-  //   setIsFreeMintEligible(freeMintEligible);
-  //   const noFreeMintsRemaining = useContractReader(readContracts, "G4m3", "freeMintsRemaining", [address]);
-  //   setFreeMintsRemaining(noFreeMintsRemaining);
-  // }, [address]);
+  useEffect(() => {
+    console.log(">>> is loading collection changed: ", isLoadingCollection);
+  }, [isLoadingCollection]);
 
   useEffect(() => {
     // new update your collectibles approach in two steps: 1) get owner's token IDs, 2) get tokenURIs for all IDs
     const updateOwenersCollectibles = async () => {
+      console.log(">>> updating owner collectibles: START");
+      setIsLoadingCollection(true);
       const collectibleIdPromises = [];
       for (let i = 0; i < balance; i++) {
         collectibleIdPromises.push(readContracts.G4m3.tokenOfOwnerByIndex(address, i));
@@ -235,6 +236,8 @@ function App(props) {
 
           // console.log(">>> gonna update collectibles: ", collectibleUpdate);
           setYourCollectibles(collectibleUpdate.reverse());
+          console.log(">>> updating owner collectibles: END");
+          setIsLoadingCollection(false);
         } catch (error) {
           console.log("error updating your collectibles: ", error);
         }
@@ -297,14 +300,14 @@ function App(props) {
       writeContracts
     ) {
       console.log("_____________________________________ 🏗 scaffold-eth _____________________________________");
-      console.log("🌎 mainnetProvider", mainnetProvider);
+      // console.log("🌎 mainnetProvider", mainnetProvider);
       console.log("🏠 localChainId", localChainId);
       console.log("👩‍💼 selected address:", address);
       console.log("🕵🏻‍♂️ selectedChainId:", selectedChainId);
       console.log("💵 yourLocalBalance", yourLocalBalance ? formatEther(yourLocalBalance) : "...");
       console.log("💵 yourMainnetBalance", yourMainnetBalance ? formatEther(yourMainnetBalance) : "...");
-      console.log("📝 readContracts", readContracts);
-      console.log("🔐 writeContracts", writeContracts);
+      // console.log("📝 readContracts", readContracts);
+      // console.log("🔐 writeContracts", writeContracts);
       console.log("🏃‍♀️ is eligible for free mint ", isFreeMintEligible);
       console.log("🏃‍♀️ free mints remaining ", freeMintsRemaining.toString());
     }
@@ -513,6 +516,10 @@ function App(props) {
                       </Col>
                     );
                   })
+                ) : isLoadingCollection ? (
+                  <Col span={24} style={{ fontFamily: "monospace" }}>
+                    LOADING COLLECTIBLES
+                  </Col>
                 ) : (
                   <Col span={24} style={{ fontFamily: "monospace" }}>
                     no collectibles
