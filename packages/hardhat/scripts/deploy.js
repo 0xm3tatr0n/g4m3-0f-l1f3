@@ -58,7 +58,7 @@ const main = async () => {
     const MINTS_10 = 3; // how many times to mintMany, max 10 per transaction
     for (let i = 0; i < MINTS_10; i++) {
       const minted = await yourCollectible.mintPack('0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295', {
-        value: ethers.utils.parseEther((0.025).toString()),
+        value: ethers.utils.parseEther((0.05).toString()),
       });
       await minted.wait(1);
       console.log(`minted pack no ${i}`);

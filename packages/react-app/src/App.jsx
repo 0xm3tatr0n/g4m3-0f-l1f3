@@ -418,7 +418,7 @@ function App(props) {
                   {isFreeMintEligible && freeMintsRemaining && freeMintsRemaining.toString() > 0 ? (
                     <>
                       {" "}
-                      <form>
+                      {/* <form>
                         <label htmlFor="freeMintInput">mint for free:</label>
                         <input
                           type="text"
@@ -429,7 +429,24 @@ function App(props) {
                           }}
                           onChange={e => setNoTokensForFreeMint(e.target.value)}
                         ></input>
-                      </form>
+                      </form> */}
+                      <button
+                        style={{
+                          margin: "30px",
+                          color: "black",
+                          padding: "10px 30px 10px 30px",
+                          fontSize: "20px",
+                          fontFamily: "monospace",
+                          cursor: "pointer",
+                        }}
+                        onClick={e => {
+                          const newValue = Math.max(0, noTokensForFreeMint - 1);
+                          console.log(`>>> minus button. old value: ${noTokensForFreeMint}. new value: ${newValue}`);
+                          setNoTokensForFreeMint(newValue);
+                        }}
+                      >
+                        -
+                      </button>
                       <button
                         style={{
                           margin: "30px",
@@ -445,6 +462,23 @@ function App(props) {
                       >
                         mint free ({noTokensForFreeMint} of {freeMintsRemaining.toString()})
                       </button>
+                      <button
+                        style={{
+                          margin: "30px",
+                          color: "black",
+                          padding: "10px 30px 10px 30px",
+                          fontSize: "20px",
+                          fontFamily: "monospace",
+                          cursor: "pointer",
+                        }}
+                        onClick={e => {
+                          const newValue = Math.min(freeMintsRemaining.toString(), noTokensForFreeMint + 1);
+                          console.log(`>>> plus button. old value: ${noTokensForFreeMint}. new value: ${newValue}`);
+                          setNoTokensForFreeMint(newValue);
+                        }}
+                      >
+                        +
+                      </button>
                     </>
                   ) : (
                     <></>
@@ -459,7 +493,7 @@ function App(props) {
                       cursor: "pointer",
                     }}
                     onClick={() => {
-                      tx(writeContracts.G4m3.mintItem(address, { value: parseEther("0.01") }));
+                      tx(writeContracts.G4m3.mintItem(address, { value: parseEther("0.02") }));
                     }}
                   >
                     mint one
@@ -474,7 +508,7 @@ function App(props) {
                       cursor: "pointer",
                     }}
                     onClick={() => {
-                      tx(writeContracts.G4m3.mintPack(address, { value: parseEther("0.025") }));
+                      tx(writeContracts.G4m3.mintPack(address, { value: parseEther("0.05") }));
                     }}
                   >
                     mint pack (5 tokens)

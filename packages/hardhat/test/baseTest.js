@@ -82,7 +82,7 @@ describe('g4m3 base', function () {
       const [owner] = await ethers.getSigners();
       await deployContract();
       const mintTx = await myContract.mintItem(owner.address, {
-        value: ethers.utils.parseEther('0.01'),
+        value: ethers.utils.parseEther('0.02'),
       });
       const mintRc = await mintTx.wait();
       const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
@@ -94,7 +94,7 @@ describe('g4m3 base', function () {
       const [owner] = await ethers.getSigners();
       await deployContract();
       const mintTx = await myContract.mintItem(owner.address, {
-        value: ethers.utils.parseEther('0.01'),
+        value: ethers.utils.parseEther('0.02'),
       });
       const mintRc = await mintTx.wait();
       const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
@@ -104,7 +104,7 @@ describe('g4m3 base', function () {
       const [owner] = await ethers.getSigners();
       await deployContract();
       const mintTx = await myContract.mintPack(owner.address, {
-        value: ethers.utils.parseEther((0.025).toString()),
+        value: ethers.utils.parseEther((0.05).toString()),
       });
       const mintRc = await mintTx.wait();
       const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
@@ -137,7 +137,7 @@ describe('g4m3 base', function () {
       const [owner, addr1, addr2] = await ethers.getSigners();
       await deployContract();
       const mintTx = await myContract.mintPack(owner.address, {
-        value: ethers.utils.parseEther((0.025).toString()),
+        value: ethers.utils.parseEther((0.05).toString()),
       });
       const mintRc = await mintTx.wait();
       const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
@@ -363,7 +363,7 @@ describe('g4m3 base', function () {
           // console.log(`minting token:  ${i}`);
           try {
             const mintTx = await myContract.mintItem(owner.address, {
-              value: ethers.utils.parseEther((0.01).toString()),
+              value: ethers.utils.parseEther((0.02).toString()),
             });
             await mintTx.wait();
             const tokenURI = await myContract.tokenURI(i);
@@ -399,7 +399,7 @@ describe('g4m3 base', function () {
       // mint a sample of 50 tokens
       for (let i = 0; i < 10; i++) {
         const mintTx = await myContract.mintPack(owner.address, {
-          value: ethers.utils.parseEther((0.025).toString()),
+          value: ethers.utils.parseEther((0.05).toString()),
         });
         const mintRc = await mintTx.wait();
         const mintEv = mintRc.events.find((e) => e.event === 'Transfer');

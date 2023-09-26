@@ -13,6 +13,7 @@ require('hardhat-contract-sizer');
 require('@nomicfoundation/hardhat-network-helpers');
 
 const file_uuid = require('./scripts/customTestfileName');
+console.log('>>> file uuid (gas & collection data): ', file_uuid);
 
 // const { isAddress, getAddress, formatUnits, parseUnits } = ethers.utils;
 

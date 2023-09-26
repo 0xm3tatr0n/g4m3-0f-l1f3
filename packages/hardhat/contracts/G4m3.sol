@@ -43,8 +43,8 @@ contract G4m3 is ERC721, Ownable {
 
   // constants
   // uint256 public constant maxItems = 10;
-  uint256 public constant mintOnePrice = 0.01 ether;
-  uint256 public constant mintPackPrice = 0.025 ether;
+  uint256 public constant mintOnePrice = 0.02 ether;
+  uint256 public constant mintPackPrice = 0.05 ether;
   uint8 public constant maxEpochs = 10;
   uint8 internal constant scale = 40;
   uint8 internal constant N = 8;
@@ -135,18 +135,6 @@ contract G4m3 is ERC721, Ownable {
     }
   }
 
-  // owner allocation over time (todo: probably better remove)
-  // function mintForFree(address mintTo, uint256 noItems) public onlyOwner {
-  //   // owner mint allocation of 1 item / day
-  //   uint256 currentAlloc = (block.timestamp - createTime) / (1 days);
-  //   require((minted4free + noItems) <= currentAlloc, 'no free mints');
-
-  //   for (uint256 i = 0; i < noItems; i++) {
-  //     _mintBase(mintTo);
-  //     minted4free += 1;
-  //   }
-  // }
-
   // internal mint function called by all of the above
   function _mintBase(address to) private {
     // this assumes criteria like eligibility of minting & funding have been checked before!
@@ -166,26 +154,27 @@ contract G4m3 is ERC721, Ownable {
     _currentGeneration = 0;
 
     // temporary storage
-    bool[8][8] memory results;
+    bytes32 seedBytes;
 
-    // generate some "randomness"
-    bytes32 seedBytes = keccak256(
-      abi.encodePacked(address(this), _currentEpoch, blockhash(block.number - 1), block.timestamp)
-    );
+    // If current epoch is 0, seed is rondom (enough). else deterministic but reshuffled.
+    if (_currentEpoch == 1) {
+      seedBytes = keccak256(
+        abi.encodePacked(address(this), _currentEpoch, blockhash(block.number - 1), block.timestamp)
+      );
+    } else {
+      seedBytes = keccak256(abi.encodePacked(address(this), _currentEpoch, gameStateInt));
+    }
 
     uint64 r = uint64(uint256(seedBytes));
     uint64 gridInt = r;
     for (uint256 i = 0; i < 8; i += 1) {
       uint8 m = uint8(r >> (i * 8));
-      // generate row seed
-      uint256 s = uint256(keccak256(abi.encodePacked(Strings.toString(m), address(this))));
+      uint256 s = uint256(keccak256(abi.encodePacked(m, address(this))));
 
       for (uint256 j = 0; j < 8; j += 1) {
-        uint8 n = uint8(s >> (j * 8));
-        bool result = n > 125;
-
-        results[i][j] = result;
-        gridInt = BitOps.setBooleanOnIndex64(gridInt, uint64((i * 8) + j), result);
+        if (uint8(s >> (j * 8)) > 125) {
+          gridInt = BitOps.setBooleanOnIndex64(gridInt, uint64((i * 8) + j), true);
+        }
       }
     }
 
