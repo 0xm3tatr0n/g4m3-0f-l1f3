@@ -33,7 +33,7 @@ contract G4m3 is ERC721, Ownable {
 
   // using Counters for Counters.Counter;
 
-  constructor() ERC721('g4m3 0f l1f3', 'g0l') {
+  constructor() ERC721('g4m3 0f l1f3', 'l1f3') {
     // createTime = block.timestamp;
     _initState();
   }
