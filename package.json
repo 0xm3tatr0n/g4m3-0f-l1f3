@@ -63,5 +63,8 @@
       "**/hardhat",
       "**/hardhat/**"
     ]
+  },
+  "resolutions": {
+    "concat-stream": "^2.0.0"
   }
 }

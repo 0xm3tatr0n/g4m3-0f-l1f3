@@ -33,7 +33,7 @@ contract G4m3 is ERC721, Ownable {
 
   // using Counters for Counters.Counter;
 
-  constructor() ERC721('g4m3 0f l1f3', 'g0l') {
+  constructor() ERC721('g4m3 0f l1f3', 'l1f3') {
     // createTime = block.timestamp;
     _initState();
   }
@@ -330,7 +330,7 @@ contract G4m3 is ERC721, Ownable {
     return colorMap;
   }
 
-  function renderGameGrid(uint256 id) public view returns (string memory) {
+  function renderGameGrid(uint256 id) private view returns (string memory) {
     // render that thing
     uint64 gameState;
     (gameState, , ) = BitOps.unpackState(tokenState[id]);
@@ -496,6 +496,13 @@ contract G4m3 is ERC721, Ownable {
     // metadata.speed = 3;
 
     return metadata;
+  }
+
+  function returnGameState(uint256 id) public view returns (bool[8][8] memory) {
+    require(_exists(id), 'Token ID does not exist');
+    uint64 gameStateWord;
+    (gameStateWord, , ) = BitOps.unpackState(tokenState[id]);
+    return BitOps.wordToGrid(gameStateWord);
   }
 
   // Withdraw
