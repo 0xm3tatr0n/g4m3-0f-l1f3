@@ -15,6 +15,8 @@ packages/hardhat/artifacts
 packages/hardhat/deployments
 packages/react-app/src/contracts/*
 !packages/react-app/src/contracts/contracts.js
+!packages/react-app/src/contracts/G4m3.address.js
+
 packages/hardhat/cache
 
 docker/**/data
