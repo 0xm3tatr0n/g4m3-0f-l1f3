@@ -1,5 +1,6 @@
 /* eslint no-use-before-define: "warn" */
 const fs = require('fs');
+const path = require('path');
 const chalk = require('chalk');
 const { LedgerSigner } = require('@anders-t/ethers-ledger');
 const { config, tenderly, run, network } = require('hardhat');
@@ -71,29 +72,6 @@ const main = async () => {
       .addToWhitelist('0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295');
   } else {
     // deploy to other environment
-    // new script for deploying with ledger (not using deploy function...)
-    // const provider = hre.ethers.provider;
-    // const signer = await getLedgerSigner(provider);
-    // console.log('Deploying contracts with the account:', await signer.getAddress());
-
-    // G0lLib = await hre.ethers.getContractFactory('G0l', signer);
-    // g0llib = await G0lLib.deploy();
-    // await g0llib.deployed();
-    // console.log('Contract deployed to:', g0llib.address);
-    // // await g0llib.deployTransaction.wait(6);
-    // BitOpsLib = await hre.ethers.getContractFactory('BitOps', signer);
-    // bitopslib = await BitOpsLib.deploy();
-    // await bitopslib.deployed();
-    // console.log('Contract deployed to:', bitopslib.address);
-    // // bitopslib.deployTransaction.wait(6)
-
-    // yourCollectible = await hre.ethers.getContractFactory('G4m3', {
-    //   libraries: {
-    //     G0l: G0lLib.address,
-    //     BitOps: BitOpsLib.address,
-    //   },
-    //   signer,
-    // });
 
     G0lLib = await deployLedgerFrame('G0l');
     // await G0lLib.deployTransaction.wait(6);
@@ -122,43 +100,9 @@ const main = async () => {
       // constructorArguments: args // If your contract has constructor arguments, you can pass them as an array
     });
 
-    // // old script (working) for deploying from local wallet
-    // linking libraries
-    // G0lLib = await deploy('G0l');
-    // await G0lLib.deployTransaction.wait(6);
-    // BitOpsLib = await deploy('BitOps');
-    // await BitOpsLib.deployTransaction.wait(6);
-
-    // yourCollectible = await deploy(
-    //   'G4m3',
-    //   [],
-    //   {},
-    //   {
-    //     G0l: G0lLib.address,
-    //     BitOps: BitOpsLib.address,
-    //   }
-    // );
-
-    // // wait for a bit
-    // await yourCollectible.deployTransaction.wait(10);
-
-    // console.log(chalk.blue('verifying on etherscan'));
-    // await run('verify:verify', {
-    //   address: yourCollectible.address,
-    //   // constructorArguments: args // If your contract has constructor arguments, you can pass them as an array
-    // });
+    // write artifcacts to frontend files
+    copyContractDataToReactApp('G4m3');
   }
-
-  // await yourCollectible.transferOwnership('0x5B310560815EaF364E5876908574b4a9c6eC1B7e');
-
-  // //If you want to send value to an address from the deployer
-  // const deployerWallet = ethers.provider.getSigner();
-  // await deployerWallet.sendTransaction({
-  //   to: '0x5B310560815EaF364E5876908574b4a9c6eC1B7e',
-  //   value: ethers.utils.parseEther('10'),
-  // });
-
-  // If you want to verify your contract on etherscan
 
   console.log(
     ' 💾  Artifacts (address, abi, and args) saved to: ',
@@ -290,6 +234,24 @@ const readArgsFile = (contractName) => {
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+const copyContractDataToReactApp = (contractName) => {
+  const sourceAddressPath = `artifacts/${contractName}.address`;
+  const destAddressPath = path.join(
+    __dirname,
+    `../../react-app/src/contracts/${contractName}.address.js`
+  );
+
+  if (fs.existsSync(sourceAddressPath)) {
+    const address = fs.readFileSync(sourceAddressPath, 'utf8');
+    fs.writeFileSync(destAddressPath, `module.exports = "${address}";`);
+    console.log(`Copied ${contractName} address to ${destAddressPath}`);
+  } else {
+    console.error(`Failed to find address file for ${contractName} at ${sourceAddressPath}`);
+  }
+
+  // Repeat similar steps for ABI or other necessary data if needed
+};
 
 // If you want to verify on https://tenderly.co/
 const tenderlyVerify = async ({ contractName, contractAddress }) => {
