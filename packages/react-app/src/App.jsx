@@ -111,6 +111,8 @@ const web3Modal = new Web3Modal({
 });
 
 function App(props) {
+  // log some version referrence for double-checking
+  console.log("### version: 1");
   const mainnetProvider = scaffoldEthProvider && scaffoldEthProvider._network ? scaffoldEthProvider : mainnetInfura;
 
   const logoutOfWeb3Modal = async () => {
