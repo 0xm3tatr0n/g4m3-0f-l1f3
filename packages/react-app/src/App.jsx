@@ -112,7 +112,7 @@ const web3Modal = new Web3Modal({
 
 function App(props) {
   // log some version referrence for double-checking
-  console.log("### version: 1");
+  console.log("### version: 2");
   const mainnetProvider = scaffoldEthProvider && scaffoldEthProvider._network ? scaffoldEthProvider : mainnetInfura;
 
   const logoutOfWeb3Modal = async () => {
@@ -209,7 +209,7 @@ function App(props) {
     console.log(">>> injectedProvider", injectedProvider);
     console.log(">>> localProvider", localProvider);
     console.log(">>> userProvider", userProvider);
-    console.log(">>> userProvider", mainnetProvider);
+    console.log(">>> mainnetProvider", mainnetProvider);
   }, [injectedProvider, localProvider, userProvider, mainnetProvider]);
 
   useEffect(() => {
@@ -425,12 +425,13 @@ function App(props) {
             */}
 
             <div id={"controls"} style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
-              {isSigner ? (
-                <>
-                  {isFreeMintEligible && freeMintsRemaining && freeMintsRemaining.toString() > 0 ? (
-                    <>
-                      {" "}
-                      {/* <form>
+              {
+                /* isSigner */ true ? (
+                  <>
+                    {isFreeMintEligible && freeMintsRemaining && freeMintsRemaining.toString() > 0 ? (
+                      <>
+                        {" "}
+                        {/* <form>
                         <label htmlFor="freeMintInput">mint for free:</label>
                         <input
                           type="text"
@@ -442,59 +443,91 @@ function App(props) {
                           onChange={e => setNoTokensForFreeMint(e.target.value)}
                         ></input>
                       </form> */}
-                      <button
-                        style={{
-                          margin: "30px",
-                          color: "black",
-                          padding: "10px 30px 10px 30px",
-                          fontSize: "20px",
-                          fontFamily: "monospace",
-                          cursor: "pointer",
-                        }}
-                        onClick={e => {
-                          const newValue = Math.max(0, noTokensForFreeMint - 1);
-                          console.log(`>>> minus button. old value: ${noTokensForFreeMint}. new value: ${newValue}`);
-                          setNoTokensForFreeMint(newValue);
-                        }}
-                      >
-                        -
-                      </button>
-                      <button
-                        style={{
-                          margin: "30px",
-                          color: "black",
-                          padding: "10px 30px 10px 30px",
-                          fontSize: "20px",
-                          fontFamily: "monospace",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => {
-                          tx(writeContracts.G4m3.mintFreeGated(noTokensForFreeMint));
-                        }}
-                      >
-                        mint free ({noTokensForFreeMint} of {freeMintsRemaining.toString()})
-                      </button>
-                      <button
-                        style={{
-                          margin: "30px",
-                          color: "black",
-                          padding: "10px 30px 10px 30px",
-                          fontSize: "20px",
-                          fontFamily: "monospace",
-                          cursor: "pointer",
-                        }}
-                        onClick={e => {
-                          const newValue = Math.min(freeMintsRemaining.toString(), noTokensForFreeMint + 1);
-                          console.log(`>>> plus button. old value: ${noTokensForFreeMint}. new value: ${newValue}`);
-                          setNoTokensForFreeMint(newValue);
-                        }}
-                      >
-                        +
-                      </button>
-                    </>
-                  ) : (
-                    <></>
-                  )}
+                        <button
+                          style={{
+                            margin: "30px",
+                            color: "black",
+                            padding: "10px 30px 10px 30px",
+                            fontSize: "20px",
+                            fontFamily: "monospace",
+                            cursor: "pointer",
+                          }}
+                          onClick={e => {
+                            const newValue = Math.max(0, noTokensForFreeMint - 1);
+                            console.log(`>>> minus button. old value: ${noTokensForFreeMint}. new value: ${newValue}`);
+                            setNoTokensForFreeMint(newValue);
+                          }}
+                        >
+                          -
+                        </button>
+                        <button
+                          style={{
+                            margin: "30px",
+                            color: "black",
+                            padding: "10px 30px 10px 30px",
+                            fontSize: "20px",
+                            fontFamily: "monospace",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => {
+                            tx(writeContracts.G4m3.mintFreeGated(noTokensForFreeMint));
+                          }}
+                        >
+                          mint free ({noTokensForFreeMint} of {freeMintsRemaining.toString()})
+                        </button>
+                        <button
+                          style={{
+                            margin: "30px",
+                            color: "black",
+                            padding: "10px 30px 10px 30px",
+                            fontSize: "20px",
+                            fontFamily: "monospace",
+                            cursor: "pointer",
+                          }}
+                          onClick={e => {
+                            const newValue = Math.min(freeMintsRemaining.toString(), noTokensForFreeMint + 1);
+                            console.log(`>>> plus button. old value: ${noTokensForFreeMint}. new value: ${newValue}`);
+                            setNoTokensForFreeMint(newValue);
+                          }}
+                        >
+                          +
+                        </button>
+                      </>
+                    ) : (
+                      <></>
+                    )}
+                    <button
+                      style={{
+                        margin: "30px",
+                        color: "black",
+                        padding: "10px 30px 10px 30px",
+                        fontSize: "20px",
+                        fontFamily: "monospace",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => {
+                        tx(writeContracts.G4m3.mintItem(address, { value: parseEther("0.02") }));
+                      }}
+                    >
+                      mint one
+                    </button>
+                    <button
+                      style={{
+                        margin: "30px",
+                        color: "black",
+                        padding: "10px 30px 10px 30px",
+                        fontSize: "20px",
+                        fontFamily: "monospace",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => {
+                        tx(writeContracts.G4m3.mintPack(address, { value: parseEther("0.05") }));
+                      }}
+                    >
+                      mint pack (5 tokens)
+                    </button>
+                  </>
+                ) : (
                   <button
                     style={{
                       margin: "30px",
@@ -502,44 +535,13 @@ function App(props) {
                       padding: "10px 30px 10px 30px",
                       fontSize: "20px",
                       fontFamily: "monospace",
-                      cursor: "pointer",
                     }}
-                    onClick={() => {
-                      tx(writeContracts.G4m3.mintItem(address, { value: parseEther("0.02") }));
-                    }}
+                    onClick={loadWeb3Modal}
                   >
-                    mint one
+                    connect
                   </button>
-                  <button
-                    style={{
-                      margin: "30px",
-                      color: "black",
-                      padding: "10px 30px 10px 30px",
-                      fontSize: "20px",
-                      fontFamily: "monospace",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => {
-                      tx(writeContracts.G4m3.mintPack(address, { value: parseEther("0.05") }));
-                    }}
-                  >
-                    mint pack (5 tokens)
-                  </button>
-                </>
-              ) : (
-                <button
-                  style={{
-                    margin: "30px",
-                    color: "black",
-                    padding: "10px 30px 10px 30px",
-                    fontSize: "20px",
-                    fontFamily: "monospace",
-                  }}
-                  onClick={loadWeb3Modal}
-                >
-                  connect
-                </button>
-              )}
+                )
+              }
             </div>
 
             <div
