@@ -205,6 +205,14 @@ function App(props) {
   }, [isLoadingCollection]);
 
   useEffect(() => {
+    console.log(">>> providers changed: ");
+    console.log(">>> injectedProvider", injectedProvider);
+    console.log(">>> localProvider", localProvider);
+    console.log(">>> userProvider", userProvider);
+    console.log(">>> userProvider", mainnetProvider);
+  }, [injectedProvider, localProvider, userProvider, mainnetProvider]);
+
+  useEffect(() => {
     // new update your collectibles approach in two steps: 1) get owner's token IDs, 2) get tokenURIs for all IDs
     const updateOwenersCollectibles = async () => {
       const collectibleIdPromises = [];
