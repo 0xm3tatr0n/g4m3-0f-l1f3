@@ -53,9 +53,12 @@ contract G4m3 is ERC721, Ownable {
   // external free minting
   mapping(address => bool) private whitelist;
   address[] private nftCollections = [
-    0x4E1f41613c9084FdB9E34E11fAE9412427480e56, // terraforms
-    0x18Adc812fE66B9381700C2217f0c9DC816c879E6, // chaos roads
-    0x5DcE0bB0778694Ef3Ba79Bb702b88CAC1879cc7D // bonSAI
+    // polygon mumbai
+    0x31027EF38d3b58f8186B0C33d8D7f298203E0570
+    // eth main net
+    // 0x4E1f41613c9084FdB9E34E11fAE9412427480e56, // terraforms
+    // 0x18Adc812fE66B9381700C2217f0c9DC816c879E6, // chaos roads
+    // 0x5DcE0bB0778694Ef3Ba79Bb702b88CAC1879cc7D // bonSAI
   ];
 
   // track number of free mints
