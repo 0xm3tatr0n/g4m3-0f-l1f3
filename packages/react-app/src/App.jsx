@@ -320,7 +320,9 @@ function App(props) {
       // console.log("📝 readContracts", readContracts);
       // console.log("🔐 writeContracts", writeContracts);
       console.log("🏃‍♀️ is eligible for free mint ", isFreeMintEligible);
-      console.log("🏃‍♀️ free mints remaining ", freeMintsRemaining.toString());
+      if (freeMintsRemaining && freeMintsRemaining.toString()) {
+        console.log("🏃‍♀️ free mints remaining ", freeMintsRemaining.toString());
+      }
     }
   }, [mainnetProvider, address, selectedChainId, yourLocalBalance, yourMainnetBalance, readContracts, writeContracts]);
 
