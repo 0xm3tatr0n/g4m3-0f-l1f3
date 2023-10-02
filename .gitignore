@@ -16,6 +16,8 @@ packages/hardhat/deployments
 packages/react-app/src/contracts/*
 !packages/react-app/src/contracts/contracts.js
 !packages/react-app/src/contracts/G4m3.address.js
+!packages/react-app/src/contracts/G4m3.abi.js
+!packages/react-app/src/contracts/G4m3.bytecode.js
 
 packages/hardhat/cache
 
