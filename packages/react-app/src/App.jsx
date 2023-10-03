@@ -112,7 +112,7 @@ const web3Modal = new Web3Modal({
 
 function App(props) {
   // log some version referrence for double-checking
-  console.log("### version: 4");
+  console.log("### version: 6");
   console.log("process.env.REACT_APP_PROVIDER: ", process.env.REACT_APP_PROVIDER);
   const mainnetProvider = scaffoldEthProvider && scaffoldEthProvider._network ? scaffoldEthProvider : mainnetInfura;
 
