@@ -88,7 +88,7 @@ const mainnetInfura = new StaticJsonRpcProvider("https://mainnet.infura.io/v3/" 
 const localProviderUrl = targetNetwork.rpcUrl;
 // as you deploy to other networks you can set REACT_APP_PROVIDER=https://dai.poa.network in packages/react-app/.env
 const localProviderUrlFromEnv = process.env.REACT_APP_PROVIDER ? process.env.REACT_APP_PROVIDER : localProviderUrl;
-if (DEBUG) console.log("🏠 Connecting to provider:", localProviderUrlFromEnv);
+console.log("🏠 Connecting to provider:", localProviderUrlFromEnv);
 const localProvider = new StaticJsonRpcProvider(localProviderUrlFromEnv);
 
 // 🔭 block explorer URL
@@ -111,6 +111,9 @@ const web3Modal = new Web3Modal({
 });
 
 function App(props) {
+  // log some version referrence for double-checking
+  console.log("### version: 6");
+  console.log("process.env.REACT_APP_PROVIDER: ", process.env.REACT_APP_PROVIDER);
   const mainnetProvider = scaffoldEthProvider && scaffoldEthProvider._network ? scaffoldEthProvider : mainnetInfura;
 
   const logoutOfWeb3Modal = async () => {
@@ -201,6 +204,14 @@ function App(props) {
   useEffect(() => {
     console.log(">>> is loading collection changed: ", isLoadingCollection);
   }, [isLoadingCollection]);
+
+  useEffect(() => {
+    console.log(">>> providers changed: ");
+    console.log(">>> injectedProvider", injectedProvider);
+    console.log(">>> localProvider", localProvider);
+    console.log(">>> userProvider", userProvider);
+    console.log(">>> mainnetProvider", mainnetProvider);
+  }, [injectedProvider, localProvider, userProvider, mainnetProvider]);
 
   useEffect(() => {
     // new update your collectibles approach in two steps: 1) get owner's token IDs, 2) get tokenURIs for all IDs
@@ -310,7 +321,9 @@ function App(props) {
       // console.log("📝 readContracts", readContracts);
       // console.log("🔐 writeContracts", writeContracts);
       console.log("🏃‍♀️ is eligible for free mint ", isFreeMintEligible);
-      console.log("🏃‍♀️ free mints remaining ", freeMintsRemaining.toString());
+      if (freeMintsRemaining && freeMintsRemaining.toString()) {
+        console.log("🏃‍♀️ free mints remaining ", freeMintsRemaining.toString());
+      }
     }
   }, [mainnetProvider, address, selectedChainId, yourLocalBalance, yourMainnetBalance, readContracts, writeContracts]);
 
