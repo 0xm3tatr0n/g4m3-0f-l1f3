@@ -22,7 +22,7 @@ jobs:
         run: |
           cd packages/react-app
           yarn install
-          REACT_APP_BUILD_ENV=production CI=false yarn build
+          REACT_APP_BUILD_ENV=production CI=false yarn build REACT_APP_PROVIDER=${{ secrets.REACT_APP_PROVIDER }}
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
