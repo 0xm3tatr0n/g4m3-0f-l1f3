@@ -5,7 +5,7 @@ import { Alert, Col, Row } from "antd";
 import "antd/dist/antd.css";
 import { useUserAddress } from "eth-hooks";
 import React, { useCallback, useEffect, useState } from "react";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
+import { HashRouter as Router, Route, Switch } from "react-router-dom";
 import Web3Modal from "web3modal";
 import "./App.css";
 // import assets from "./assets.js";
@@ -416,7 +416,7 @@ function App(props) {
       <MintInfo totalSupply />
       {/* {networkDisplay} */}
 
-      <BrowserRouter>
+      <Router>
         <Switch>
           <Route exact path="/">
             {/*
@@ -615,7 +615,7 @@ function App(props) {
             />
           </Route>
         </Switch>
-      </BrowserRouter>
+      </Router>
 
       {/* <ThemeSwitch /> */}
 
