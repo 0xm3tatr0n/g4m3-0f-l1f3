@@ -9,6 +9,7 @@ import { BLOCKNATIVE_DAPPID } from "../constants";
 // https://docs.blocknative.com/notify
 
 export default function Transactor(provider, gasPrice, etherscan) {
+  console.log("tx transactor provider: ", provider, "gas price: ", gasPrice, "etherscan: ", etherscan);
   if (typeof provider !== "undefined") {
     // eslint-disable-next-line consistent-return
     return async tx => {
