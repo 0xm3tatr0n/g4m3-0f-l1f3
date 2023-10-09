@@ -112,7 +112,8 @@ const web3Modal = new Web3Modal({
 
 function App(props) {
   // log some version referrence for double-checking
-  console.log("### version: 6");
+  const DEFAULT_POLL_TIME = 60000;
+  console.log("### version: 7");
   console.log("process.env.REACT_APP_PROVIDER: ", process.env.REACT_APP_PROVIDER);
   const mainnetProvider = scaffoldEthProvider && scaffoldEthProvider._network ? scaffoldEthProvider : mainnetInfura;
 
@@ -176,16 +177,28 @@ function App(props) {
   ]); */
 
   // keep track of a variable from the contract in the local React state:
-  const balance = useContractReader(readContracts, "G4m3", "balanceOf", [address]);
+  const balance = useContractReader(readContracts, "G4m3", "balanceOf", [address], DEFAULT_POLL_TIME);
   if (balance) {
     console.log("🤗 balance:", balance.toString());
   }
   // console.log(">>> reading free mint eligibility for", address);
-  const isFreeMintEligible = useContractReader(readContracts, "G4m3", "isEligibleForFreeMint", [address]);
-  const freeMintsRemaining = useContractReader(readContracts, "G4m3", "freeMintsRemaining", [address]);
+  const isFreeMintEligible = useContractReader(
+    readContracts,
+    "G4m3",
+    "isEligibleForFreeMint",
+    [address],
+    DEFAULT_POLL_TIME,
+  );
+  const freeMintsRemaining = useContractReader(
+    readContracts,
+    "G4m3",
+    "freeMintsRemaining",
+    [address],
+    DEFAULT_POLL_TIME,
+  );
 
   // track total supply
-  const totalSupply = useContractReader(readContracts, "G4m3", "totalSupply");
+  const totalSupply = useContractReader(readContracts, "G4m3", "totalSupply", [address], DEFAULT_POLL_TIME);
 
   // 📟 Listen for broadcast events
   // const transferEvents = useEventListener(readContracts, "G4m3", "Transfer", localProvider, 1);
