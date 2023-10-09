@@ -117,6 +117,10 @@ function App(props) {
   console.log("process.env.REACT_APP_PROVIDER: ", process.env.REACT_APP_PROVIDER);
   const mainnetProvider = scaffoldEthProvider && scaffoldEthProvider._network ? scaffoldEthProvider : mainnetInfura;
 
+  useEffect(() => {
+    console.log(`${Date.now()}: App.jsx rendering`);
+  }, []);
+
   const logoutOfWeb3Modal = async () => {
     await web3Modal.clearCachedProvider();
     if (injectedProvider && injectedProvider.provider && typeof injectedProvider.provider.disconnect === "function") {
