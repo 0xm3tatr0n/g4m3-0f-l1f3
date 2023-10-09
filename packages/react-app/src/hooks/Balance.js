@@ -21,6 +21,7 @@ import usePoller from "./Poller";
 const DEBUG = false;
 
 export default function useBalance(provider, address, pollTime = 0) {
+  console.log(`${Date.now()}: useBalance called. provider:`, provider.connection.url);
   const [balance, setBalance] = useState();
 
   const pollBalance = useCallback(

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ETHERSCAN_KEY } from "../constants";
 
 export default function useGasPrice(targetNetwork, speed, pollTime = 39999) {
+  console.log(`${Date.now()}: useGasPrice called`);
   const [gasPrice, setGasPrice] = useState();
   const loadGasPrice = async () => {
     if (targetNetwork.hasOwnProperty("gasPrice")) {
@@ -21,7 +22,7 @@ export default function useGasPrice(targetNetwork, speed, pollTime = 39999) {
     }
   };
 
-  usePoller(loadGasPrice, 39999);
+  usePoller(loadGasPrice, pollTime);
   return gasPrice;
 }
 

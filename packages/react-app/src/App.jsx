@@ -113,7 +113,7 @@ const web3Modal = new Web3Modal({
 function App(props) {
   // log some version referrence for double-checking
   const DEFAULT_POLL_TIME = 60000;
-  console.log("### version: 7");
+  console.log("### version: 8");
   console.log("process.env.REACT_APP_PROVIDER: ", process.env.REACT_APP_PROVIDER);
   const mainnetProvider = scaffoldEthProvider && scaffoldEthProvider._network ? scaffoldEthProvider : mainnetInfura;
 
@@ -133,10 +133,10 @@ function App(props) {
 
   const [injectedProvider, setInjectedProvider] = useState();
   /* 💵 This hook will get the price of ETH from 🦄 Uniswap: */
-  const price = useExchangePrice(targetNetwork, mainnetProvider);
+  // const price = useExchangePrice(targetNetwork, mainnetProvider);
 
   /* 🔥 This hook will get the price of Gas from ⛽️ EtherGasStation */
-  const gasPrice = useGasPrice(targetNetwork, "fast");
+  const gasPrice = useGasPrice(targetNetwork, "fast", 120000);
   // Use your injected provider from 🦊 Metamask or if you don't have it then instantly generate a 🔥 burner wallet.
   const userProvider = useUserProvider(injectedProvider, localProvider);
   const address = useUserAddress(userProvider);
@@ -154,10 +154,10 @@ function App(props) {
   // const faucetTx = Transactor(localProvider, gasPrice);
 
   // 🏗 scaffold-eth is full of handy hooks like this one to get your balance:
-  const yourLocalBalance = useBalance(localProvider, address);
+  const yourLocalBalance = useBalance(localProvider, address, 120000);
 
   // Just plug in different 🛰 providers to get your balance on different chains:
-  const yourMainnetBalance = useBalance(mainnetProvider, address);
+  // const yourMainnetBalance = useBalance(mainnetProvider, address);
 
   // Load in your local 📝 contract and read a value from it:
   const readContracts = useContractLoader(localProvider);
@@ -324,7 +324,7 @@ function App(props) {
       address &&
       selectedChainId &&
       yourLocalBalance &&
-      yourMainnetBalance &&
+      // yourMainnetBalance &&
       readContracts &&
       writeContracts
     ) {
@@ -334,7 +334,7 @@ function App(props) {
       console.log("👩‍💼 selected address:", address);
       console.log("🕵🏻‍♂️ selectedChainId:", selectedChainId);
       console.log("💵 yourLocalBalance", yourLocalBalance ? formatEther(yourLocalBalance) : "...");
-      console.log("💵 yourMainnetBalance", yourMainnetBalance ? formatEther(yourMainnetBalance) : "...");
+      // console.log("💵 yourMainnetBalance", yourMainnetBalance ? formatEther(yourMainnetBalance) : "...");
       // console.log("📝 readContracts", readContracts);
       // console.log("🔐 writeContracts", writeContracts);
       console.log("🏃‍♀️ is eligible for free mint ", isFreeMintEligible);
@@ -342,7 +342,7 @@ function App(props) {
         console.log("🏃‍♀️ free mints remaining ", freeMintsRemaining.toString());
       }
     }
-  }, [mainnetProvider, address, selectedChainId, yourLocalBalance, yourMainnetBalance, readContracts, writeContracts]);
+  }, [mainnetProvider, address, selectedChainId, yourLocalBalance, readContracts, writeContracts]);
 
   let networkDisplay = "";
   if (localChainId && selectedChainId && localChainId !== selectedChainId) {
