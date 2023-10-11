@@ -18,6 +18,7 @@ packages/react-app/src/contracts/*
 !packages/react-app/src/contracts/G4m3.address.js
 !packages/react-app/src/contracts/G4m3.abi.js
 !packages/react-app/src/contracts/G4m3.bytecode.js
+packages/svg/*
 
 packages/hardhat/cache
 
