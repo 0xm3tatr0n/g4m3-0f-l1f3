@@ -78,40 +78,57 @@ describe('g4m3 base', function () {
       await deployContract();
     });
 
-    it('Should actually mint an item', async function () {
+    it('Should fail to mint since time-threshold not reached yet', async function () {
       const [owner] = await ethers.getSigners();
       await deployContract();
+      await expect(
+        myContract.mintItem(owner.address, {
+          value: ethers.utils.parseEther('0.02'),
+        })
+      ).to.be.revertedWith('mint not yet public');
+    });
+
+    it('Should actually mint an item after time threshold', async function () {
+      const [owner] = await ethers.getSigners();
+      await deployContract();
+      // Simulate the passing of one week
+      await network.provider.send('evm_increaseTime', [7 * 24 * 60 * 60]); // 7 days * 24 hours/day * 60 minutes/hour * 60 seconds/minute
+      await network.provider.send('evm_mine'); // Mine a new block to effect the time change
+
       const mintTx = await myContract.mintItem(owner.address, {
         value: ethers.utils.parseEther('0.02'),
       });
       const mintRc = await mintTx.wait();
       const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
-      // const [from, to, id] = mintEv.args
-      // const tokenUri = await myContract.tokenURI(id.toString())
     });
 
-    it('Should mint another item', async function () {
+    it('Should fail to mint a pack immediately after deployment', async function () {
       const [owner] = await ethers.getSigners();
       await deployContract();
-      const mintTx = await myContract.mintItem(owner.address, {
-        value: ethers.utils.parseEther('0.02'),
-      });
-      const mintRc = await mintTx.wait();
-      const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
+
+      await expect(
+        myContract.mintPack(owner.address, {
+          value: ethers.utils.parseEther('0.05'),
+        })
+      ).to.be.revertedWith('mint not yet public');
     });
 
-    it('Should mint many', async function () {
+    it('Should mint a pack after time threshold', async function () {
       const [owner] = await ethers.getSigners();
       await deployContract();
+
+      // Simulate the passing of one week
+      await network.provider.send('evm_increaseTime', [7 * 24 * 60 * 60]);
+      await network.provider.send('evm_mine');
+
       const mintTx = await myContract.mintPack(owner.address, {
-        value: ethers.utils.parseEther((0.05).toString()),
+        value: ethers.utils.parseEther('0.05'),
       });
       const mintRc = await mintTx.wait();
       const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
 
       // get user's token balance
       const userTokenBalance = await myContract.balanceOf(owner.address);
-      // console.log('user token balance: ', userTokenBalance.toString())
 
       // get user's token IDs
       const ownedTokens = [];
@@ -119,25 +136,21 @@ describe('g4m3 base', function () {
         const tokenId = await myContract.tokenOfOwnerByIndex(owner.address, i);
         ownedTokens.push(tokenId.toString());
       }
+
+      // Assertion to check if the length of ownedTokens is the same as userTokenBalance
+      expect(ownedTokens.length).to.equal(userTokenBalance.toNumber());
     });
 
-    // it('Should pause minting & let mint attempts fail', async function () {
-    //   const [owner, addr1, addr2] = await ethers.getSigners();
-    //   await deployContract();
-    //   const pauseTx = await myContract.pause();
-
-    //   await expect(
-    //     myContract
-    //       .connect(addr1)
-    //       .mintItem(addr1.address, { value: ethers.utils.parseEther((0.01).toString()) })
-    //   ).to.be.revertedWith('Pausable: paused');
-    // });
-
-    it('Should mint a few & withdraw funds', async function () {
+    it('Should mint a few & withdraw funds after time threshold', async function () {
       const [owner, addr1, addr2] = await ethers.getSigners();
       await deployContract();
+
+      // Simulate the passing of the time threshold
+      await network.provider.send('evm_increaseTime', [7 * 24 * 60 * 60]); // Assuming 1 week as the time threshold
+      await network.provider.send('evm_mine');
+
       const mintTx = await myContract.mintPack(owner.address, {
-        value: ethers.utils.parseEther((0.05).toString()),
+        value: ethers.utils.parseEther('0.05'),
       });
       const mintRc = await mintTx.wait();
       const mintEv = mintRc.events.find((e) => e.event === 'Transfer');
@@ -395,6 +408,10 @@ describe('g4m3 base', function () {
     it('Should assert that tokenURI is not longer than 12k chars', async function () {
       const [owner] = await ethers.getSigners();
       await deployContract();
+
+      // Simulate the passing of the time threshold
+      await network.provider.send('evm_increaseTime', [7 * 24 * 60 * 60]); // Assuming 1 week as the time threshold
+      await network.provider.send('evm_mine');
 
       // mint a sample of 50 tokens
       for (let i = 0; i < 10; i++) {
