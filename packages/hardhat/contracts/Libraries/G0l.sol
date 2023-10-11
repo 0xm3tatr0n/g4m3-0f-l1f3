@@ -15,7 +15,7 @@ library G0l {
     string[7][31] memory colorPalettes = [
       // background, live, dead, born0, born1, perished0, perished1
       // 0 0/0: bad. rural, shrinking slowly:
-      ['#ce653b', '#2b0948', '#7d3742', '#461846', '#612844', '#b3563d', '#98463f'],
+      ['#ffffff', '#000000', '#ffffff', '#000000', '#000000', '#ffffff', '#ffffff'],
       // 1 0/1: bad. rural, shrinking slowly
       ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#a0c4ff', '#bdb2ff'],
       // 2 1/0: bad. rural, shrinking rapidly
@@ -514,7 +514,7 @@ library G0l {
     // what logic for naming could be applied?
     string memory timesName;
     if (times == 0) {
-      timesName = 'Chocolate';
+      timesName = 'Zero';
     } else if (times == 1) {
       timesName = 'Serenity';
     } else if (times == 2) {
