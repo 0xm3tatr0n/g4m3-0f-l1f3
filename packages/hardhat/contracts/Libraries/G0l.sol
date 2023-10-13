@@ -636,10 +636,10 @@ library G0l {
     uint8 populationDensity,
     uint8 birthCount,
     uint8 deathCount,
-    uint8 popDiff,
     uint8 shape,
     uint8 speed,
-    uint8 pattern
+    uint8 pattern,
+    string calldata trend
   ) public pure returns (string memory) {
     bytes memory attributeBytes;
 
@@ -659,9 +659,9 @@ library G0l {
         '"},',
         '{"trait_type" : "deaths", "value": "',
         Strings.toString(deathCount),
-        '"},',
-        '{"trait_type" : "population_difference", "value": "',
-        Strings.toString(popDiff),
+        '"},'
+        '{"trait_type" : "diff", "value": "',
+        trend,
         '"},'
       );
     }

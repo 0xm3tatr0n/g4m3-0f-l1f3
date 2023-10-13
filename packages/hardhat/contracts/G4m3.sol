@@ -282,10 +282,10 @@ contract G4m3 is ERC721, Ownable {
                   metadata.populationDensity,
                   metadata.birthCount,
                   metadata.deathCount,
-                  metadata.popDiff,
                   metadata.shape,
                   metadata.speed,
-                  metadata.pattern
+                  metadata.pattern,
+                  metadata.trend
                 ),
                 '"owner":"',
                 (uint160(ownerOf(id))).toHexString(20),
@@ -478,11 +478,11 @@ contract G4m3 is ERC721, Ownable {
         epoch;
 
       if (populationTrends.up == 1) {
-        metadata.trend = 'up';
+        metadata.trend = string(abi.encodePacked('+', Strings.toString(metadata.popDiff)));
       } else if (populationTrends.up == 0) {
-        metadata.trend = 'down';
+        metadata.trend = string(abi.encodePacked('-', Strings.toString(metadata.popDiff)));
       } else {
-        metadata.trend = 'constant';
+        metadata.trend = Strings.toString(metadata.popDiff);
       }
     } else {
       // fallback for new generations
