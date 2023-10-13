@@ -651,7 +651,7 @@ library G0l {
         '{"trait_type" : "generation", "value": "',
         Strings.toString(uint256(generation)),
         '"},',
-        '{"trait_type" : "density", "value": "',
+        '{"trait_type" : "population", "value": "',
         Strings.toString(populationDensity),
         '"},',
         '{"trait_type" : "births", "value": "',

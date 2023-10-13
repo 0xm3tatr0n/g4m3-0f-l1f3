@@ -182,6 +182,19 @@ module.exports = [
   },
   {
     "inputs": [],
+    "name": "deployTime",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "drainFunds",
     "outputs": [],
     "stateMutability": "nonpayable",

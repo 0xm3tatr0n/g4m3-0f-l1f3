@@ -445,7 +445,16 @@ contract G4m3 is ERC721, Ownable {
         uint256(generation).toString()
       )
     );
-    metadata.description = string(abi.encodePacked('g4m3 0f l1f3 #', id.toString()));
+    metadata.description = string(
+      abi.encodePacked(
+        'g4m3 0f l1f3 iteration #',
+        id.toString(),
+        '. Generation #',
+        uint256(generation).toString(),
+        ' in epoch #',
+        uint256(epoch).toString()
+      )
+    );
 
     // "arbitrary" value to mix things up (not random because deterministic)
     metadata.seed = uint256(keccak256(abi.encodePacked(metadata.generation, metadata.description)));
