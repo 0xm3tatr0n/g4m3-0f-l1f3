@@ -4,14 +4,12 @@ pragma solidity >=0.7.0 <0.8.0;
 // pragma abicoder v2;
 import '@openzeppelin/contracts/utils/Strings.sol';
 import {Structs} from './Structs.sol';
-import 'hardhat/console.sol';
 
 library G0l {
   function returnColor(
     uint256 paletteNumber,
     uint256 colorPos
   ) public pure returns (string memory) {
-    // console.log('palette no, pos: ', paletteNumber, colorPos);
     string[7][31] memory colorPalettes = [
       // background, live, dead, born0, born1, perished0, perished1
       // 0 0/0: bad. rural, shrinking slowly:
