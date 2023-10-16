@@ -66,5 +66,8 @@
   },
   "resolutions": {
     "concat-stream": "^2.0.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "4.9.3"
   }
 }

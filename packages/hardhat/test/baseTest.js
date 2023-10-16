@@ -130,15 +130,7 @@ describe('g4m3 base', function () {
       // get user's token balance
       const userTokenBalance = await myContract.balanceOf(owner.address);
 
-      // get user's token IDs
-      const ownedTokens = [];
-      for (let i = 0; i < userTokenBalance; i++) {
-        const tokenId = await myContract.tokenOfOwnerByIndex(owner.address, i);
-        ownedTokens.push(tokenId.toString());
-      }
-
-      // Assertion to check if the length of ownedTokens is the same as userTokenBalance
-      expect(ownedTokens.length).to.equal(userTokenBalance.toNumber());
+      expect(userTokenBalance).to.equal(5);
     });
 
     it('Should mint a few & withdraw funds after time threshold', async function () {

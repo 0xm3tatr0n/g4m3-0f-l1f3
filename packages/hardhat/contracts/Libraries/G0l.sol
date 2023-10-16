@@ -1,4 +1,4 @@
-pragma solidity >=0.7.0 <0.8.0;
+pragma solidity ^0.8.20;
 // pragma solidity ^0.8.6;
 // pragma abicoder v2;
 // pragma abicoder v2;
@@ -408,7 +408,7 @@ library G0l {
       trends.popDiff = bornCells - perishedCells;
     } else if (bornCells < perishedCells) {
       trends.up = 0;
-      trends.popDiff = uint8(-int8(bornCells - perishedCells));
+      trends.popDiff = perishedCells - bornCells;
     } else {
       trends.up = 99;
       trends.popDiff = 0;
@@ -437,16 +437,21 @@ library G0l {
 
     uint256 j = n;
     uint256 len = 0;
-    while (j != 0) {
-      len++;
-      j /= 10;
+
+    unchecked {
+      while (j != 0) {
+        len++;
+        j /= 10;
+      }
     }
 
     bytes memory bstr = new bytes(len);
     uint256 k = len - 1;
-    while (n != 0) {
-      bstr[k--] = bytes1(uint8(48 + (n % 10)));
-      n /= 10;
+    unchecked {
+      while (n != 0) {
+        bstr[k--] = bytes1(uint8(48 + (n % 10)));
+        n /= 10;
+      }
     }
 
     return bstr;

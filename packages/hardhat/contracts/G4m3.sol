@@ -11,13 +11,14 @@
 // SPDX-License-Identifier: MIT
 // https://twitter.com/0xm3tatr0n
 
-pragma solidity >=0.7.0 <0.8.0;
+pragma solidity ^0.8.20;
 pragma abicoder v2;
 
 import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
-// import '@openzeppelin/contracts/utils/Counters.sol';
+// import '@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol';
+
 import '@openzeppelin/contracts/access/Ownable.sol';
-// import '@openzeppelin/contracts/utils/Pausable.sol';
+
 import '@openzeppelin/contracts/utils/Strings.sol';
 import 'base64-sol/base64.sol';
 
@@ -28,6 +29,23 @@ import './Libraries/BitOps.sol';
 import {Structs} from './Libraries/Structs.sol';
 
 contract G4m3 is ERC721, Ownable {
+  // // overrides
+  // function _beforeTokenTransfer(
+  //   address from,
+  //   address to,
+  //   uint256 firstTokenId,
+  //   uint256 batchSize
+  // ) internal override(ERC721, ERC721Enumerable) {
+  //   super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
+  // }
+
+  // function supportsInterface(
+  //   bytes4 interfaceId
+  // ) public view override(ERC721, ERC721Enumerable) returns (bool) {
+  //   return super.supportsInterface(interfaceId);
+  // }
+
+  // useing
   using Strings for uint256;
   using HexStrings for uint160;
 
@@ -59,11 +77,11 @@ contract G4m3 is ERC721, Ownable {
   // external free minting
   mapping(address => bool) private whitelist;
   address[] private nftCollections = [
-    // polygon mumbai
-    0x31027EF38d3b58f8186B0C33d8D7f298203E0570
-    // // eth main net
-    // 0x4E1f41613c9084FdB9E34E11fAE9412427480e56, // terraforms
-    // 0x18Adc812fE66B9381700C2217f0c9DC816c879E6 // chaos roads
+    // // polygon mumbai
+    // 0x31027EF38d3b58f8186B0C33d8D7f298203E0570
+    // eth main net
+    0x4E1f41613c9084FdB9E34E11fAE9412427480e56, // terraforms
+    0x18Adc812fE66B9381700C2217f0c9DC816c879E6 // chaos roads
   ];
 
   // track number of free mints
@@ -215,21 +233,45 @@ contract G4m3 is ERC721, Ownable {
     return newGameStateFromInt;
   }
 
+  // // Using unsafe math (underflow possible)
+  // function _calculateTotalNeighbors(
+  //   bool[N][N] memory gameState,
+  //   uint256 i,
+  //   uint256 j
+  // ) internal pure returns (uint256) {
+  //   return
+  //     uint256(
+  //       BitOps._b2u(gameState[uint256((i - 1) % N)][uint256((j - 1) % N)]) +
+  //         BitOps._b2u(gameState[uint256((i - 1) % N)][j]) +
+  //         BitOps._b2u(gameState[uint256((i - 1) % N)][uint256((j + 1) % N)]) +
+  //         BitOps._b2u(gameState[i][uint256((j + 1) % N)]) +
+  //         BitOps._b2u(gameState[uint256((i + 1) % N)][uint256((j + 1) % N)]) +
+  //         BitOps._b2u(gameState[uint256((i + 1) % N)][j]) +
+  //         BitOps._b2u(gameState[uint256((i + 1) % N)][uint256((j - 1) % N)]) +
+  //         BitOps._b2u(gameState[i][uint256((j - 1) % N)])
+  //     );
+  // }
+
   function _calculateTotalNeighbors(
     bool[N][N] memory gameState,
     uint256 i,
     uint256 j
   ) internal pure returns (uint256) {
+    uint256 iMinusOne = (i == 0) ? N - 1 : i - 1;
+    uint256 jMinusOne = (j == 0) ? N - 1 : j - 1;
+    uint256 iPlusOne = (i + 1) % N;
+    uint256 jPlusOne = (j + 1) % N;
+
     return
       uint256(
-        BitOps._b2u(gameState[uint256((i - 1) % N)][uint256((j - 1) % N)]) +
-          BitOps._b2u(gameState[uint256((i - 1) % N)][j]) +
-          BitOps._b2u(gameState[uint256((i - 1) % N)][uint256((j + 1) % N)]) +
-          BitOps._b2u(gameState[i][uint256((j + 1) % N)]) +
-          BitOps._b2u(gameState[uint256((i + 1) % N)][uint256((j + 1) % N)]) +
-          BitOps._b2u(gameState[uint256((i + 1) % N)][j]) +
-          BitOps._b2u(gameState[uint256((i + 1) % N)][uint256((j - 1) % N)]) +
-          BitOps._b2u(gameState[i][uint256((j - 1) % N)])
+        BitOps._b2u(gameState[iMinusOne][jMinusOne]) +
+          BitOps._b2u(gameState[iMinusOne][j]) +
+          BitOps._b2u(gameState[iMinusOne][jPlusOne]) +
+          BitOps._b2u(gameState[i][jPlusOne]) +
+          BitOps._b2u(gameState[iPlusOne][jPlusOne]) +
+          BitOps._b2u(gameState[iPlusOne][j]) +
+          BitOps._b2u(gameState[iPlusOne][jMinusOne]) +
+          BitOps._b2u(gameState[i][jMinusOne])
       );
   }
 
