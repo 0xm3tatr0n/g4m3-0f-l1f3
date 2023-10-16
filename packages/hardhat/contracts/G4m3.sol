@@ -29,22 +29,6 @@ import './Libraries/BitOps.sol';
 import {Structs} from './Libraries/Structs.sol';
 
 contract G4m3 is ERC721, Ownable {
-  // // overrides
-  // function _beforeTokenTransfer(
-  //   address from,
-  //   address to,
-  //   uint256 firstTokenId,
-  //   uint256 batchSize
-  // ) internal override(ERC721, ERC721Enumerable) {
-  //   super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
-  // }
-
-  // function supportsInterface(
-  //   bytes4 interfaceId
-  // ) public view override(ERC721, ERC721Enumerable) returns (bool) {
-  //   return super.supportsInterface(interfaceId);
-  // }
-
   // useing
   using Strings for uint256;
   using HexStrings for uint160;
@@ -103,11 +87,11 @@ contract G4m3 is ERC721, Ownable {
   mapping(uint8 => mapping(uint64 => bool)) internal occurredGameStates;
 
   // Functions: Whitelist user & collections
-  function addToWhitelist(address user) public onlyOwner {
+  function addUserToWhitelist(address user) public onlyOwner {
     whitelist[user] = true;
   }
 
-  function removeFromWhitelist(address user) public onlyOwner {
+  function removeUserFromWhitelist(address user) public onlyOwner {
     whitelist[user] = false;
   }
 

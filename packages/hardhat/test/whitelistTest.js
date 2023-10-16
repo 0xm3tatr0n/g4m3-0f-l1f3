@@ -47,7 +47,7 @@ describe('g4m3 whitelist', function () {
 
   it('Should add a given address to the whitelist and allow minting from that address', async function () {
     // Add addr1 to the whitelist
-    const addTx = await myContract.addToWhitelist(addr1.address);
+    const addTx = await myContract.addUserToWhitelist(addr1.address);
     await addTx.wait();
 
     // Mint from addr1 after adding to the whitelist, expecting it to succeed
