@@ -11,7 +11,7 @@ const DisplayVariable = ({ contractFunction, functionInfo, refreshRequired, trig
     try {
       const funcResponse = await contractFunction();
       setVariable(funcResponse);
-      console.log("function response: ", funcResponse);
+      console.log(`function ${functionInfo.name} response: `, funcResponse);
       triggerRefresh(false);
     } catch (e) {
       console.log(e);
