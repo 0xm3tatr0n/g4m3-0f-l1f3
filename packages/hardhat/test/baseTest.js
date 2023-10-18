@@ -359,6 +359,8 @@ describe('g4m3 base', function () {
       it('Should mint all tokens and aggregate tokenURI data', async function () {
         const [owner] = await ethers.getSigners();
         await deployContract();
+        await network.provider.send('evm_increaseTime', [7 * 24 * 60 * 60]); // 7 days * 24 hours/day * 60 minutes/hour * 60 seconds/minute
+        await network.provider.send('evm_mine'); // Mine a new block to effect the time change
 
         const tokenURIs = [];
         let minting = true;

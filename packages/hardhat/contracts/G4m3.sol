@@ -9,21 +9,17 @@
 
 // This project is for experimentation. Should something breaks, I'm sorry. But have been warned.
 // SPDX-License-Identifier: MIT
+// https://github.com/0xm3tatr0n
 // https://twitter.com/0xm3tatr0n
 
 pragma solidity ^0.8.20;
 pragma abicoder v2;
 
 import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
-// import '@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol';
-
 import '@openzeppelin/contracts/access/Ownable.sol';
-
 import '@openzeppelin/contracts/utils/Strings.sol';
 import 'base64-sol/base64.sol';
-
 import './Libraries/HexStrings.sol';
-
 import './Libraries/G0l.sol';
 import './Libraries/BitOps.sol';
 import {Structs} from './Libraries/Structs.sol';
@@ -61,11 +57,11 @@ contract G4m3 is ERC721, Ownable {
   // external free minting
   mapping(address => bool) private whitelist;
   address[] private nftCollections = [
-    // polygon mumbai
-    0x31027EF38d3b58f8186B0C33d8D7f298203E0570
-    // // eth main net
-    // 0x4E1f41613c9084FdB9E34E11fAE9412427480e56, // terraforms
-    // 0x18Adc812fE66B9381700C2217f0c9DC816c879E6 // chaos roads
+    // // polygon mumbai
+    // 0x31027EF38d3b58f8186B0C33d8D7f298203E0570
+    // eth main net
+    0x4E1f41613c9084FdB9E34E11fAE9412427480e56, // terraforms
+    0x18Adc812fE66B9381700C2217f0c9DC816c879E6 // chaos roads
   ];
 
   // track number of free mints
