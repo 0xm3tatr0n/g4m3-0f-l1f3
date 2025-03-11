@@ -98,7 +98,7 @@ contract G4m3 is ERC721, Ownable {
   }
 
   function mintPack(address mintTo) public payable publicMintLive {
-    require(msg.value >= mintPackPrice, 'funds');
+    require(msg.value == mintPackPrice, 'exact amount required');
 
     for (uint256 i = 0; i < 5; i++) {
       _mintBase(mintTo);
@@ -191,11 +191,73 @@ contract G4m3 is ERC721, Ownable {
     if (_currentGeneration >= 511) {
       _initState();
     } else {
-      bool[N][N] memory newGameStateFromInt = _determineNextGeneration();
-      _checkForEpochEnd(newGameStateFromInt);
+      // Use bitwise operations directly without grid conversion
+      uint64 newGameStateInt = _determineNextGenerationBitwise(gameStateInt);
+      
+      // The rest of the code uses the uint64 value directly
+      if (occurredGameStates[_currentEpoch][newGameStateInt]) {
+        _initState();
+      } else {
+        _currentGeneration += 1;
+        gameStateInt = newGameStateInt;
+        occurredGameStates[_currentEpoch][newGameStateInt] = true;
+      }
     }
   }
 
+  // Optimized version that operates directly on bits without grid conversion
+  function _determineNextGenerationBitwise(uint64 currentState) internal pure returns (uint64) {
+    uint64 newState = 0;
+    
+    // Pre-calculate shifted rows for neighbor checks with wraparound
+    uint64 topRow = ((currentState & 0x00000000000000FF) << 56) | (currentState >> 8);
+    uint64 middleRow = currentState;
+    uint64 bottomRow = ((currentState & 0xFF00000000000000) >> 56) | (currentState << 8);
+    
+    // Process cells row by row
+    for (uint8 row = 0; row < 8; row++) {
+      uint64 rowShift = row * 8;
+      
+      // Extract row bits with wraparound already applied
+      uint8 topRowBits = uint8((topRow >> rowShift) & 0xFF);
+      uint8 midRowBits = uint8((middleRow >> rowShift) & 0xFF);
+      uint8 botRowBits = uint8((bottomRow >> rowShift) & 0xFF);
+      
+      for (uint8 col = 0; col < 8; col++) {
+        uint8 cellPos = row * 8 + col;
+        bool isAlive = ((currentState >> cellPos) & 1) == 1;
+        
+        // Get neighbor columns with wraparound
+        uint8 leftCol = (col == 0) ? 7 : col - 1;
+        uint8 rightCol = (col == 7) ? 0 : col + 1;
+        
+        // Count all 8 neighbors with bitwise operations
+        uint8 neighbors = 0;
+        neighbors += (topRowBits >> leftCol) & 1;  // Top-left
+        neighbors += (topRowBits >> col) & 1;      // Top
+        neighbors += (topRowBits >> rightCol) & 1; // Top-right
+        neighbors += (midRowBits >> leftCol) & 1;  // Left
+        neighbors += (midRowBits >> rightCol) & 1; // Right
+        neighbors += (botRowBits >> leftCol) & 1;  // Bottom-left
+        neighbors += (botRowBits >> col) & 1;      // Bottom
+        neighbors += (botRowBits >> rightCol) & 1; // Bottom-right
+        
+        // Apply Game of Life rules
+        bool newCellState = isAlive ? 
+            (neighbors == 2 || neighbors == 3) : // Survival
+            (neighbors == 3);                    // Birth
+        
+        // Set the bit if alive
+        if (newCellState) {
+            newState |= (1ULL << cellPos);
+        }
+      }
+    }
+    
+    return newState;
+  }
+
+  // Original function kept for compatibility with other code that may use it
   function _determineNextGeneration()
     internal
     view
@@ -266,6 +328,7 @@ contract G4m3 is ERC721, Ownable {
     }
   }
 
+  // Original function kept for compatibility
   function _checkForEpochEnd(bool[N][N] memory newGameStateFromInt) internal {
     uint64 gameStateIntNew = BitOps.gridToWord(newGameStateFromInt);
 

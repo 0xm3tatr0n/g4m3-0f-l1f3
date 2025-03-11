@@ -5,7 +5,7 @@ const fs = require('fs');
 const chalk = require('chalk');
 
 require('@nomiclabs/hardhat-waffle');
-require('@tenderly/hardhat-tenderly');
+// require('@tenderly/hardhat-tenderly');
 require('@nomiclabs/hardhat-ethers');
 require('@nomiclabs/hardhat-etherscan');
 require('hardhat-gas-reporter');
@@ -73,10 +73,11 @@ module.exports = {
     },
     hardhat: {
       allowUnlimitedContractSize: true,
-      forking: {
-        url: 'https://mainnet.infura.io/v3/4993d3ba57244f2096d77d1e5b44e436', // Replace with your Infura URL or other provider
-        // blockNumber: 13823000, // Optional, if you want to fork from a specific block
-      },
+      // Disabling forking to avoid network errors
+      // forking: {
+      //   url: 'https://mainnet.infura.io/v3/4993d3ba57244f2096d77d1e5b44e436',
+      //   // blockNumber: 13823000, 
+      // },
     },
     rinkeby: {
       url: 'https://rinkeby.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad', //<---- YOUR INFURA ID! (or it won't work)
@@ -162,9 +163,9 @@ module.exports = {
   mocha: {
     timeout: 100000000,
   },
-  tenderly: {
-    consoleLogLevel: 'none',
-  },
+  // tenderly: {
+  //   consoleLogLevel: 'none',
+  // },
   logging: {
     level: 'info',
   },

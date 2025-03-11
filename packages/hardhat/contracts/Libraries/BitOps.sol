@@ -44,15 +44,17 @@ library BitOps {
   }
 
   function getCountOfOnBits(uint256 boolsUint) public pure returns (uint8) {
-    // count all the on bits in boolsUint
+    // Optimized version using Brian Kernighan's algorithm
+    // Runs in O(set bits) rather than O(255)
     uint256 boolsUintCopy = boolsUint;
     uint8 _count = 0;
-    for (uint8 i = 0; i < 255; i++) {
-      if (boolsUintCopy & 1 == 1) {
-        _count++;
-      }
-      boolsUintCopy >>= 1;
+    
+    // Each iteration clears the rightmost set bit
+    while (boolsUintCopy != 0) {
+      boolsUintCopy &= (boolsUintCopy - 1);
+      _count++;
     }
+    
     return _count;
   }
 
