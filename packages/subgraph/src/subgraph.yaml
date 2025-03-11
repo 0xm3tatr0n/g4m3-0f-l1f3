@@ -1,0 +1,25 @@
+specVersion: 0.0.2
+schema:
+  file: ./src/schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: YourContract
+    network: localhost
+    source:
+      address: "{{G4m3Address}}"
+      abi: G4m3
+      startBlock: 1
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Purpose
+        - Sender
+      abis:
+        - name: G4m3
+          file: ./abis/G4m3.json
+      eventHandlers:
+        - event: SetPurpose(address,string)
+          handler: handleSetPurpose
+      file: ./src/mapping.ts
