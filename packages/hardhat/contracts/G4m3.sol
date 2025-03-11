@@ -249,7 +249,7 @@ contract G4m3 is ERC721, Ownable {
         
         // Set the bit if alive
         if (newCellState) {
-            newState |= (1ULL << cellPos);
+            newState |= (uint64(1) << cellPos);
         }
       }
     }
