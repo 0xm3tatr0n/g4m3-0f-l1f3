@@ -358,51 +358,54 @@ contract G4m3 is ERC721, Ownable {
 
   function tokenURI(uint256 id) public view override returns (string memory) {
     require(_exists(id), 'nt');
-    string memory image = Base64.encode(bytes(generateSVGofTokenById(id)));
-    Structs.MetaData memory metadata = generateMetadata(id);
+    
+    // Unpack state once and pass to both functions
+    uint64 gameState;
+    uint8 epoch;
+    uint16 generation;
+    (gameState, epoch, generation) = BitOps.unpackState(tokenState[id]);
+    
+    // Generate metadata first since SVG generation needs it
+    Structs.MetaData memory metadata = generateMetadata(id, gameState, epoch, generation);
+    
+    // Now generate SVG passing the unpacked state and metadata
+    string memory image = Base64.encode(bytes(generateSVGofTokenById(id, gameState, metadata)));
 
-    return
-      string(
-        abi.encodePacked(
-          'data:application/json;base64,',
-          Base64.encode(
-            bytes(
-              abi.encodePacked(
-                '{"name":"',
-                metadata.name,
-                '", "description":"',
-                metadata.description,
-                '",',
-                G0l.generateAttributeString(
-                  metadata.times,
-                  metadata.epoch,
-                  metadata.generation,
-                  metadata.populationDensity,
-                  metadata.birthCount,
-                  metadata.deathCount,
-                  metadata.shape,
-                  metadata.speed,
-                  metadata.pattern,
-                  metadata.trend
-                ),
-                '"owner":"',
-                (uint160(ownerOf(id))).toHexString(20),
-                '", "image": "',
-                'data:image/svg+xml;base64,',
-                image,
-                '"}'
-              )
-            )
-          )
-        )
-      );
+    // Combine the JSON pieces with fewer string operations
+    string memory json = string(
+      abi.encodePacked(
+        '{"name":"', metadata.name,
+        '", "description":"', metadata.description, '",',
+        G0l.generateAttributeString(
+          metadata.times, metadata.epoch, metadata.generation,
+          metadata.populationDensity, metadata.birthCount, 
+          metadata.deathCount, metadata.shape, metadata.speed,
+          metadata.pattern, metadata.trend
+        ),
+        '"owner":"', (uint160(ownerOf(id))).toHexString(20),
+        '", "image": "data:image/svg+xml;base64,', image, '"}'
+      )
+    );
+    
+    return string(abi.encodePacked('data:application/json;base64,', Base64.encode(bytes(json))));
   }
 
+  // Original function kept for compatibility
   function generateSVGofTokenById(uint256 id) internal view returns (string memory) {
+    uint64 gameState;
+    uint8 epoch;
+    uint16 generation;
+    (gameState, epoch, generation) = BitOps.unpackState(tokenState[id]);
+    Structs.MetaData memory metadata = generateMetadata(id, gameState, epoch, generation);
+    return generateSVGofTokenById(id, gameState, metadata);
+  }
+  
+  // Optimized function that accepts pre-computed values
+  function generateSVGofTokenById(uint256 id, uint64 gameState, Structs.MetaData memory metadata) internal view returns (string memory) {
     string memory svg = string(
       abi.encodePacked(
         '<svg width="360" height="360" xmlns="http://www.w3.org/2000/svg">',
-        renderGameGrid(id),
+        renderGameGrid(id, gameState, metadata),
         '</svg>'
       )
     );
@@ -436,73 +439,69 @@ contract G4m3 is ERC721, Ownable {
     return colorMap;
   }
 
+  // Original function kept for compatibility
   function renderGameGrid(uint256 id) private view returns (string memory) {
-    // render that thing
     uint64 gameState;
-    (gameState, , ) = BitOps.unpackState(tokenState[id]);
+    uint8 epoch;
+    uint16 generation;
+    (gameState, epoch, generation) = BitOps.unpackState(tokenState[id]);
+    Structs.MetaData memory metadata = generateMetadata(id, gameState, epoch, generation);
+    return renderGameGrid(id, gameState, metadata);
+  }
+  
+  // Optimized function that accepts pre-computed values
+  function renderGameGrid(uint256 id, uint64 gameState, Structs.MetaData memory metaData) private view returns (string memory) {
     bool[N][N] memory grid = BitOps.wordToGrid(gameState);
     string[] memory squares = new string[](N * N);
-    uint256 slotCounter = 0;
-    uint64 stateDiff;
+    uint64 stateDiff = 0;
     Structs.CellData memory CellData;
 
-    // figure out which cells have changed in this round
+    // Figure out which cells have changed in this round
     if (id > 1) {
-      // case: not the first item (todo: catch generation changes)
       uint64 gameStateOld;
       (gameStateOld, , ) = BitOps.unpackState(tokenState[id - 1]);
       stateDiff = gameStateOld ^ gameState;
-    } else {
-      // no changes since first born
     }
 
-    // determine color map
-    Structs.MetaData memory metaData = generateMetadata(id);
+    // Generate color map from the already computed metadata
     Structs.ColorMap memory colorMap = generateColorMap(metaData);
 
-    // pass metadata to celldata
+    // Set up cell data from metadata (eliminates duplicate metadata reads)
     CellData.shape = metaData.shape;
     CellData.speed = metaData.speed;
     CellData.pattern = metaData.pattern;
-
-    // adding counters to keep track of born / perished
     CellData.bornCounter = 0;
     CellData.perishedCounter = 0;
-
-    // packing representation (present in metaData) into CellData struct for stacking reasons
     CellData.unitScale = scale;
 
-    for (uint8 i = 0; i < grid.length; i += 1) {
-      //
-      bool[8] memory row = grid[i];
-      for (uint8 j = 0; j < row.length; j += 1) {
-        CellData.i = i;
-        CellData.j = j;
-        CellData.alive = grid[i][j];
-        string memory square;
+    // Process cells in batches to reduce memory operations
+    unchecked {
+      for (uint8 i = 0; i < grid.length; i++) {
+        bool[8] memory row = grid[i];
+        uint8 baseIndex = i * 8; // Calculate base index once per row
+        
+        for (uint8 j = 0; j < row.length; j++) {
+          uint8 slotCounter = baseIndex + j; // Direct slot calculation
+          
+          CellData.i = i;
+          CellData.j = j;
+          CellData.alive = grid[i][j];
+          CellData.hasChanged = BitOps.getBooleanFromIndex64(stateDiff, slotCounter);
 
-        // check for stateDiff
-        CellData.hasChanged = BitOps.getBooleanFromIndex64(stateDiff, (i * 8 + j));
+          // Track born/perished cells
+          if (CellData.hasChanged && CellData.alive) {
+            CellData.bornCounter += 1;
+          } else if (CellData.hasChanged && !CellData.alive) {
+            CellData.perishedCounter += 1;
+          }
 
-        // update tracking counters
-        if (CellData.hasChanged && CellData.alive) {
-          CellData.bornCounter += 1;
-        } else if (CellData.hasChanged && !CellData.alive) {
-          CellData.perishedCounter += 1;
+          squares[slotCounter] = G0l.renderGameSquare(CellData, colorMap);
         }
-
-        square = G0l.renderGameSquare(CellData, colorMap);
-
-        squares[slotCounter] = square;
-        slotCounter += 1;
       }
     }
 
-    // combine array of squares into single bytes array
-
-    bytes memory output;
-    // add general svg, e.g. background
-    output = G0l.renderDefs(
+    // Combine SVG elements efficiently
+    bytes memory output = G0l.renderDefs(
       colorMap.aliveColor,
       colorMap.deadColor,
       colorMap.bornColor,
@@ -511,79 +510,92 @@ contract G4m3 is ERC721, Ownable {
       metaData.speed,
       s_scale
     );
+    
     output = abi.encodePacked(
       output,
       '<rect width="100%" height="100%" fill="',
       colorMap.backgroundColor,
       '" />'
     );
-    for (uint256 i = 0; i < squares.length; i += 1) {
-      output = abi.encodePacked(output, squares[i]);
+    
+    // Combine squares in batches to reduce memory allocations
+    for (uint256 i = 0; i < squares.length; i += 4) {
+      if (i + 3 < squares.length) {
+        output = abi.encodePacked(output, squares[i], squares[i+1], squares[i+2], squares[i+3]);
+      } else if (i + 2 < squares.length) {
+        output = abi.encodePacked(output, squares[i], squares[i+1], squares[i+2]);
+      } else if (i + 1 < squares.length) {
+        output = abi.encodePacked(output, squares[i], squares[i+1]);
+      } else {
+        output = abi.encodePacked(output, squares[i]);
+      }
     }
 
     return string(output);
   }
 
+  // Original function kept for compatibility
   function generateMetadata(uint256 id) internal view returns (Structs.MetaData memory) {
-    Structs.MetaData memory metadata;
     uint64 gameState;
     uint8 epoch;
     uint16 generation;
     (gameState, epoch, generation) = BitOps.unpackState(tokenState[id]);
+    return generateMetadata(id, gameState, epoch, generation);
+  }
+  
+  // Optimized function that accepts pre-computed values
+  function generateMetadata(uint256 id, uint64 gameState, uint8 epoch, uint16 generation) internal view returns (Structs.MetaData memory) {
+    Structs.MetaData memory metadata;
+    
+    // Directly use the passed parameters instead of unpacking again
     metadata.epoch = Strings.toString(epoch);
     metadata.generation = generation;
     metadata.populationDensity = BitOps.getCountOfOnBits(gameState);
+    
+    // Reuse string conversions
+    string memory idStr = id.toString();
+    string memory epochStr = metadata.epoch;
+    string memory genStr = uint256(generation).toString();
+    
+    // More efficient string concatenation
     metadata.name = string(
-      abi.encodePacked(
-        'g4m3 0f l1f3 #',
-        id.toString(),
-        ' ',
-        Strings.toString(epoch),
-        '/',
-        uint256(generation).toString()
-      )
+      abi.encodePacked('g4m3 0f l1f3 #', idStr, ' ', epochStr, '/', genStr)
     );
+    
     metadata.description = string(
-      abi.encodePacked(
-        'g4m3 0f l1f3 iteration #',
-        id.toString(),
-        '. Generation #',
-        uint256(generation).toString(),
-        ' in epoch #',
-        uint256(epoch).toString()
-      )
+      abi.encodePacked('g4m3 0f l1f3 iteration #', idStr, '. Generation #', genStr, ' in epoch #', epochStr)
     );
 
     // "arbitrary" value to mix things up (not random because deterministic)
     metadata.seed = uint256(keccak256(abi.encodePacked(metadata.generation, metadata.description)));
-    // get data for births & deaths
-    uint256 stateDiff;
+    
+    // Get data for births & deaths
     if (id > 1 && metadata.generation != 0) {
       uint64 prevTokenState;
       (prevTokenState, , ) = BitOps.unpackState(tokenState[id - 1]);
-      stateDiff = prevTokenState ^ gameState;
+      uint64 stateDiff = prevTokenState ^ gameState;
 
       uint8 bornCells = BitOps.getCountOfOnBits(gameState & stateDiff);
       uint8 perishedCells = BitOps.getCountOfOnBits(~gameState & stateDiff);
-      // set counts
+      
+      // Set counts
       metadata.birthCount = bornCells;
       metadata.deathCount = perishedCells;
 
       Structs.Trends memory populationTrends = G0l.getTrends(bornCells, perishedCells);
 
-      // determine prosperity levels
+      // Determine prosperity levels
       metadata.popDiff = populationTrends.popDiff;
-      metadata.times =
-        uint8(
-          G0l.generateTimesNumber(
-            populationTrends.up,
-            populationTrends.popDiff,
-            metadata.populationDensity,
-            metadata.seed
-          )
-        ) +
-        epoch;
+      metadata.times = uint8(
+        G0l.generateTimesNumber(
+          populationTrends.up,
+          populationTrends.popDiff,
+          metadata.populationDensity,
+          metadata.seed
+        )
+      ) + epoch;
 
+      // Set trend string
       if (populationTrends.up == 1) {
         metadata.trend = string(abi.encodePacked('+', Strings.toString(metadata.popDiff)));
       } else if (populationTrends.up == 0) {
@@ -592,7 +604,7 @@ contract G4m3 is ERC721, Ownable {
         metadata.trend = Strings.toString(metadata.popDiff);
       }
     } else {
-      // fallback for new generations
+      // Fallback for new generations
       metadata.birthCount = 0;
       metadata.deathCount = 0;
       metadata.popDiff = 0;
@@ -600,15 +612,10 @@ contract G4m3 is ERC721, Ownable {
       metadata.times = 0;
     }
 
-    // dummy population of new representation data
+    // Representation data
     (metadata.shape, metadata.speed, metadata.pattern) = G0l.representationAttributes(
       metadata.seed
     );
-
-    // // override for testing:
-    // metadata.shape = 4;
-    // metadata.pattern = 1;
-    // metadata.speed = 3;
 
     return metadata;
   }
