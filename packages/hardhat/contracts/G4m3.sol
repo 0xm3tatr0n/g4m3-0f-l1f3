@@ -159,31 +159,44 @@ contract G4m3 is ERC721, Ownable {
     _currentEpoch += 1;
     _currentGeneration = 0;
 
-    // temporary storage
-    bytes32 seedBytes;
-
-    // If current epoch is 0, seed is rondom (enough). else deterministic but reshuffled.
-    if (_currentEpoch == 1) {
-      seedBytes = keccak256(
-        abi.encodePacked(address(this), _currentEpoch, blockhash(block.number - 1), block.timestamp)
-      );
-    } else {
-      seedBytes = keccak256(abi.encodePacked(address(this), _currentEpoch, gameStateInt));
-    }
-
-    uint64 r = uint64(uint256(seedBytes));
-    uint64 gridInt = r;
-    for (uint256 i = 0; i < 8; i += 1) {
-      uint8 m = uint8(r >> (i * 8));
-      uint256 s = uint256(keccak256(abi.encodePacked(m, address(this))));
-
-      for (uint256 j = 0; j < 8; j += 1) {
-        if (uint8(s >> (j * 8)) > 125) {
-          gridInt = BitOps.setBooleanOnIndex64(gridInt, uint64((i * 8) + j), true);
+    // Generate a single seed value based on current conditions
+    bytes32 seedBytes = _currentEpoch == 1 
+        ? keccak256(abi.encodePacked(address(this), _currentEpoch, blockhash(block.number - 1), block.timestamp))
+        : keccak256(abi.encodePacked(address(this), _currentEpoch, gameStateInt));
+        
+    // Use the full 256 bits of entropy from the hash
+    uint256 fullSeed = uint256(seedBytes);
+    
+    // Generate the initial state more efficiently
+    uint64 gridInt = 0;
+    
+    // Use different parts of the seed to set bits
+    // We only need 64 bits of randomness total
+    unchecked {
+      for (uint8 i = 0; i < 64; i++) {
+        // Extract randomness from different parts of the seed 
+        // based on position to avoid patterns
+        uint8 byteOffset = i / 8;
+        uint8 bitSelector = i % 8;
+        
+        // Get a random byte from the seed - use modulo to wrap around
+        // and get different parts of the seed
+        uint8 randomByte = uint8(fullSeed >> (((i * 17) + (byteOffset * 13)) % 256));
+        
+        // Use bit 'bitSelector' from randomByte to determine if this cell is alive
+        bool isAlive = ((randomByte >> bitSelector) & 1) != 0;
+        
+        // For increased randomness, apply an additional threshold
+        // Use a different part of the seed for this check
+        uint8 threshold = uint8(fullSeed >> (((i * 23) + 119) % 256));
+        
+        // Approximately 50% chance of being alive (threshold > 127)
+        if (isAlive && threshold > 127) {
+          gridInt |= uint64(1) << i;
         }
       }
     }
-
+    
     gameStateInt = gridInt;
   }
 
