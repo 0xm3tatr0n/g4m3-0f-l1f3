@@ -513,7 +513,7 @@ contract G4m3 is ERC721, Ownable {
     );
     output = abi.encodePacked(
       output,
-      '<rect width="100%" height="100%" fill="',
+      '<rect width="360" height="360" fill="',
       colorMap.backgroundColor,
       '" />'
     );
