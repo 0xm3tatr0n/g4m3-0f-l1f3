@@ -53,6 +53,22 @@ contract G4m3 is ERC721, Ownable {
   uint8 internal constant scale = 40;
   uint8 internal constant N = 8;
   string s_scale = Strings.toString(scale - 4);
+  
+  // Precomputed string constants for tokenURI and SVG generation
+  string private constant SVG_HEADER = '<svg width="360" height="360" xmlns="http://www.w3.org/2000/svg">';
+  string private constant SVG_FOOTER = '</svg>';
+  string private constant JSON_PREFIX = '{"name":"';
+  string private constant JSON_DESC_PREFIX = '", "description":"';
+  string private constant JSON_OWNER_PREFIX = '", "owner":"';
+  string private constant JSON_IMAGE_PREFIX = '", "image": "data:image/svg+xml;base64,';
+  string private constant JSON_SUFFIX = '"}';
+  string private constant TOKEN_URI_PREFIX = 'data:application/json;base64,';
+  
+  // Constants for metadata strings
+  string private constant NAME_PREFIX = 'g4m3 0f l1f3 #';
+  string private constant DESC_PREFIX = 'g4m3 0f l1f3 iteration #';
+  string private constant GEN_PREFIX = '. Generation #';
+  string private constant EPOCH_PREFIX = ' in epoch #';
 
   // external free minting
   mapping(address => bool) private whitelist;
@@ -372,13 +388,13 @@ contract G4m3 is ERC721, Ownable {
     return
       string(
         abi.encodePacked(
-          'data:application/json;base64,',
+          TOKEN_URI_PREFIX,
           Base64.encode(
             bytes(
               abi.encodePacked(
-                '{"name":"',
+                JSON_PREFIX,
                 metadata.name,
-                '", "description":"',
+                JSON_DESC_PREFIX,
                 metadata.description,
                 '",',
                 G0l.generateAttributeString(
@@ -393,12 +409,11 @@ contract G4m3 is ERC721, Ownable {
                   metadata.pattern,
                   metadata.trend
                 ),
-                '"owner":"',
+                JSON_OWNER_PREFIX,
                 (uint160(ownerOf(id))).toHexString(20),
-                '", "image": "',
-                'data:image/svg+xml;base64,',
+                JSON_IMAGE_PREFIX,
                 image,
-                '"}'
+                JSON_SUFFIX
               )
             )
           )
@@ -407,15 +422,14 @@ contract G4m3 is ERC721, Ownable {
   }
 
   function generateSVGofTokenById(uint256 id, uint64 gameState) internal view returns (string memory) {
-    string memory svg = string(
+    // Use precomputed constants for SVG elements
+    return string(
       abi.encodePacked(
-        '<svg width="360" height="360" xmlns="http://www.w3.org/2000/svg">',
+        SVG_HEADER,
         renderGameGrid(id, gameState),
-        '</svg>'
+        SVG_FOOTER
       )
     );
-
-    return svg;
   }
   
   // Keep the original function for backward compatibility
@@ -492,14 +506,16 @@ contract G4m3 is ERC721, Ownable {
     // packing representation (present in metaData) into CellData struct for stacking reasons
     CellData.unitScale = scale;
 
-    for (uint8 i = 0; i < grid.length; i += 1) {
-      //
-      bool[8] memory row = grid[i];
-      for (uint8 j = 0; j < row.length; j += 1) {
-        CellData.i = i;
-        CellData.j = j;
-        CellData.alive = grid[i][j];
-        string memory square;
+    // Using unchecked block for the grid loops since we know the exact size (8x8)
+    // This saves gas by skipping overflow checks that are unnecessary in this context
+    unchecked {
+      for (uint8 i = 0; i < grid.length; i++) {
+        bool[8] memory row = grid[i];
+        for (uint8 j = 0; j < row.length; j++) {
+          CellData.i = i;
+          CellData.j = j;
+          CellData.alive = grid[i][j];
+          string memory square;
 
         // check for stateDiff
         CellData.hasChanged = BitOps.getBooleanFromIndex64(stateDiff, (i * 8 + j));
@@ -516,6 +532,7 @@ contract G4m3 is ERC721, Ownable {
         squares[slotCounter] = square;
         slotCounter += 1;
       }
+    } // Close unchecked block
     }
 
     // combine array of squares into single bytes array
@@ -537,8 +554,11 @@ contract G4m3 is ERC721, Ownable {
       colorMap.backgroundColor,
       '" />'
     );
-    for (uint256 i = 0; i < squares.length; i += 1) {
-      output = abi.encodePacked(output, squares[i]);
+    // Use unchecked for the loop through fixed-size array
+    unchecked {
+      for (uint256 i = 0; i < squares.length; i++) {
+        output = abi.encodePacked(output, squares[i]);
+      }
     }
 
     return string(output);
@@ -555,27 +575,36 @@ contract G4m3 is ERC721, Ownable {
   
   function generateMetadata(uint256 id, uint64 gameState, uint8 epoch, uint16 generation) internal view returns (Structs.MetaData memory) {
     Structs.MetaData memory metadata;
-    metadata.epoch = Strings.toString(epoch);
+    
+    // Cache string conversions to avoid repeated conversions
+    string memory epochStr = Strings.toString(epoch);
+    string memory idStr = id.toString();
+    string memory generationStr = uint256(generation).toString();
+    
+    metadata.epoch = epochStr;
     metadata.generation = generation;
     metadata.populationDensity = BitOps.getCountOfOnBits(gameState);
+    
+    // Use constants and cached strings
     metadata.name = string(
       abi.encodePacked(
-        'g4m3 0f l1f3 #',
-        id.toString(),
+        NAME_PREFIX,
+        idStr,
         ' ',
-        Strings.toString(epoch),
+        epochStr,
         '/',
-        uint256(generation).toString()
+        generationStr
       )
     );
+    
     metadata.description = string(
       abi.encodePacked(
-        'g4m3 0f l1f3 iteration #',
-        id.toString(),
-        '. Generation #',
-        uint256(generation).toString(),
-        ' in epoch #',
-        uint256(epoch).toString()
+        DESC_PREFIX,
+        idStr,
+        GEN_PREFIX,
+        generationStr,
+        EPOCH_PREFIX,
+        epochStr
       )
     );
 

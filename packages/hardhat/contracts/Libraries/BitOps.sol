@@ -44,18 +44,20 @@ library BitOps {
   }
 
   function getCountOfOnBits(uint256 boolsUint) public pure returns (uint8) {
-    // Optimized version using Brian Kernighan's algorithm
-    // Runs in O(set bits) rather than O(255)
-    uint256 boolsUintCopy = boolsUint;
-    uint8 _count = 0;
-    
-    // Each iteration clears the rightmost set bit
-    while (boolsUintCopy != 0) {
-      boolsUintCopy &= (boolsUintCopy - 1);
-      _count++;
+    // Assembly implementation of Brian Kernighan's algorithm
+    // Much more gas efficient than the Solidity version
+    uint256 count;
+    assembly {
+      // Loop while the value is not zero
+      for { } gt(boolsUint, 0) { } {
+        // Clear the least significant set bit (n & (n-1))
+        boolsUint := and(boolsUint, sub(boolsUint, 1))
+        // Increment count
+        count := add(count, 1)
+      }
     }
     
-    return _count;
+    return uint8(count);
   }
 
   function _b2u(bool input) internal pure returns (uint256) {
