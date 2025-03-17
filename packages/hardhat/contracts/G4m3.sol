@@ -358,8 +358,16 @@ contract G4m3 is ERC721, Ownable {
 
   function tokenURI(uint256 id) public view override returns (string memory) {
     require(_exists(id), 'nt');
-    string memory image = Base64.encode(bytes(generateSVGofTokenById(id)));
-    Structs.MetaData memory metadata = generateMetadata(id);
+    
+    // Unpack state once and reuse for all functions
+    uint64 gameState;
+    uint8 epoch;
+    uint16 generation;
+    (gameState, epoch, generation) = BitOps.unpackState(tokenState[id]);
+    
+    // Pass cached state values to all functions
+    string memory image = Base64.encode(bytes(generateSVGofTokenById(id, gameState)));
+    Structs.MetaData memory metadata = generateMetadata(id, gameState, epoch, generation);
 
     return
       string(
@@ -398,16 +406,23 @@ contract G4m3 is ERC721, Ownable {
       );
   }
 
-  function generateSVGofTokenById(uint256 id) internal view returns (string memory) {
+  function generateSVGofTokenById(uint256 id, uint64 gameState) internal view returns (string memory) {
     string memory svg = string(
       abi.encodePacked(
         '<svg width="360" height="360" xmlns="http://www.w3.org/2000/svg">',
-        renderGameGrid(id),
+        renderGameGrid(id, gameState),
         '</svg>'
       )
     );
 
     return svg;
+  }
+  
+  // Keep the original function for backward compatibility
+  function generateSVGofTokenById(uint256 id) internal view returns (string memory) {
+    uint64 gameState;
+    (gameState, , ) = BitOps.unpackState(tokenState[id]);
+    return generateSVGofTokenById(id, gameState);
   }
 
   function generateColorMap(
@@ -436,10 +451,15 @@ contract G4m3 is ERC721, Ownable {
     return colorMap;
   }
 
+  // Original function for backward compatibility
   function renderGameGrid(uint256 id) private view returns (string memory) {
-    // render that thing
     uint64 gameState;
     (gameState, , ) = BitOps.unpackState(tokenState[id]);
+    return renderGameGrid(id, gameState);
+  }
+  
+  function renderGameGrid(uint256 id, uint64 gameState) private view returns (string memory) {
+    // render that thing using the passed gameState instead of unpacking again
     bool[N][N] memory grid = BitOps.wordToGrid(gameState);
     string[] memory squares = new string[](N * N);
     uint256 slotCounter = 0;
@@ -524,12 +544,17 @@ contract G4m3 is ERC721, Ownable {
     return string(output);
   }
 
+  // Original function for backward compatibility
   function generateMetadata(uint256 id) internal view returns (Structs.MetaData memory) {
-    Structs.MetaData memory metadata;
     uint64 gameState;
     uint8 epoch;
     uint16 generation;
     (gameState, epoch, generation) = BitOps.unpackState(tokenState[id]);
+    return generateMetadata(id, gameState, epoch, generation);
+  }
+  
+  function generateMetadata(uint256 id, uint64 gameState, uint8 epoch, uint16 generation) internal view returns (Structs.MetaData memory) {
+    Structs.MetaData memory metadata;
     metadata.epoch = Strings.toString(epoch);
     metadata.generation = generation;
     metadata.populationDensity = BitOps.getCountOfOnBits(gameState);

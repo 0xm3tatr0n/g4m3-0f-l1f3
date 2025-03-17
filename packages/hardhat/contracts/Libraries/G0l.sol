@@ -634,7 +634,7 @@ library G0l {
 
   function generateAttributeString(
     uint8 times,
-    string calldata epoch,
+    string memory epoch,
     uint16 generation,
     uint8 populationDensity,
     uint8 birthCount,
@@ -642,7 +642,7 @@ library G0l {
     uint8 shape,
     uint8 speed,
     uint8 pattern,
-    string calldata trend
+    string memory trend
   ) public pure returns (string memory) {
     bytes memory attributeBytes;
 
