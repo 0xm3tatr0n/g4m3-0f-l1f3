@@ -77,7 +77,42 @@ describe('Generate SVGs', function () {
   });
   
   it('Should generate SVGs for multiple tokens', async function () {
+    // Get signers first
     [owner] = await ethers.getSigners();
+    
+    // Generate a unique random seed for this test run
+    const uniqueTestId = Date.now().toString() + Math.random().toString();
+    const customRandomSeed = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(uniqueTestId));
+    
+    // Set a variable future timestamp - this affects randomness
+    const timestamp = Math.floor(Date.now()/1000) + parseInt(customRandomSeed.slice(2, 10), 16) % 100000;
+    await network.provider.send("evm_setNextBlockTimestamp", [timestamp]);
+    
+    // Mine a block with the custom timestamp
+    await network.provider.send("evm_mine");
+    
+    // Generate a few more blocks with different timestamps for additional randomness sources
+    for (let i = 0; i < 5; i++) {
+      // Each block will have a different timestamp
+      await network.provider.send("evm_increaseTime", [59 * (i + 1)]);
+      await network.provider.send("evm_mine");
+      
+      // Add some transactions to create more entropy in the blocks
+      const tx = await owner.sendTransaction({
+        to: ethers.constants.AddressZero,
+        value: ethers.utils.parseEther("0.0001"),
+      });
+      await tx.wait();
+    }
+    
+    // Record the actual blockhashes and timestamps used (for debugging)
+    const blockNumber = await ethers.provider.getBlockNumber();
+    const block = await ethers.provider.getBlock(blockNumber);
+    const previousBlock = await ethers.provider.getBlock(blockNumber - 1);
+    
+    console.log(`Current block: ${blockNumber}, hash: ${block.hash}, timestamp: ${block.timestamp}`);
+    console.log(`Previous block hash: ${previousBlock.hash}, timestamp: ${previousBlock.timestamp}`);
+    console.log(`Randomness seed: ${uniqueTestId}`);
     
     // Deploy libraries first
     const BitOpsFactory = await ethers.getContractFactory('BitOps');
@@ -256,6 +291,12 @@ describe('Generate SVGs', function () {
       completionReason: i >= MAX_MINTING_ATTEMPTS ? 'safety limit reached' : 
                         (currentEpoch > 10 ? 'all epochs exhausted' : 'minted out'),
       timestamp: new Date().toISOString(),
+      randomSeed: uniqueTestId,
+      initialBlockNumber: blockNumber,
+      initialBlockHash: block.hash,
+      initialBlockTimestamp: block.timestamp,
+      previousBlockHash: previousBlock.hash,
+      epochGenerations: epochGenerations, // Include complete epoch generation data
       metadata: tokenURIs
     };
     
