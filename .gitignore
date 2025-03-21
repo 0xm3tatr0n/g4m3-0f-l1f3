@@ -21,6 +21,7 @@ packages/react-app/src/contracts/*
 packages/svg/*
 
 packages/hardhat/cache
+packages/hardhat/gas-results
 
 docker/**/data
 
