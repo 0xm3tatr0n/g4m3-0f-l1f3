@@ -52,7 +52,7 @@ const { BufferList } = require("bl");
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = process.env.REACT_APP_BUILD_ENV === "production" ? NETWORKS.mumbai : NETWORKS.localhost; // NETWORKS.mumbai; // NETWORKS.localhost <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.localhost; // Force to localhost for local development
 console.log(">>> selected target network: ");
 console.log(targetNetwork);
 // 😬 Sorry for all the console logging
@@ -233,81 +233,132 @@ function App(props) {
   useEffect(() => {
     // new update your collectibles approach in two steps: 1) get owner's token IDs, 2) get tokenURIs for all IDs
     const updateOwenersCollectibles = async () => {
-      const collectibleIdPromises = [];
-      for (let i = 0; i < balance; i++) {
-        collectibleIdPromises.push(readContracts.G4m3.tokenOfOwnerByIndex(address, i));
-      }
-
-      const ids = await Promise.all(collectibleIdPromises);
-
-      // check if any collectibles owned
-      if (ids.length > 0) {
-        console.log(">>> updating owner collectibles: START");
+      try {
+        if (!readContracts || !readContracts.G4m3 || !address || !balance) {
+          console.log("Missing required data to load collectibles");
+          return;
+        }
+        
+        console.log("Loading collectibles for", address, "with balance", balance.toString());
         setIsLoadingCollection(true);
-        // console.log(">>> trying to update collectibles now ");
-        const uriPromises = [];
-        ids.forEach(e => {
-          uriPromises.push(readContracts.G4m3.tokenURI(e));
-        });
-
-        const uris = await Promise.all(uriPromises);
-        // console.log(">>> habemus URIs: ", uris);
-
-        try {
-          // trying to parse URIs
-          const collectibleUpdate = uris.map((u, idx) => {
-            const jsonManifestString = atob(u.substring(29));
-            // console.log(jsonManifestString);
-            const jsonManifest = JSON.parse(jsonManifestString);
-            return { id: ids[idx], uri: u, owner: address, ...jsonManifest };
+        
+        // Alternative approach: scan all tokens and check ownership
+        const totalSupply = await readContracts.G4m3.totalSupply();
+        console.log("Total supply:", totalSupply.toString());
+        
+        const ownedTokenIds = [];
+        for (let i = 1; i <= totalSupply.toNumber(); i++) {
+          try {
+            const owner = await readContracts.G4m3.ownerOf(i);
+            if (owner.toLowerCase() === address.toLowerCase()) {
+              ownedTokenIds.push(i);
+              console.log("Found owned token:", i);
+            }
+          } catch (error) {
+            console.log("Error checking token", i, error);
+          }
+        }
+        
+        console.log("Found owned tokens:", ownedTokenIds);
+        
+        // check if any collectibles owned
+        if (ownedTokenIds.length > 0) {
+          console.log(">>> updating owner collectibles: START");
+          
+          // console.log(">>> trying to update collectibles now ");
+          const uriPromises = [];
+          ownedTokenIds.forEach(id => {
+            uriPromises.push(readContracts.G4m3.tokenURI(id));
           });
 
-          // console.log(">>> gonna update collectibles: ", collectibleUpdate);
-          setYourCollectibles(collectibleUpdate.reverse());
-          console.log(">>> updating owner collectibles: END");
-          setIsLoadingCollection(false);
-        } catch (error) {
-          console.log("error updating your collectibles: ", error);
-          console.log(">>> updating owner collectibles: ERROR");
+          const uris = await Promise.all(uriPromises);
+          console.log(">>> Retrieved URIs:", uris);
+
+          try {
+            // trying to parse URIs
+            const collectibleUpdate = uris.map((u, idx) => {
+              const jsonManifestString = atob(u.substring(29));
+              console.log("JSON manifest string:", jsonManifestString);
+              const jsonManifest = JSON.parse(jsonManifestString);
+              return { id: ownedTokenIds[idx], uri: u, owner: address, ...jsonManifest };
+            });
+
+            console.log(">>> gonna update collectibles:", collectibleUpdate);
+            setYourCollectibles(collectibleUpdate.reverse());
+            console.log(">>> updating owner collectibles: END");
+          } catch (error) {
+            console.log("error parsing collectible URIs: ", error);
+            console.log(">>> updating owner collectibles: ERROR");
+          }
+        } else {
+          console.log("No tokens owned by this address");
         }
+      } catch (error) {
+        console.log("Error loading collectibles:", error);
+      } finally {
+        setIsLoadingCollection(false);
       }
     };
+    
     // re-activate to show owner's collection
     updateOwenersCollectibles();
-  }, [address, yourBalance]);
+  }, [address, yourBalance, readContracts]);
 
   // load all tokens into state
   useEffect(() => {
     const updateGallery = async () => {
       console.log(`new range to query: ${galleryLoadRange[0]}-${galleryLoadRange[1]}`);
       try {
-        //
+        if (!readContracts || !readContracts.G4m3) {
+          console.log("Contracts not loaded yet");
+          return;
+        }
+        
         const tokenUriPromises = [];
+        const validTokenIds = [];
+        
+        // First check if tokens exist
         for (let i = galleryLoadRange[0]; i <= galleryLoadRange[1]; i++) {
-          // push promises to array so they can be called together
-          tokenUriPromises.push(readContracts.G4m3.tokenURI(i));
+          try {
+            // Check if token exists by trying to get the owner
+            await readContracts.G4m3.ownerOf(i);
+            validTokenIds.push(i);
+            tokenUriPromises.push(readContracts.G4m3.tokenURI(i));
+          } catch (error) {
+            console.log(`Token ${i} does not exist or other error:`, error.message);
+          }
+        }
+
+        if (validTokenIds.length === 0) {
+          console.log("No valid tokens found in the range");
+          return;
         }
 
         const allURIs = await Promise.all(tokenUriPromises);
+        console.log("Gallery URIs:", allURIs);
+        
         try {
           // trying to parse URIs
           const galleryUpdate = allURIs.map((u, idx) => {
             const jsonManifestString = atob(u.substring(29));
             const jsonManifest = JSON.parse(jsonManifestString);
-            return { id: idx, uri: u, owner: address, ...jsonManifest };
+            return { id: validTokenIds[idx], uri: u, owner: address, ...jsonManifest };
           });
           // commit to state
           setFullGallery(galleryUpdate);
+          console.log("Gallery updated with", galleryUpdate.length, "tokens");
         } catch (error) {
-          console.log("error updating your collectibles: ", error);
+          console.log("error updating gallery collectibles: ", error);
         }
       } catch (err) {
         console.log("error updating gallery: ", err);
       }
     };
 
-    // updateGallery();
-  }, [totalSupply, galleryLoadRange]);
+    if (readContracts && readContracts.G4m3) {
+      updateGallery();
+    }
+  }, [totalSupply, galleryLoadRange, readContracts]);
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");

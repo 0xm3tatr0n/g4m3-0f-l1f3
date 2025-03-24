@@ -15,7 +15,7 @@
 pragma solidity ^0.8.20;
 pragma abicoder v2;
 
-import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
+import '@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/utils/Strings.sol';
 import 'base64-sol/base64.sol';
@@ -24,7 +24,7 @@ import './Libraries/G0l.sol';
 import './Libraries/BitOps.sol';
 import {Structs} from './Libraries/Structs.sol';
 
-contract G4m3 is ERC721, Ownable {
+contract G4m3 is ERC721Enumerable, Ownable {
   // useing
   using Strings for uint256;
   using HexStrings for uint160;
