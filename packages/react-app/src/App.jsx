@@ -1,5 +1,5 @@
 import { StaticJsonRpcProvider, Web3Provider } from "@ethersproject/providers";
-import { formatEther, parseEther, parseUnits } from "@ethersproject/units";
+import { formatEther, parseEther } from "@ethersproject/units";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { Alert, Col, Row } from "antd";
 import "antd/dist/antd.css";
@@ -8,90 +8,33 @@ import React, { useCallback, useEffect, useState } from "react";
 import { HashRouter as Router, Route, Switch } from "react-router-dom";
 import Web3Modal from "web3modal";
 import "./App.css";
-// import assets from "./assets.js";
-import { Account, Address, AddressInput, Contract, GasGauge, Header, ItemCard, Gallery, MintInfo } from "./components";
+import { Address, Contract, Header, ItemCard, Gallery, MintInfo } from "./components";
 import { INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
 import {
   useBalance,
   useContractLoader,
   useContractReader,
-  useEventListener,
-  useExchangePrice,
-  useExternalContractLoader,
   useGasPrice,
-  useOnBlock,
   useUserProvider,
 } from "./hooks";
+// Unused IPFS functionality removed
 
-const { BufferList } = require("bl");
-// https://www.npmjs.com/package/ipfs-http-client
-// const ipfsAPI = require("ipfs-http-client");
+// Scaffold-eth boilerplate documentation removed
 
-// const ipfs = ipfsAPI({ host: "ipfs.infura.io", port: "5001", protocol: "https" });
-
-// console.log("📦 Assets: ", assets);
-
-/*
-    Welcome to 🏗 scaffold-eth !
-
-    Code:
-    https://github.com/austintgriffith/scaffold-eth
-
-    Support:
-    https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA
-    or DM @austingriffith on twitter or telegram
-
-    You should get your own Infura.io ID and put it in `constants.js`
-    (this is your connection to the main Ethereum network for ENS etc.)
-
-
-    🌏 EXTERNAL CONTRACTS:
-    You can also bring in contract artifacts in `constants.js`
-    (and then use the `useExternalContractLoader()` hook!)
-*/
-
-/// 📡 What chain are your contracts deployed to?
+/// Network configuration
 const targetNetwork = NETWORKS.localhost; // Force to localhost for local development
-console.log(">>> selected target network: ");
-console.log(targetNetwork);
-// 😬 Sorry for all the console logging
-const DEBUG = true;
+const DEBUG = false;
 
-// helper function to "Get" from IPFS
-// you usually go content.toString() after this...
-// const getFromIPFS = async hashToGet => {
-//   for await (const file of ipfs.get(hashToGet)) {
-//     console.log(file.path);
-//     if (!file.content) continue;
-//     const content = new BufferList();
-//     for await (const chunk of file.content) {
-//       content.append(chunk);
-//     }
-//     console.log(content);
-//     return content;
-//   }
-// };
-
-// 🛰 providers
-if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
-// const mainnetProvider = getDefaultProvider("mainnet", { infura: INFURA_ID, etherscan: ETHERSCAN_KEY, quorum: 1 });
-// const mainnetProvider = new InfuraProvider("mainnet",INFURA_ID);
-//
-// attempt to connect to our own scaffold eth rpc and if that fails fall back to infura...
-// Using StaticJsonRpcProvider as the chainId won't change see https://github.com/ethers-io/ethers.js/issues/901
-const scaffoldEthProvider = null; // new StaticJsonRpcProvider("https://rpc.scaffoldeth.io:48544");
+// Providers configuration
 const mainnetInfura = new StaticJsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID);
-// ( ⚠️ Getting "failed to meet quorum" errors? Check your INFURA_I
 
-// 🏠 Your local provider is usually pointed at your local blockchain
+// Set up local provider
 const localProviderUrl = targetNetwork.rpcUrl;
-// as you deploy to other networks you can set REACT_APP_PROVIDER=https://dai.poa.network in packages/react-app/.env
 const localProviderUrlFromEnv = process.env.REACT_APP_PROVIDER ? process.env.REACT_APP_PROVIDER : localProviderUrl;
-console.log("🏠 Connecting to provider:", localProviderUrlFromEnv);
 const localProvider = new StaticJsonRpcProvider(localProviderUrlFromEnv);
 
-// 🔭 block explorer URL
+// Block explorer URL
 const blockExplorer = targetNetwork.blockExplorer;
 
 /*
@@ -111,15 +54,11 @@ const web3Modal = new Web3Modal({
 });
 
 function App(props) {
-  // log some version referrence for double-checking
+  // Configuration
   const DEFAULT_POLL_TIME = 60000;
-  console.log("### version: 8");
-  console.log("process.env.REACT_APP_PROVIDER: ", process.env.REACT_APP_PROVIDER);
-  const mainnetProvider = scaffoldEthProvider && scaffoldEthProvider._network ? scaffoldEthProvider : mainnetInfura;
+  const mainnetProvider = mainnetInfura;
 
-  useEffect(() => {
-    console.log(`${Date.now()}: App.jsx rendering`);
-  }, []);
+  // Render timestamp logging removed
 
   const logoutOfWeb3Modal = async () => {
     await web3Modal.clearCachedProvider();
@@ -132,53 +71,30 @@ function App(props) {
   };
 
   const [injectedProvider, setInjectedProvider] = useState();
-  /* 💵 This hook will get the price of ETH from 🦄 Uniswap: */
-  // const price = useExchangePrice(targetNetwork, mainnetProvider);
-
-  /* 🔥 This hook will get the price of Gas from ⛽️ EtherGasStation */
+  
+  // Gas price hook for transaction pricing
   const gasPrice = useGasPrice(targetNetwork, "fast", 120000);
-  // Use your injected provider from 🦊 Metamask or if you don't have it then instantly generate a 🔥 burner wallet.
+  
+  // User provider and address hooks
   const userProvider = useUserProvider(injectedProvider, localProvider);
   const address = useUserAddress(userProvider);
 
-  // You can warn the user if you would like them to be on a specific network
+  // Chain ID for network warning
   const localChainId = localProvider && localProvider._network && localProvider._network.chainId;
   const selectedChainId = userProvider && userProvider._network && userProvider._network.chainId;
 
-  // For more hooks, check out 🔗eth-hooks at: https://www.npmjs.com/package/eth-hooks
-
-  // The transactor wraps transactions and provides notificiations
+  // Transaction handler
   const tx = Transactor(userProvider, gasPrice);
 
-  // Faucet Tx can be used to send funds from the faucet
-  // const faucetTx = Transactor(localProvider, gasPrice);
-
-  // 🏗 scaffold-eth is full of handy hooks like this one to get your balance:
+  // Balance hooks
   const yourLocalBalance = useBalance(localProvider, address, 120000);
 
-  // Just plug in different 🛰 providers to get your balance on different chains:
-  // const yourMainnetBalance = useBalance(mainnetProvider, address);
-
-  // Load in your local 📝 contract and read a value from it:
+  // Contract loading hooks
   const readContracts = useContractLoader(localProvider);
-
-  // If you want to make 🔐 write transactions to your contracts, use the userProvider:
   const writeContracts = useContractLoader(userProvider);
 
-  // EXTERNAL CONTRACT EXAMPLE:
-  //
-  // If you want to bring in the mainnet DAI contract it would look like:
+  // Check if connected wallet is a signer
   const isSigner = injectedProvider && injectedProvider.getSigner && injectedProvider.getSigner()._isSigner;
-  // // If you want to call a function on a new block
-  // useOnBlock(mainnetProvider, () => {
-  //   console.log(`⛓ A new mainnet block is here: ${mainnetProvider._lastBlockNumber}`);
-  // });
-
-  // Then read your DAI balance like:
-  /*
-  const myMainnetDAIBalance = useContractReader({ DAI: mainnetDAIContract }, "DAI", "balanceOf", [
-    "0x34aA3F359A9D614239015126635CE7732c18fDF3",
-  ]); */
 
   // keep track of a variable from the contract in the local React state:
   const balance = useContractReader(readContracts, "G4m3", "balanceOf", [address], DEFAULT_POLL_TIME);
@@ -209,26 +125,13 @@ function App(props) {
   // console.log("📟 Transfer events:", transferEvents);
 
   //
-  // 🧠 This effect will update yourCollectibles by polling when your balance changes
+  // State for NFT collections
   //
   const yourBalance = balance && balance.toNumber && balance.toNumber();
-  // console.log(">>> yourBallance: ", yourBalance);
   const [yourCollectibles, setYourCollectibles] = useState();
   const [fullGallery, setFullGallery] = useState();
   const [galleryLoadRange, setGalleryLoadRange] = useState([1, 10]);
   const [isLoadingCollection, setIsLoadingCollection] = useState(false);
-
-  useEffect(() => {
-    console.log(">>> is loading collection changed: ", isLoadingCollection);
-  }, [isLoadingCollection]);
-
-  useEffect(() => {
-    console.log(">>> providers changed: ");
-    console.log(">>> injectedProvider", injectedProvider);
-    console.log(">>> localProvider", localProvider);
-    console.log(">>> userProvider", userProvider);
-    console.log(">>> mainnetProvider", mainnetProvider);
-  }, [injectedProvider, localProvider, userProvider, mainnetProvider]);
 
   useEffect(() => {
     // new update your collectibles approach in two steps: 1) get owner's token IDs, 2) get tokenURIs for all IDs
@@ -462,18 +365,7 @@ function App(props) {
 
   const [faucetClicked, setFaucetClicked] = useState(false);
 
-  const [sending, setSending] = useState();
-  const [ipfsHash, setIpfsHash] = useState();
-  const [ipfsDownHash, setIpfsDownHash] = useState();
-
-  const [downloading, setDownloading] = useState();
-  const [ipfsContent, setIpfsContent] = useState();
-
   const [transferToAddresses, setTransferToAddresses] = useState({});
-
-  const [loadedAssets, setLoadedAssets] = useState();
-
-  const galleryList = [];
 
   const [noTokensForFreeMint, setNoTokensForFreeMint] = useState(0);
 
@@ -482,7 +374,7 @@ function App(props) {
       {/* ✏️ Edit the header and change the title to your project name */}
       <Header />
       <MintInfo totalSupply />
-      {/* {networkDisplay} */}
+      {networkDisplay}
 
       <Router>
         <Switch>
@@ -661,7 +553,7 @@ function App(props) {
               mainnetProvider={mainnetProvider}
               blockExplorer={blockExplorer}
               transferToAddresses={transferToAddresses}
-              setTranferToAddresses={setTransferToAddresses}
+              setTransferToAddresses={setTransferToAddresses}
               writeContracts={writeContracts}
               tx={tx}
               address={address}
@@ -685,83 +577,24 @@ function App(props) {
         </Switch>
       </Router>
 
-      {/* <ThemeSwitch /> */}
-
-      {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
-      {/* <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10 }}>
-        <Account
-          address={address}
-          localProvider={localProvider}
-          userProvider={userProvider}
-          mainnetProvider={mainnetProvider}
-          price={price}
-          web3Modal={web3Modal}
-          loadWeb3Modal={loadWeb3Modal}
-          logoutOfWeb3Modal={logoutOfWeb3Modal}
-          blockExplorer={blockExplorer}
-          isSigner={isSigner}
-        />
-        {faucetHint}
-      </div> */}
-      {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
-      {/* <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
-        <Row align="middle" gutter={[4, 4]}>
-          <Col span={8}>
-            <Ramp price={price} address={address} networks={NETWORKS} />
-          </Col>
-
-          <Col span={8} style={{ textAlign: "center", opacity: 0.8 }}>
-            <GasGauge gasPrice={gasPrice} />
-          </Col>
-          <Col span={8} style={{ textAlign: "center", opacity: 1 }}>
-            <Button
-              onClick={() => {
-                window.open("https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA");
-              }}
-              size="large"
-              shape="round"
-            >
-              <span style={{ marginRight: 8 }} role="img" aria-label="support">
-                💬
-              </span>
-              Support
-            </Button>
-          </Col>
-        </Row>
-
-        <Row align="middle" gutter={[4, 4]}>
-          <Col span={24}>
-            {
-              // if the local provider has a signer, let's show the faucet:
-              faucetAvailable ? (
-                <Faucet localProvider={localProvider} price={price} ensProvider={mainnetProvider} />
-              ) : (
-                ""
-              )
-            }
-          </Col>
-        </Row>
-      </div> */}
+      {/* Commented out UI components removed */}
     </div>
   );
 }
 
-/* eslint-disable */
-window.ethereum &&
-  window.ethereum.on("chainChanged", chainId => {
-    web3Modal.cachedProvider &&
-      setTimeout(() => {
-        window.location.reload();
-      }, 1);
+// Add event listeners for chain and account changes to refresh the UI
+if (typeof window !== 'undefined' && window.ethereum) {
+  window.ethereum.on("chainChanged", () => {
+    if (web3Modal.cachedProvider) {
+      setTimeout(() => window.location.reload(), 1);
+    }
   });
 
-window.ethereum &&
-  window.ethereum.on("accountsChanged", accounts => {
-    web3Modal.cachedProvider &&
-      setTimeout(() => {
-        window.location.reload();
-      }, 1);
+  window.ethereum.on("accountsChanged", () => {
+    if (web3Modal.cachedProvider) {
+      setTimeout(() => window.location.reload(), 1);
+    }
   });
-/* eslint-enable */
+}
 
 export default App;
