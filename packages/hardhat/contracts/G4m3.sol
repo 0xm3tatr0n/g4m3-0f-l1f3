@@ -409,7 +409,8 @@ contract G4m3 is ERC721, Ownable {
                   metadata.pattern,
                   metadata.trend
                 ),
-                JSON_OWNER_PREFIX,
+                // Now the attributes string doesn't have a trailing comma
+                ',"owner":"',
                 (uint160(ownerOf(id))).toHexString(20),
                 JSON_IMAGE_PREFIX,
                 image,

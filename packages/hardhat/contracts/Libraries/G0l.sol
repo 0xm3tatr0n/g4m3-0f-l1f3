@@ -684,7 +684,7 @@ library G0l {
         '{"trait_type" : "pattern", "value": "',
         generatePatternName(pattern),
         '"}',
-        '],'
+        ']'
       );
     }
 
