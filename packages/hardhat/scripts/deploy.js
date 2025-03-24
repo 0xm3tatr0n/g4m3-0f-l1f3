@@ -54,21 +54,30 @@ const main = async () => {
       }
     );
 
-    // mint a bunch at deploy time to have a collection right away
-    const MINTS_10 = 3; // how many times to mintMany, max 10 per transaction
-    for (let i = 0; i < MINTS_10; i++) {
-      const minted = await yourCollectible.mintPack('0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295', {
-        value: ethers.utils.parseEther((0.05).toString()),
-      });
-      await minted.wait(1);
-      console.log(`minted pack no ${i}`);
-      console.log(minted);
+    // Enable minting and whitelist test addresses
+    try {
+      // Enable minting
+      await yourCollectible.connect(deployerWallet).toggleMinting(true);
+      console.log("Minting enabled successfully!");
+      
+      // Add address to whitelist for testing
+      await yourCollectible
+        .connect(deployerWallet)
+        .addUserToWhitelist('0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295');
+      console.log("Added test address to whitelist");
+      
+      // Mint some tokens now that it's enabled
+      const MINTS_TO_PERFORM = 3;
+      for (let i = 0; i < MINTS_TO_PERFORM; i++) {
+        const minted = await yourCollectible.mintPack('0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295', {
+          value: ethers.utils.parseEther((0.05).toString()),
+        });
+        await minted.wait(1);
+        console.log(`Minted pack no ${i}`);
+      }
+    } catch (error) {
+      console.log("Error during setup:", error.message);
     }
-
-    // add address to whitelist to test free mint (should not be affected by previous mints as they're not free)
-    await yourCollectible
-      .connect(deployerWallet)
-      .addToWhitelist('0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295');
   } else {
     // deploy to other environment
     // new script for deploying with ledger (not using deploy function...)
@@ -188,10 +197,13 @@ const deployLocal = async (contractName, _args = [], overrides = {}, libraries =
   console.log(' 📄', chalk.cyan(contractName), 'deployed to:', chalk.magenta(deployed.address));
   console.log(' ⛽', chalk.grey(extraGasInfo));
 
-  await tenderly.persistArtifacts({
-    name: contractName,
-    address: deployed.address,
-  });
+  // Skip Tenderly persistence if it's not configured
+  if (tenderly && tenderly.persistArtifacts) {
+    await tenderly.persistArtifacts({
+      name: contractName,
+      address: deployed.address,
+    });
+  }
 
   if (!encoded || encoded.length <= 2) return deployed;
   fs.writeFileSync(`artifacts/${contractName}.args`, encoded.slice(2));
@@ -240,11 +252,13 @@ async function deployLedgerFrame(contractName, _args = [], overrides = {}, libra
   // Encode the constructor arguments if necessary
   const encoded = abiEncodeArgs(deployedContract, contractArgs);
 
-  // Persist the artifacts
-  await tenderly.persistArtifacts({
-    name: contractName,
-    address: deployedAddress,
-  });
+  // Persist the artifacts if Tenderly is configured
+  if (tenderly && tenderly.persistArtifacts) {
+    await tenderly.persistArtifacts({
+      name: contractName,
+      address: deployedAddress,
+    });
+  }
 
   if (!encoded || encoded.length <= 2) return deployedContract;
 

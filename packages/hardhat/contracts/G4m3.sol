@@ -29,17 +29,21 @@ contract G4m3 is ERC721, Ownable {
   using Strings for uint256;
   using HexStrings for uint160;
 
-  uint256 public deployTime;
+  bool public isMintingActive = false;
 
   constructor() ERC721('g4m3 0f l1f3', 'l1f3') {
-    deployTime = block.timestamp;
     _initState();
   }
 
   // modifiers
   modifier publicMintLive() {
-    require(block.timestamp >= deployTime + 1 weeks, 'mint not yet public');
+    require(isMintingActive, 'mint not yet public');
     _;
+  }
+  
+  // Function to toggle minting state
+  function toggleMinting(bool _state) public onlyOwner {
+    isMintingActive = _state;
   }
 
   // events

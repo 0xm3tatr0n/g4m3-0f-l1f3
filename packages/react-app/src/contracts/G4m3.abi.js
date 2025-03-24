@@ -169,19 +169,6 @@ module.exports = [
   },
   {
     "inputs": [],
-    "name": "deployTime",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "drainFunds",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -258,6 +245,19 @@ module.exports = [
       }
     ],
     "name": "isEligibleForFreeMint",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "isMintingActive",
     "outputs": [
       {
         "internalType": "bool",
@@ -542,6 +542,19 @@ module.exports = [
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "_state",
+        "type": "bool"
+      }
+    ],
+    "name": "toggleMinting",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
