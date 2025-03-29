@@ -56,6 +56,15 @@ if (typeof window !== "undefined") {
 }
 
 function App(props) {
+  // Add redirection code to handle /debug prefix
+  useEffect(() => {
+    // Only in development mode, redirect from /debug to root
+    if (window.location.pathname.startsWith('/debug')) {
+      const newUrl = window.location.href.replace('/debug', '');
+      window.history.pushState({}, '', newUrl);
+    }
+  }, []);
+
   // Configuration
   const DEFAULT_POLL_TIME = 60000;
   const mainnetProvider = mainnetInfura;
