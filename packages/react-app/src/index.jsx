@@ -1,7 +1,7 @@
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import React from "react";
 import { ThemeSwitcherProvider } from "react-css-theme-switcher";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
@@ -19,11 +19,15 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-ReactDOM.render(
+// Create a root
+const container = document.getElementById("root");
+const root = createRoot(container);
+
+// Render app to root
+root.render(
   <ApolloProvider client={client}>
     <ThemeSwitcherProvider themeMap={themes} defaultTheme={"dark"}>
       <App subgraphUri={subgraphUri} />
     </ThemeSwitcherProvider>
-  </ApolloProvider>,
-  document.getElementById("root"),
+  </ApolloProvider>
 );

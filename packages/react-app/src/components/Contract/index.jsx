@@ -8,32 +8,23 @@ import FunctionForm from "./FunctionForm";
 const noContractDisplay = (
   <div>
     Loading...{" "}
-    <div style={{ padding: 32 }}>
+    <div className="contract-padding">
       You need to run{" "}
-      <span
-        className="highlight"
-        style={{ marginLeft: 4, /* backgroundColor: "#f1f1f1", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
-      >
+      <span className="highlight">
         yarn run chain
       </span>{" "}
       and{" "}
-      <span
-        className="highlight"
-        style={{ marginLeft: 4, /* backgroundColor: "#f1f1f1", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
-      >
+      <span className="highlight">
         yarn run deploy
       </span>{" "}
       to see your contract here.
     </div>
-    <div style={{ padding: 32 }}>
-      <span style={{ marginRight: 4 }} role="img" aria-label="warning">
+    <div className="contract-padding">
+      <span className="warning-emoji" role="img" aria-label="warning">
         ☢️
       </span>
       Warning: You might need to run
-      <span
-        className="highlight"
-        style={{ marginLeft: 4, /* backgroundColor: "#f1f1f1", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
-      >
+      <span className="highlight">
         yarn run deploy
       </span>{" "}
       <i>again</i> after the frontend comes up!
@@ -107,7 +98,7 @@ export default function Contract({
   });
 
   return (
-    <div style={{ margin: "auto", width: "70vw" }}>
+    <div className="contract-container">
       <Card
         title={
           <div>

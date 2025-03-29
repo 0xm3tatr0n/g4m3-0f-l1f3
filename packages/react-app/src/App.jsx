@@ -1,7 +1,7 @@
 import { StaticJsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import { formatEther, parseEther } from "@ethersproject/units";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import { Alert, Col, Row } from "antd";
+import { Alert, Col, Row, Spin } from "antd";
 import "antd/dist/antd.css";
 import { useUserAddress } from "eth-hooks";
 import React, { useCallback, useEffect, useState } from "react";
@@ -11,13 +11,7 @@ import "./App.css";
 import { Address, Contract, Header, ItemCard, Gallery, MintInfo } from "./components";
 import { INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
-import {
-  useBalance,
-  useContractLoader,
-  useContractReader,
-  useGasPrice,
-  useUserProvider,
-} from "./hooks";
+import { useBalance, useContractLoader, useContractReader, useGasPrice, useUserProvider } from "./hooks";
 // Unused IPFS functionality removed
 
 // Scaffold-eth boilerplate documentation removed
@@ -40,18 +34,26 @@ const blockExplorer = targetNetwork.blockExplorer;
 /*
   Web3 modal helps us "connect" external wallets:
 */
-const web3Modal = new Web3Modal({
-  // network: "mainnet", // optional
-  cacheProvider: true, // optional
-  providerOptions: {
-    walletconnect: {
-      package: WalletConnectProvider, // required
-      options: {
-        infuraId: INFURA_ID,
+// Create web3Modal outside the component to avoid recreation on renders
+let web3Modal;
+if (typeof window !== "undefined") {
+  web3Modal = new Web3Modal({
+    // network: "mainnet", // optional
+    cacheProvider: true, // optional
+    providerOptions: {
+      walletconnect: {
+        package: WalletConnectProvider, // required
+        options: {
+          infuraId: INFURA_ID,
+        },
       },
     },
-  },
-});
+    theme: "dark",
+    disableInjectedProvider: false,
+  });
+} else {
+  web3Modal = null;
+}
 
 function App(props) {
   // Configuration
@@ -71,10 +73,10 @@ function App(props) {
   };
 
   const [injectedProvider, setInjectedProvider] = useState();
-  
+
   // Gas price hook for transaction pricing
   const gasPrice = useGasPrice(targetNetwork, "fast", 120000);
-  
+
   // User provider and address hooks
   const userProvider = useUserProvider(injectedProvider, localProvider);
   const address = useUserAddress(userProvider);
@@ -98,8 +100,10 @@ function App(props) {
 
   // keep track of a variable from the contract in the local React state:
   const balance = useContractReader(readContracts, "G4m3", "balanceOf", [address], DEFAULT_POLL_TIME);
-  if (balance) {
-    console.log("🤗 balance:", balance.toString());
+
+  // Only log in debug mode to reduce console noise
+  if (DEBUG && balance) {
+    console.log("🤗 NFT balance:", balance.toString());
   }
   // console.log(">>> reading free mint eligibility for", address);
   const isFreeMintEligible = useContractReader(
@@ -117,8 +121,8 @@ function App(props) {
     DEFAULT_POLL_TIME,
   );
 
-  // track total supply
-  const totalSupply = useContractReader(readContracts, "G4m3", "totalSupply", [address], DEFAULT_POLL_TIME);
+  // track total supply - doesn't need address as an argument
+  const totalSupply = useContractReader(readContracts, "G4m3", "totalSupply", [], DEFAULT_POLL_TIME);
 
   // 📟 Listen for broadcast events
   // const transferEvents = useEventListener(readContracts, "G4m3", "Transfer", localProvider, 1);
@@ -129,45 +133,74 @@ function App(props) {
   //
   const yourBalance = balance && balance.toNumber && balance.toNumber();
   const [yourCollectibles, setYourCollectibles] = useState();
+  const [detectedCollectibles, setDetectedCollectibles] = useState(0);
   const [fullGallery, setFullGallery] = useState();
   const [galleryLoadRange, setGalleryLoadRange] = useState([1, 10]);
-  const [isLoadingCollection, setIsLoadingCollection] = useState(false);
+  // Start with loading=true until we've confirmed either way
+  // More detailed loading state - can be 'idle', 'checking', 'loading', or 'complete'
+  const [collectionLoadingState, setCollectionLoadingState] = useState("checking");
+  const isLoadingCollection = collectionLoadingState === "checking" || collectionLoadingState === "loading";
 
   useEffect(() => {
     // new update your collectibles approach in two steps: 1) get owner's token IDs, 2) get tokenURIs for all IDs
     const updateOwenersCollectibles = async () => {
       try {
-        if (!readContracts || !readContracts.G4m3 || !address || !balance) {
-          console.log("Missing required data to load collectibles");
+        // Early return if no connection or no address
+        if (!readContracts || !readContracts.G4m3 || !address) {
+          if (DEBUG) console.log("Missing required data to load collectibles");
+          // Still in checking state until we have all needed data
+          setCollectionLoadingState("checking");
+          return;
+        }
+
+        // Start with "checking" state
+        setCollectionLoadingState("checking");
+        setDetectedCollectibles(0); // Reset counter for new load
+        if (DEBUG) console.log("Loading collectibles for", address);
+
+        // Use balance and tokenOfOwnerByIndex which is much more efficient
+        // than checking ownership of every token
+        const userBalance = await readContracts.G4m3.balanceOf(address);
+        console.log(`User has ${userBalance.toString()} tokens`);
+        
+        // Get token IDs owned by this address using ERC721Enumerable methods
+        const balanceNum = userBalance.toNumber();
+        
+        if (balanceNum === 0) {
+          // No tokens, set empty array and return early
+          setDetectedCollectibles(0);
+          setCollectionLoadingState("complete");
+          setYourCollectibles([]);
           return;
         }
         
-        console.log("Loading collectibles for", address, "with balance", balance.toString());
-        setIsLoadingCollection(true);
+        // Use ERC721Enumerable's tokenOfOwnerByIndex to get the token IDs
+        const batchPromises = [];
         
-        // Alternative approach: scan all tokens and check ownership
-        const totalSupply = await readContracts.G4m3.totalSupply();
-        console.log("Total supply:", totalSupply.toString());
-        
-        const ownedTokenIds = [];
-        for (let i = 1; i <= totalSupply.toNumber(); i++) {
-          try {
-            const owner = await readContracts.G4m3.ownerOf(i);
-            if (owner.toLowerCase() === address.toLowerCase()) {
-              ownedTokenIds.push(i);
-              console.log("Found owned token:", i);
-            }
-          } catch (error) {
-            console.log("Error checking token", i, error);
-          }
+        for (let i = 0; i < balanceNum; i++) {
+          batchPromises.push(
+            readContracts.G4m3.tokenOfOwnerByIndex(address, i)
+              .then(tokenId => tokenId.toNumber())
+              .catch(error => {
+                console.error(`Error getting token at index ${i}:`, error);
+                return null;
+              })
+          );
         }
         
-        console.log("Found owned tokens:", ownedTokenIds);
-        
+        // Wait for all token index lookups to complete
+        const ownedTokenIds = (await Promise.all(batchPromises)).filter(id => id !== null);
+
+        // Set the detected count to show in the loading message
+        setDetectedCollectibles(ownedTokenIds.length);
+
+        // Now move to "loading" state since we've found the tokens
+        setCollectionLoadingState("loading");
+
         // check if any collectibles owned
         if (ownedTokenIds.length > 0) {
           console.log(">>> updating owner collectibles: START");
-          
+
           // console.log(">>> trying to update collectibles now ");
           const uriPromises = [];
           ownedTokenIds.forEach(id => {
@@ -181,87 +214,142 @@ function App(props) {
             // trying to parse URIs
             const collectibleUpdate = uris.map((u, idx) => {
               const jsonManifestString = atob(u.substring(29));
-              console.log("JSON manifest string:", jsonManifestString);
               const jsonManifest = JSON.parse(jsonManifestString);
               return { id: ownedTokenIds[idx], uri: u, owner: address, ...jsonManifest };
             });
 
-            console.log(">>> gonna update collectibles:", collectibleUpdate);
             setYourCollectibles(collectibleUpdate.reverse());
-            console.log(">>> updating owner collectibles: END");
+            // Set loading state to complete
+            setCollectionLoadingState("complete");
           } catch (error) {
             console.log("error parsing collectible URIs: ", error);
             console.log(">>> updating owner collectibles: ERROR");
           }
         } else {
-          console.log("No tokens owned by this address");
+          // No tokens found, mark as complete
+          setCollectionLoadingState("complete");
         }
       } catch (error) {
         console.log("Error loading collectibles:", error);
-      } finally {
-        setIsLoadingCollection(false);
+        // Error occurred, mark as complete
+        setCollectionLoadingState("complete");
       }
     };
-    
-    // re-activate to show owner's collection
-    updateOwenersCollectibles();
+
+    // Only try to update if we have the necessary data
+    if (address && readContracts && readContracts.G4m3) {
+      updateOwenersCollectibles();
+    } else {
+      // Stay in checking state if we don't have the needed data yet
+      setCollectionLoadingState("checking");
+    }
   }, [address, yourBalance, readContracts]);
 
   // load all tokens into state
+  const [isLoadingGallery, setIsLoadingGallery] = useState(false);
+
   useEffect(() => {
     const updateGallery = async () => {
       console.log(`new range to query: ${galleryLoadRange[0]}-${galleryLoadRange[1]}`);
+      setIsLoadingGallery(true);
+
       try {
         if (!readContracts || !readContracts.G4m3) {
           console.log("Contracts not loaded yet");
           return;
         }
-        
+
         const tokenUriPromises = [];
         const validTokenIds = [];
+
+        // First check if tokens exist - using batched parallel processing
+        const BATCH_SIZE = 5;  // Process in smaller batches for better performance
+        const checkResults = [];
         
-        // First check if tokens exist
-        for (let i = galleryLoadRange[0]; i <= galleryLoadRange[1]; i++) {
-          try {
-            // Check if token exists by trying to get the owner
-            await readContracts.G4m3.ownerOf(i);
-            validTokenIds.push(i);
-            tokenUriPromises.push(readContracts.G4m3.tokenURI(i));
-          } catch (error) {
-            console.log(`Token ${i} does not exist or other error:`, error.message);
+        // Loop through the range in batches
+        for (let i = galleryLoadRange[0]; i <= galleryLoadRange[1]; i += BATCH_SIZE) {
+          const batchPromises = [];
+          const endIdx = Math.min(i + BATCH_SIZE - 1, galleryLoadRange[1]);
+          
+          // Process each batch in parallel
+          for (let j = i; j <= endIdx; j++) {
+            batchPromises.push(
+              readContracts.G4m3.ownerOf(j)
+                .then(() => j) // Return the token ID if it exists
+                .catch(() => null) // Return null if the token doesn't exist
+            );
           }
+          
+          // Wait for the current batch to complete
+          const batchResults = await Promise.all(batchPromises);
+          checkResults.push(...batchResults);
+          
+          // Add a small delay between batches to avoid UI freezing
+          if (i + BATCH_SIZE <= galleryLoadRange[1]) {
+            await new Promise(resolve => setTimeout(resolve, 0));
+          }
+        }
+        
+        // Filter out null results
+        const existingTokenIds = checkResults.filter(id => id !== null);
+
+        // Now get token URIs in parallel
+        for (const id of existingTokenIds) {
+          validTokenIds.push(id);
+          tokenUriPromises.push(readContracts.G4m3.tokenURI(id));
         }
 
         if (validTokenIds.length === 0) {
           console.log("No valid tokens found in the range");
+          setFullGallery([]);
           return;
         }
 
         const allURIs = await Promise.all(tokenUriPromises);
-        console.log("Gallery URIs:", allURIs);
-        
+
         try {
-          // trying to parse URIs
-          const galleryUpdate = allURIs.map((u, idx) => {
-            const jsonManifestString = atob(u.substring(29));
-            const jsonManifest = JSON.parse(jsonManifestString);
-            return { id: validTokenIds[idx], uri: u, owner: address, ...jsonManifest };
-          });
+          // Process in smaller batches to avoid UI freezing
+          const batchSize = 5;
+          const totalBatches = Math.ceil(allURIs.length / batchSize);
+          let processedGallery = [];
+
+          for (let i = 0; i < totalBatches; i++) {
+            const startIdx = i * batchSize;
+            const endIdx = Math.min(startIdx + batchSize, allURIs.length);
+            const batchURIs = allURIs.slice(startIdx, endIdx);
+            const batchIds = validTokenIds.slice(startIdx, endIdx);
+
+            const batchUpdate = batchURIs.map((u, idx) => {
+              const jsonManifestString = atob(u.substring(29));
+              const jsonManifest = JSON.parse(jsonManifestString);
+              return { id: batchIds[idx], uri: u, owner: address, ...jsonManifest };
+            });
+
+            processedGallery = [...processedGallery, ...batchUpdate];
+
+            // If this isn't the last batch, give the UI a chance to breathe
+            if (i < totalBatches - 1) {
+              await new Promise(resolve => setTimeout(resolve, 0));
+            }
+          }
+
           // commit to state
-          setFullGallery(galleryUpdate);
-          console.log("Gallery updated with", galleryUpdate.length, "tokens");
+          setFullGallery(processedGallery);
+          console.log("Gallery updated with", processedGallery.length, "tokens");
         } catch (error) {
           console.log("error updating gallery collectibles: ", error);
         }
       } catch (err) {
         console.log("error updating gallery: ", err);
+      } finally {
+        setIsLoadingGallery(false);
       }
     };
 
     if (readContracts && readContracts.G4m3) {
       updateGallery();
     }
-  }, [totalSupply, galleryLoadRange, readContracts]);
+  }, [totalSupply, galleryLoadRange, readContracts, address]);
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -345,12 +433,16 @@ function App(props) {
   }
 
   const loadWeb3Modal = useCallback(async () => {
-    const provider = await web3Modal.connect();
-    setInjectedProvider(new Web3Provider(provider));
+    try {
+      const provider = await web3Modal.connect();
+      setInjectedProvider(new Web3Provider(provider));
+    } catch (error) {
+      console.log("Error connecting to wallet:", error);
+    }
   }, [setInjectedProvider]);
 
   useEffect(() => {
-    if (web3Modal.cachedProvider) {
+    if (web3Modal && web3Modal.cachedProvider) {
       loadWeb3Modal();
     }
   }, [loadWeb3Modal]);
@@ -359,6 +451,44 @@ function App(props) {
   useEffect(() => {
     setRoute(window.location.pathname);
   }, [setRoute]);
+
+  // Add event listeners for ethereum provider
+  useEffect(() => {
+    // Safely handle Ethereum provider events
+    const handleChainChanged = () => {
+      if (web3Modal && web3Modal.cachedProvider) {
+        setTimeout(() => window.location.reload(), 1);
+      }
+    };
+
+    const handleAccountsChanged = () => {
+      if (web3Modal && web3Modal.cachedProvider) {
+        setTimeout(() => window.location.reload(), 1);
+      }
+    };
+
+    // Check if ethereum provider exists and attach listeners safely
+    if (typeof window !== "undefined" && window.ethereum) {
+      try {
+        window.ethereum.on("chainChanged", handleChainChanged);
+        window.ethereum.on("accountsChanged", handleAccountsChanged);
+      } catch (error) {
+        console.log("Error setting up ethereum listeners:", error);
+      }
+
+      // Clean up event listeners on unmount
+      return () => {
+        if (window.ethereum) {
+          try {
+            window.ethereum.removeListener("chainChanged", handleChainChanged);
+            window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
+          } catch (error) {
+            console.log("Error removing ethereum listeners:", error);
+          }
+        }
+      };
+    }
+  }, []);
 
   const faucetHint = "";
   const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name === "localhost";
@@ -371,12 +501,13 @@ function App(props) {
 
   return (
     <div className="App">
-      {/* ✏️ Edit the header and change the title to your project name */}
-      <Header />
-      <MintInfo totalSupply />
+      {/* Network display is outside the router */}
       {networkDisplay}
 
       <Router>
+        {/* Header and MintInfo are now inside the Router */}
+        <Header />
+        <MintInfo totalSupply />
         <Switch>
           <Route exact path="/">
             {/*
@@ -385,7 +516,7 @@ function App(props) {
                 and give you a form to interact with it locally
             */}
 
-            <div id={"controls"} style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
+            <div id={"controls"} style={{ maxWidth: 820, margin: "auto", marginTop: 32, padding: "0 0 32px 0" }}>
               {isSigner ? (
                 <>
                   {isFreeMintEligible && freeMintsRemaining && freeMintsRemaining.toString() > 0 ? (
@@ -503,11 +634,10 @@ function App(props) {
               )}
             </div>
 
-            <div
-              style={{ maxWidth: 820, margin: "auto", paddingBottom: 256, paddingLeft: "16px", paddingRight: "16px" }}
-            >
+            <div style={{ maxWidth: 820, margin: "auto", padding: "0 16px 256px 16px" }}>
               <Row gutter={[16, 16]}>
-                {yourCollectibles ? (
+                {yourCollectibles && yourCollectibles.length > 0 ? (
+                  // When we have collectibles to show
                   yourCollectibles.map((c, icx) => {
                     return (
                       <Col xs={24} md={12} lg={12} key={`collectible-${icx}`}>
@@ -524,18 +654,25 @@ function App(props) {
                       </Col>
                     );
                   })
-                ) : isLoadingCollection ? (
-                  <Col span={24} style={{ fontFamily: "monospace" }}>
-                    loading your {balance.toString()} collectibles
-                  </Col>
                 ) : (
-                  <Col span={24} style={{ fontFamily: "monospace" }}>
-                    no collectibles
+                  // Loading or no collectibles
+                  <Col span={24} style={{ fontFamily: "monospace", textAlign: "center", padding: "40px 0 40px 0" }}>
+                    {/* Different loading states */}
+                    {collectionLoadingState === "checking" ? (
+                      <div>Checking your collection...</div>
+                    ) : collectionLoadingState === "loading" ? (
+                      <div>Loading your {detectedCollectibles} collectibles...</div>
+                    ) : (
+                      // Only show "no collectibles" when we're done loading and confirmed none exist
+                      <div>You don't have any collectibles yet. Try minting some!</div>
+                    )}
                   </Col>
                 )}
               </Row>
             </div>
-            <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 256, fontFamily: "monospace" }}>
+            <div
+              style={{ maxWidth: 820, margin: "auto", marginTop: 32, padding: "0 0 256px 0", fontFamily: "monospace" }}
+            >
               🛠 built with{" "}
               <a href="https://github.com/austintgriffith/scaffold-eth" target="_blank">
                 🏗 scaffold-eth
@@ -559,10 +696,12 @@ function App(props) {
               address={address}
               totalSupply={totalSupply}
               setGalleryLoadRange={setGalleryLoadRange}
+              isLoadingGallery={isLoadingGallery}
             />
           </Route>
           <Route path="/debug">
-            <div style={{ padding: 32 }}>
+            {/* Remove inline style and use just a simple div */}
+            <div className="debug-container">
               <Address value={readContracts && readContracts.G4m3 && readContracts.G4m3.address} />
             </div>
 
@@ -580,21 +719,6 @@ function App(props) {
       {/* Commented out UI components removed */}
     </div>
   );
-}
-
-// Add event listeners for chain and account changes to refresh the UI
-if (typeof window !== 'undefined' && window.ethereum) {
-  window.ethereum.on("chainChanged", () => {
-    if (web3Modal.cachedProvider) {
-      setTimeout(() => window.location.reload(), 1);
-    }
-  });
-
-  window.ethereum.on("accountsChanged", () => {
-    if (web3Modal.cachedProvider) {
-      setTimeout(() => window.location.reload(), 1);
-    }
-  });
 }
 
 export default App;

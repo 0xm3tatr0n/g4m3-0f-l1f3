@@ -53,6 +53,30 @@ const main = async () => {
         BitOps: BitOpsLib.address,
       }
     );
+    
+    // Instead of trying to mock external NFT collections, we'll simply use
+    // the whitelist feature for local testing, which is a more reliable approach
+    try {
+      console.log("Setting up whitelist for local testing...");
+      
+      // The test addresses to whitelist
+      const testAddresses = [
+        '0x9B5d8C94aAc96379e7Bcac0Da7eAA1E8EB504295',
+        '0x5641b67F2637d7c605eae9fAee8E83D7EA1B3fb9',
+        '0x5B310560815EaF364E5876908574b4a9c6eC1B7e',
+        await deployerWallet.getAddress() // Also whitelist the deployer
+      ];
+      
+      // Add each address to the whitelist
+      for (const addr of testAddresses) {
+        await yourCollectible.connect(deployerWallet).addUserToWhitelist(addr);
+        console.log(`Added ${addr} to whitelist for free minting`);
+      }
+      
+      console.log("Whitelist setup completed!");
+    } catch (error) {
+      console.error("Error setting up whitelist:", error);
+    }
 
     // Enable minting and whitelist test addresses
     try {

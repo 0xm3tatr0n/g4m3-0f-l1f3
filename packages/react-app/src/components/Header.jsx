@@ -1,5 +1,6 @@
 import { PageHeader, Segmented } from "antd";
 import React from "react";
+import { Link } from "react-router-dom";
 
 // displays a page header
 
@@ -36,14 +37,14 @@ export default function Header() {
       <div id="header" style={styles.headerBox}>
         <div style={styles.header}>g4m3 0f l1f3</div>
         <div style={styles.items}>
-          <a href="/" style={styles.a}>
+          <Link to="/" style={styles.a}>
             mint
-          </a>
+          </Link>
         </div>
         <div style={styles.items}>
-          <a href="/gallery" style={styles.a}>
+          <Link to="/gallery" style={styles.a}>
             gallery
-          </a>
+          </Link>
         </div>
       </div>
     </>

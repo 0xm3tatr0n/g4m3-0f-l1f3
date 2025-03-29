@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Alert, Button, Card, Col, Input, List, Menu, Row, InputNumber, Slider, Pagination } from "antd";
+import React, { useEffect, useState } from "react";
+import { Col, Row, Slider, Pagination, Spin } from "antd";
 import { ItemCard } from ".";
 
 const defaultStats = { totalSupply: 0, latestGen: "n/a" };
@@ -13,31 +13,35 @@ function Stats(props) {
   useEffect(() => {
     // for now: single function to consolidate stats
     const generateStats = async () => {
-      //
-      // console.log(">>> generating fresh stats");
-      const latestGen = collectibles.reduce((accumulator, currentValue) => {
-        // console.log('>>> reducing: ', accumulator );
-        const attributes = currentValue.attributes;
-        const genAttribute = attributes.find(e => {
-          return e.trait_type === "generation";
-        });
-        const gen = genAttribute ? Number(genAttribute.value.replace("#", "")) : 0;
-        return Math.max(gen, accumulator);
-      }, 0);
-      // stats object
-      const newStats = {
-        totalSupply: collectibles.length,
-        latestGen,
-      };
-      // console.log(">>> new stats: ", newStats);
-      setStats(newStats);
+      if (!collectibles || collectibles.length === 0) {
+        setStats(defaultStats);
+        return;
+      }
+      
+      try {
+        const latestGen = collectibles.reduce((accumulator, currentValue) => {
+          const attributes = currentValue.attributes || [];
+          const genAttribute = attributes.find(e => {
+            return e.trait_type === "generation";
+          });
+          const gen = genAttribute ? Number(genAttribute.value.replace("#", "")) : 0;
+          return Math.max(gen, accumulator);
+        }, 0);
+        
+        // stats object
+        const newStats = {
+          totalSupply: collectibles.length,
+          latestGen,
+        };
+        
+        setStats(newStats);
+      } catch (error) {
+        console.log("Error generating stats:", error);
+        setStats(defaultStats);
+      }
     };
 
-    if (collectibles && collectibles.length > 0) {
-      // only generate stats if there are collectibles
-      // console.log(">>> should generate new stats:");
-      generateStats();
-    }
+    generateStats();
   }, [collectibles]);
 
   return (
@@ -119,6 +123,7 @@ function Gallery(props) {
     address,
     totalSupply,
     setGalleryLoadRange,
+    isLoadingGallery,
   } = props;
 
   const [zoomLevel, setZoomLevel] = useState(3);
@@ -136,7 +141,7 @@ function Gallery(props) {
   };
 
   return (
-    <div style={{ maxWidth: 1020, margin: "auto", paddingBottom: 256, paddingLeft: "16px", paddingRight: "16px" }}>
+    <div style={{ maxWidth: 1020, margin: "auto", padding: "0 16px 256px 16px" }}>
       <Row>
         <GalleryControl
           zoomLevel={zoomLevel}
@@ -148,35 +153,41 @@ function Gallery(props) {
       <Row>
         <Stats collectibles={allCollectibles} />
       </Row>
-      <Row gutter={[16, 16]}>
-        {allCollectibles ? (
-          allCollectibles.map((c, icx) => {
-            return (
-              <Col
-                xs={parseZoom(zoomLevel)}
-                md={parseZoom(zoomLevel)}
-                lg={parseZoom(zoomLevel)}
-                key={`collectible-${icx}`}
-              >
-                <ItemCard
-                  item={c}
-                  ensProvider={mainnetProvider}
-                  blockExplorer={blockExplorer}
-                  transferToAddresses={transferToAddresses}
-                  setTransferToAddresses={setTransferToAddresses}
-                  writeContracts={writeContracts}
-                  tx={tx}
-                  address={address}
-                />
-              </Col>
-            );
-          })
-        ) : (
-          <Col span={24} style={{ fontFamily: "monospace" }}>
-            no collectibles
-          </Col>
-        )}
-      </Row>
+      {isLoadingGallery ? (
+        <Row justify="center" align="middle" style={{ minHeight: "200px" }}>
+          <Spin size="large" tip="Loading collectibles..." />
+        </Row>
+      ) : (
+        <Row gutter={[16, 16]}>
+          {allCollectibles && allCollectibles.length > 0 ? (
+            allCollectibles.map((c, icx) => {
+              return (
+                <Col
+                  xs={parseZoom(zoomLevel)}
+                  md={parseZoom(zoomLevel)}
+                  lg={parseZoom(zoomLevel)}
+                  key={`collectible-${icx}`}
+                >
+                  <ItemCard
+                    item={c}
+                    ensProvider={mainnetProvider}
+                    blockExplorer={blockExplorer}
+                    transferToAddresses={transferToAddresses}
+                    setTransferToAddresses={setTransferToAddresses}
+                    writeContracts={writeContracts}
+                    tx={tx}
+                    address={address}
+                  />
+                </Col>
+              );
+            })
+          ) : (
+            <Col span={24} style={{ fontFamily: "monospace", textAlign: "center", padding: "40px 0 40px 0" }}>
+              No collectibles found in this range
+            </Col>
+          )}
+        </Row>
+      )}
     </div>
   );
 }

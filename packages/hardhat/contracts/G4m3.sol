@@ -47,7 +47,8 @@ contract G4m3 is ERC721Enumerable, Ownable {
   }
 
   // events
-  event Withdrawal(address to, uint256 amount);
+  event Withdrawal(address indexed to, uint256 amount, uint256 timestamp);
+  event Mint(address indexed to, uint256 indexed tokenId);
 
   // constants
   // uint256 public constant maxItems = 10;
@@ -170,6 +171,7 @@ contract G4m3 is ERC721Enumerable, Ownable {
     tokenState[_tokenIds] = BitOps.packState(gameStateInt, _currentEpoch, _currentGeneration);
 
     _mint(to, _tokenIds);
+    emit Mint(to, _tokenIds);
   }
 
   // g4m3 0f l1f3 state functions
@@ -683,7 +685,7 @@ contract G4m3 is ERC721Enumerable, Ownable {
   function drainFunds() public onlyOwner {
     uint256 balance = address(this).balance;
     payable(owner()).transfer(balance);
-    emit Withdrawal(msg.sender, balance);
+    emit Withdrawal(msg.sender, balance, block.timestamp);
   }
 
   receive() external payable {}

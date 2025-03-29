@@ -30,7 +30,7 @@ const DisplayVariable = ({ contractFunction, functionInfo, refreshRequired, trig
           style={{
             textAlign: "right",
             opacity: 0.333,
-            paddingRight: 6,
+            padding: "0 6px 0 0",
             fontSize: 24,
           }}
         >
