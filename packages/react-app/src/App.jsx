@@ -11,7 +11,7 @@ import "./App.css";
 import { Address, Contract, Header, ItemCard, Gallery, MintInfo } from "./components";
 import { INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
-import { useBalance, useContractLoader, useContractReader, useGasPrice, useUserProvider } from "./hooks";
+import { useBalance, useContractLoader, useContractReader, useGasPrice, useUserProvider, useLocalStorage } from "./hooks";
 // Unused IPFS functionality removed
 
 // Scaffold-eth boilerplate documentation removed
@@ -141,9 +141,15 @@ function App(props) {
   // State for NFT collections
   //
   const yourBalance = balance && balance.toNumber && balance.toNumber();
-  const [yourCollectibles, setYourCollectibles] = useState();
+  
+  // Use localStorage for caching collections - 1 day TTL (24 * 60 * 60 * 1000)
+  const CACHE_TTL = 24 * 60 * 60 * 1000;
+  const cacheKey = `collectibles-${address || "none"}`;
+  const [yourCollectibles, setYourCollectibles] = useLocalStorage(cacheKey, [], CACHE_TTL);
   const [detectedCollectibles, setDetectedCollectibles] = useState(0);
-  const [fullGallery, setFullGallery] = useState();
+  
+  // Cache gallery NFTs by range with a unique key based on the range
+  const [fullGallery, setFullGallery] = useLocalStorage('gallery-cache', {}, CACHE_TTL);
   const [galleryLoadRange, setGalleryLoadRange] = useState([1, 10]);
   // Start with loading=true until we've confirmed either way
   // More detailed loading state - can be 'idle', 'checking', 'loading', or 'complete'
@@ -160,6 +166,28 @@ function App(props) {
           // Still in checking state until we have all needed data
           setCollectionLoadingState("checking");
           return;
+        }
+
+        // Check if we have cached collectibles that match current balance
+        if (yourCollectibles && yourCollectibles.length > 0 && balance) {
+          const balanceNum = balance.toNumber();
+          if (balanceNum === yourCollectibles.length) {
+            console.log("Using cached collectibles:", yourCollectibles.length);
+            setCollectionLoadingState("complete");
+            
+            // Still check if there are newer tokens that might have replaced old ones
+            // This handles the case where tokens were transferred in/out but total balance remained the same
+            const totalSupply = await readContracts.G4m3.totalSupply();
+            const cachedLastTokenId = Math.max(...yourCollectibles.map(c => c.id || 0));
+            const currentMaxTokenId = totalSupply.toNumber();
+            
+            if (cachedLastTokenId >= currentMaxTokenId) {
+              // Our cache contains the latest tokens, safe to use
+              return;
+            }
+            console.log("Cache may be outdated - newest token ID is", currentMaxTokenId, "but cache only has up to", cachedLastTokenId);
+            // Continue loading to refresh the cache
+          }
         }
 
         // Start with "checking" state
@@ -267,6 +295,26 @@ function App(props) {
           console.log("Contracts not loaded yet");
           return;
         }
+        
+        // Create a cache key based on the current range
+        const rangeKey = `range-${galleryLoadRange[0]}-${galleryLoadRange[1]}`;
+        
+        // Get current total supply to check for new tokens
+        const currentTotalSupply = await readContracts.G4m3.totalSupply();
+        const currentTotalSupplyNum = currentTotalSupply ? currentTotalSupply.toNumber() : 0;
+        
+        // Check if we have cached data for this range AND the total supply hasn't changed
+        if (fullGallery && 
+            fullGallery[rangeKey] && 
+            fullGallery.lastKnownTotalSupply && 
+            fullGallery.lastKnownTotalSupply === currentTotalSupplyNum) {
+          console.log("Using cached gallery data for range:", rangeKey);
+          setIsLoadingGallery(false);
+          return;
+        }
+        
+        console.log("Gallery cache invalidated - total supply changed or first load");
+        console.log("Current supply:", currentTotalSupplyNum, "Cached supply:", fullGallery?.lastKnownTotalSupply);
 
         const tokenUriPromises = [];
         const validTokenIds = [];
@@ -310,7 +358,19 @@ function App(props) {
 
         if (validTokenIds.length === 0) {
           console.log("No valid tokens found in the range");
-          setFullGallery([]);
+          // Cache empty result for this range
+          const rangeKey = `range-${galleryLoadRange[0]}-${galleryLoadRange[1]}`;
+          
+          // Get current total supply to store with the cache
+          const currentTotalSupply = await readContracts.G4m3.totalSupply();
+          const currentTotalSupplyNum = currentTotalSupply ? currentTotalSupply.toNumber() : 0;
+          
+          setFullGallery(prevGallery => ({
+            ...prevGallery,
+            [rangeKey]: [],
+            lastKnownTotalSupply: currentTotalSupplyNum
+          }));
+          setIsLoadingGallery(false);
           return;
         }
 
@@ -342,9 +402,24 @@ function App(props) {
             }
           }
 
-          // commit to state
-          setFullGallery(processedGallery);
-          console.log("Gallery updated with", processedGallery.length, "tokens");
+          // Create a cache key based on the current range
+          const rangeKey = `range-${galleryLoadRange[0]}-${galleryLoadRange[1]}`;
+          
+          // Get current total supply again to ensure it's the latest
+          const currentTotalSupply = await readContracts.G4m3.totalSupply();
+          const currentTotalSupplyNum = currentTotalSupply ? currentTotalSupply.toNumber() : 0;
+          
+          // Cache the gallery data by range and store the current total supply
+          setFullGallery(prevGallery => {
+            // Update just this range in the cached object and store total supply
+            return {
+              ...prevGallery,
+              [rangeKey]: processedGallery,
+              lastKnownTotalSupply: currentTotalSupplyNum
+            };
+          });
+          
+          console.log("Gallery updated and cached with", processedGallery.length, "tokens for range", rangeKey);
         } catch (error) {
           console.log("error updating gallery collectibles: ", error);
         }
@@ -695,7 +770,7 @@ function App(props) {
           </Route>
           <Route path="/gallery">
             <Gallery
-              allCollectibles={fullGallery}
+              allCollectibles={fullGallery ? fullGallery[`range-${galleryLoadRange[0]}-${galleryLoadRange[1]}`] || [] : []}
               mainnetProvider={mainnetProvider}
               blockExplorer={blockExplorer}
               transferToAddresses={transferToAddresses}
@@ -706,6 +781,7 @@ function App(props) {
               totalSupply={totalSupply}
               setGalleryLoadRange={setGalleryLoadRange}
               isLoadingGallery={isLoadingGallery}
+              galleryLoadRange={galleryLoadRange}
             />
           </Route>
           <Route path="/debug">

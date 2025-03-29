@@ -8,17 +8,17 @@ function ItemCard(props) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const cardRef = useRef();
-  
+
   // Function to flip card
   const flipCard = () => {
     setIsFront(!isFront);
   };
-  
+
   // Image load handler
   const handleImageLoad = () => {
     setImageLoaded(true);
   };
-  
+
   // Setup intersection observer for lazy loading
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -28,13 +28,13 @@ function ItemCard(props) {
           observer.disconnect();
         }
       },
-      { threshold: 0.1 } // Trigger when 10% of the element is visible
+      { threshold: 0.1 }, // Trigger when 10% of the element is visible
     );
-    
+
     if (cardRef.current) {
       observer.observe(cardRef.current);
     }
-    
+
     return () => {
       if (cardRef.current) {
         observer.unobserve(cardRef.current);
@@ -67,16 +67,16 @@ function ItemCard(props) {
               <Spin tip="Loading..." />
             </div>
           ) : null}
-          
+
           {isVisible && (
-            <img 
-              src={item.image} 
-              alt={item.name} 
-              style={{ 
-                width: "100%", 
+            <img
+              src={item.image}
+              alt={item.name}
+              style={{
+                width: "100%",
                 height: "100%",
-                display: imageLoaded ? "block" : "none" 
-              }} 
+                display: imageLoaded ? "block" : "none",
+              }}
               onLoad={handleImageLoad}
             />
           )}
@@ -90,14 +90,15 @@ function ItemCard(props) {
             <div style={{ fontWeight: "bold" }}>{item.name}</div>
             <div style={{ fontSize: "0.8em" }}>owned by: {item.owner}</div>
             <div style={{ marginTop: "10px" }}>traits:</div>
-            {item.attributes && item.attributes.map((a, iax) => {
-              return (
-                <div key={`attribute-${iax}`} style={{ fontSize: "0.9em" }}>
-                  {a.trait_type}: {a.value}
-                </div>
-              );
-            })}
-            <div style={{ marginTop: "15px" }}>
+            {item.attributes &&
+              item.attributes.map((a, iax) => {
+                return (
+                  <div key={`attribute-${iax}`} style={{ fontSize: "0.9em" }}>
+                    {a.trait_type}: {a.value}
+                  </div>
+                );
+              })}
+            {/* <div style={{ marginTop: "15px" }}>
               <AddressInput
                 ensProvider={ensProvider}
                 placeholder="transfer to address"
@@ -120,7 +121,7 @@ function ItemCard(props) {
               >
                 Transfer
               </Button>
-            </div>
+            </div> */}
           </div>
         </Card>
       )}

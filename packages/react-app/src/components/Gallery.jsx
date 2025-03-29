@@ -124,6 +124,7 @@ function Gallery(props) {
     totalSupply,
     setGalleryLoadRange,
     isLoadingGallery,
+    galleryLoadRange,
   } = props;
 
   const [zoomLevel, setZoomLevel] = useState(3);
