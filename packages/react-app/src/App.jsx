@@ -282,8 +282,61 @@ function App(props) {
     }
   }, [address, yourBalance, readContracts]);
 
-  // load all tokens into state
+  // load all tokens into state with a larger default range
   const [isLoadingGallery, setIsLoadingGallery] = useState(false);
+  
+  // State to manage chunk loading
+  const [currentChunk, setCurrentChunk] = useState(1);
+  const [maxChunksLoaded, setMaxChunksLoaded] = useState(false);
+  const CHUNK_SIZE = 5;
+  
+  // Reset chunk loader when component mounts or route changes
+  useEffect(() => {
+    const handleRouteChange = () => {
+      // Reset the chunk counter if we're visiting the gallery
+      if (window.location.hash.includes('/gallery')) {
+        setCurrentChunk(1);
+        setMaxChunksLoaded(false);
+      }
+    };
+    
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleRouteChange);
+    
+    // Initial check
+    handleRouteChange();
+    
+    return () => {
+      window.removeEventListener('hashchange', handleRouteChange);
+    };
+  }, []);
+  
+  // Load tokens in chunks, but only up to totalSupply
+  useEffect(() => {
+    // Skip if we've already loaded the maximum or if totalSupply isn't available yet
+    if (maxChunksLoaded || !totalSupply) return;
+    
+    const totalTokens = totalSupply.toNumber();
+    
+    const loadNextChunk = () => {
+      const startToken = (currentChunk - 1) * CHUNK_SIZE + 1;
+      const endToken = Math.min(currentChunk * CHUNK_SIZE, totalTokens);
+      
+      console.log(`Loading chunk ${currentChunk}: tokens ${startToken}-${endToken} (Total: ${totalTokens})`);
+      setGalleryLoadRange([startToken, endToken]);
+      
+      // Schedule next chunk if we haven't reached the total supply
+      if (endToken < totalTokens && currentChunk < 100) { // Safety limit of 100 chunks
+        setTimeout(() => setCurrentChunk(prev => prev + 1), 300);
+      } else {
+        // Mark as done loading chunks
+        setMaxChunksLoaded(true);
+        console.log("All tokens loaded or reached max chunks!");
+      }
+    };
+    
+    loadNextChunk();
+  }, [currentChunk, totalSupply, setGalleryLoadRange, maxChunksLoaded]);
 
   useEffect(() => {
     const updateGallery = async () => {
@@ -770,7 +823,17 @@ function App(props) {
           </Route>
           <Route path="/gallery">
             <Gallery
-              allCollectibles={fullGallery ? fullGallery[`range-${galleryLoadRange[0]}-${galleryLoadRange[1]}`] || [] : []}
+              allCollectibles={
+                fullGallery ? 
+                // Combine all loaded chunks into a single array and remove duplicates by ID
+                Array.from(new Map(
+                  Object.keys(fullGallery)
+                    .filter(key => key.startsWith('range-'))
+                    .flatMap(key => fullGallery[key] || [])
+                    .map(item => [item.id, item]) // Use id as the key
+                ).values())
+                : []
+              }
               mainnetProvider={mainnetProvider}
               blockExplorer={blockExplorer}
               transferToAddresses={transferToAddresses}
@@ -780,7 +843,8 @@ function App(props) {
               address={address}
               totalSupply={totalSupply}
               setGalleryLoadRange={setGalleryLoadRange}
-              isLoadingGallery={isLoadingGallery}
+              isLoadingGallery={isLoadingGallery && !maxChunksLoaded}
+              loadProgress={totalSupply ? Math.min(100, (currentChunk * CHUNK_SIZE * 100) / totalSupply.toNumber()) : 0}
               galleryLoadRange={galleryLoadRange}
             />
           </Route>

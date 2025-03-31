@@ -43,7 +43,14 @@ function ItemCard(props) {
   }, []);
 
   return (
-    <div ref={cardRef}>
+    <div 
+      ref={cardRef} 
+      style={{
+        aspectRatio: "1/1", // Force 1:1 aspect ratio
+        width: "100%",
+        position: "relative"
+      }}
+    >
       {isFront ? (
         <Card
           style={{
@@ -53,75 +60,83 @@ function ItemCard(props) {
             overflow: "hidden",
             backgroundColor: "white",
             padding: "0px",
-            minHeight: "100px", // Ensure card has size even before image loads
+            height: "100%", // Fill the parent container height
+            width: "100%", // Fill the parent container width
+            position: "absolute", // Position absolutely to ensure it fills the parent
+            top: 0,
+            left: 0
           }}
-          bodyStyle={{ padding: "0" }}
+          bodyStyle={{ padding: "0", height: "100%" }}
           onClick={flipCard}
         >
           {!isVisible ? (
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "200px" }}>
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
               {/* Placeholder for not yet visible */}
             </div>
           ) : !imageLoaded ? (
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "200px" }}>
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
               <Spin tip="Loading..." />
             </div>
           ) : null}
 
           {isVisible && (
-            <img
-              src={item.image}
-              alt={item.name}
-              style={{
-                width: "100%",
-                height: "100%",
-                display: imageLoaded ? "block" : "none",
-              }}
-              onLoad={handleImageLoad}
-            />
+            <div style={{
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              overflow: "hidden", // Prevent any potential overflow
+            }}>
+              <img
+                src={item.image}
+                alt={item.name}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover", // Cover the container
+                  display: imageLoaded ? "block" : "none",
+                }}
+                onLoad={handleImageLoad}
+              />
+            </div>
           )}
         </Card>
       ) : (
         <Card
-          style={{ margin: "auto", borderRadius: "0", border: "2px solid #c3c3c3", overflow: "hidden" }}
+          style={{ 
+            margin: "auto", 
+            borderRadius: "0", 
+            border: "2px solid #c3c3c3", 
+            overflow: "hidden",
+            height: "100%", // Fill the parent container height
+            width: "100%", // Fill the parent container width
+            position: "absolute", // Position absolutely to ensure it fills the parent
+            top: 0,
+            left: 0,
+            backgroundColor: "white"
+          }}
+          bodyStyle={{ 
+            padding: "10px", 
+            height: "100%",
+            overflow: "auto" // Add scrolling if content is too large
+          }}
           onClick={flipCard}
         >
-          <div style={{ width: "100%", margin: "auto" }}>
-            <div style={{ fontWeight: "bold" }}>{item.name}</div>
-            <div style={{ fontSize: "0.8em" }}>owned by: {item.owner}</div>
-            <div style={{ marginTop: "10px" }}>traits:</div>
-            {item.attributes &&
-              item.attributes.map((a, iax) => {
-                return (
-                  <div key={`attribute-${iax}`} style={{ fontSize: "0.9em" }}>
-                    {a.trait_type}: {a.value}
-                  </div>
-                );
-              })}
-            {/* <div style={{ marginTop: "15px" }}>
-              <AddressInput
-                ensProvider={ensProvider}
-                placeholder="transfer to address"
-                value={transferToAddresses[item.id]}
-                onChange={newValue => {
-                  const update = {};
-                  update[item.id] = newValue;
-                  setTransferToAddresses({ ...transferToAddresses, ...update });
-                }}
-                onClick={e => {
-                  e.stopPropagation();
-                }}
-              />
-              <Button
-                style={{ marginTop: "10px" }}
-                onClick={e => {
-                  e.stopPropagation();
-                  tx(writeContracts.G4m3.transferFrom(address, transferToAddresses[item.id], item.id));
-                }}
-              >
-                Transfer
-              </Button>
-            </div> */}
+          <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
+            <div style={{ fontWeight: "bold", fontSize: "0.9em" }}>{item.name}</div>
+            <div style={{ fontSize: "0.7em" }}>owned by: {item.owner}</div>
+            <div style={{ marginTop: "8px", fontSize: "0.8em" }}>traits:</div>
+            <div style={{ overflow: "auto", flex: 1 }}>
+              {item.attributes &&
+                item.attributes.map((a, iax) => {
+                  return (
+                    <div key={`attribute-${iax}`} style={{ fontSize: "0.75em", margin: "2px 0" }}>
+                      {a.trait_type}: {a.value}
+                    </div>
+                  );
+                })}
+            </div>
           </div>
         </Card>
       )}

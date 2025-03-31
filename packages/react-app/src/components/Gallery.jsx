@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Col, Row, Slider, Pagination, Spin } from "antd";
+import React, { useEffect, useState, useMemo } from "react";
+import { Col, Row, Slider, Spin, Progress } from "antd";
 import { ItemCard } from ".";
 
 const defaultStats = { totalSupply: 0, latestGen: "n/a" };
@@ -59,56 +59,36 @@ function Stats(props) {
 
 // Controls component
 function GalleryControl(props) {
-  const { zoomLevel, setZoomLevel, totalSupply, setGalleryLoadRange } = props;
-
-  const [paginationCurrent, setPaginationCurrent] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const { zoomLevel, setZoomLevel, setGalleryLoadRange } = props;
 
   useEffect(() => {
-    // handle data loading when params change
-    const loadTokens = async () => {
-      // change galleryLoadRange
-      // new range
-      const rangeMin = (paginationCurrent - 1) * pageSize + 1;
-      const rangeMax = paginationCurrent * pageSize;
-      // console.log(`>>>> changing range. current: ${paginationCurrent}. size: ${pageSize}`);
-      // console.log(`>>>> range min: ${rangeMin}, range max: ${rangeMax}`);
-      setGalleryLoadRange([rangeMin, rangeMax]);
+    // Load all tokens when the component mounts
+    const loadAllTokens = async () => {
+      // Set a range large enough to get all tokens - let's say 1-500
+      // This will be cached so it's not a performance issue after the first load
+      setGalleryLoadRange([1, 500]);
     };
 
-    loadTokens();
-  }, [paginationCurrent, pageSize]);
+    loadAllTokens();
+  }, [setGalleryLoadRange]);
 
   const onChangeZoom = newValue => {
     setZoomLevel(newValue);
   };
 
-  const onChangePage = page => {
-    // do something
-    // console.log(`setting pagination index to ${page}`);
-    setPaginationCurrent(page);
-  };
-
-  const onShowSizeChange = (current, newPageSize) => {
-    // console.log(`page size changed current: ${current}, pageSize: ${newPageSize}`);
-    setPageSize(newPageSize);
-  };
-
   return (
-    <>
-      <Col span={4}>
-        <Slider min={1} max={5} onChange={onChangeZoom} value={typeof zoomLevel === "number" ? zoomLevel : 0} />
-      </Col>
-      <Col span={12}>
-        <Pagination
-          defaultCurrent={paginationCurrent}
-          defaultPageSize={20}
-          total={totalSupply}
-          onChange={onChangePage}
-          onShowSizeChange={onShowSizeChange}
+    <Col span={6}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <span style={{ marginRight: '10px', fontFamily: 'monospace' }}>Zoom:</span>
+        <Slider 
+          min={1} 
+          max={5} 
+          onChange={onChangeZoom} 
+          value={typeof zoomLevel === "number" ? zoomLevel : 0}
+          style={{ flex: 1 }}
         />
-      </Col>
-    </>
+      </div>
+    </Col>
   );
 }
 function Gallery(props) {
@@ -124,71 +104,223 @@ function Gallery(props) {
     totalSupply,
     setGalleryLoadRange,
     isLoadingGallery,
-    galleryLoadRange,
+    loadProgress,
   } = props;
 
   const [zoomLevel, setZoomLevel] = useState(3);
 
+  // Parse the zoom level to get the item size
   const parseZoom = zoomLevel => {
-    if (zoomLevel < 4) {
-      return 2 ** zoomLevel;
-    }
-    if (zoomLevel === 4) {
-      return 12;
-    }
-    if (zoomLevel === 5) {
-      return 24;
+    // More consistent sizing with exact pixel values
+    switch (zoomLevel) {
+      case 1: return 60;  // Smallest size
+      case 2: return 120;
+      case 3: return 180;
+      case 4: return 240;
+      case 5: return 300; // Largest size
+      default: return 120;
     }
   };
 
+  // Group collectibles by epoch
+  const collectiblesByEpoch = useMemo(() => {
+    if (!allCollectibles || allCollectibles.length === 0) return {};
+    
+    // Group by epoch
+    const grouped = {};
+    
+    allCollectibles.forEach(item => {
+      // Extract epoch from attributes or name
+      let epoch = "Unknown";
+      
+      if (item.attributes) {
+        const epochAttr = item.attributes.find(attr => attr.trait_type === "epoch");
+        if (epochAttr) {
+          epoch = epochAttr.value;
+        }
+      }
+      
+      // Try to extract from name if attributes don't have it
+      if (epoch === "Unknown" && item.name) {
+        const epochMatch = item.name.match(/(\d+)\/\d+/);
+        if (epochMatch) {
+          epoch = epochMatch[1];
+        }
+      }
+      
+      // Initialize array if this epoch doesn't exist yet
+      if (!grouped[epoch]) {
+        grouped[epoch] = [];
+      }
+      
+      // Add to the epoch group
+      grouped[epoch].push(item);
+    });
+    
+    // Helper function to extract generation and token ID from an item
+    const getGenerationAndId = item => {
+      let generation = 0;
+      if (item.attributes) {
+        const genAttr = item.attributes.find(attr => attr.trait_type === "generation");
+        if (genAttr) {
+          generation = parseInt(genAttr.value.replace('#', ''));
+        }
+      }
+      // Use token ID as secondary sort key
+      const tokenId = item.id ? parseInt(item.id) : 0;
+      return { generation, tokenId };
+    };
+    
+    // Sort items within each epoch by generation and token ID (ascending - lowest at top)
+    Object.keys(grouped).forEach(epoch => {
+      grouped[epoch].sort((a, b) => {
+        const aInfo = getGenerationAndId(a);
+        const bInfo = getGenerationAndId(b);
+        
+        // First sort by generation
+        if (aInfo.generation !== bInfo.generation) {
+          return aInfo.generation - bInfo.generation;
+        }
+        // If same generation, sort by token ID
+        return aInfo.tokenId - bInfo.tokenId;
+      });
+    });
+    
+    return grouped;
+  }, [allCollectibles]);
+
   return (
-    <div style={{ maxWidth: 1020, margin: "auto", padding: "0 16px 256px 16px" }}>
+    <div style={{ maxWidth: '100%', margin: "auto", padding: "0 16px 32px 16px" }}>
       <Row>
         <GalleryControl
           zoomLevel={zoomLevel}
           setZoomLevel={setZoomLevel}
-          totalSupply={totalSupply}
           setGalleryLoadRange={setGalleryLoadRange}
         />
       </Row>
       <Row>
         <Stats collectibles={allCollectibles} />
       </Row>
-      {isLoadingGallery ? (
-        <Row justify="center" align="middle" style={{ minHeight: "200px" }}>
-          <Spin size="large" tip="Loading collectibles..." />
-        </Row>
-      ) : (
-        <Row gutter={[16, 16]}>
-          {allCollectibles && allCollectibles.length > 0 ? (
-            allCollectibles.map((c, icx) => {
-              return (
-                <Col
-                  xs={parseZoom(zoomLevel)}
-                  md={parseZoom(zoomLevel)}
-                  lg={parseZoom(zoomLevel)}
-                  key={`collectible-${icx}`}
-                >
-                  <ItemCard
-                    item={c}
-                    ensProvider={mainnetProvider}
-                    blockExplorer={blockExplorer}
-                    transferToAddresses={transferToAddresses}
-                    setTransferToAddresses={setTransferToAddresses}
-                    writeContracts={writeContracts}
-                    tx={tx}
-                    address={address}
-                  />
-                </Col>
-              );
-            })
-          ) : (
-            <Col span={24} style={{ fontFamily: "monospace", textAlign: "center", padding: "40px 0 40px 0" }}>
-              No collectibles found in this range
-            </Col>
-          )}
-        </Row>
-      )}
+      
+      {/* Gallery with loading overlay */}
+      <div style={{ position: 'relative' }}>
+        {/* Loading overlay */}
+        {isLoadingGallery && (
+          <div style={{ 
+            position: 'absolute', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            zIndex: 100, 
+            background: 'rgba(0,0,0,0.7)', 
+            padding: '16px',
+            borderRadius: '4px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '16px'
+          }}>
+            <Spin size="large" />
+            <div style={{ fontFamily: 'monospace', marginTop: '8px' }}>
+              Loading more tokens...
+            </div>
+            <Progress 
+              percent={Math.round(loadProgress)} 
+              status="active" 
+              style={{ width: '80%' }} 
+            />
+            <div style={{ fontFamily: 'monospace', fontSize: '12px', color: '#aaa' }}>
+              Displaying {allCollectibles.length} tokens so far
+            </div>
+          </div>
+        )}
+        
+        {/* Gallery content */}
+        <div style={{ 
+          overflow: 'auto', 
+          height: 'calc(100vh - 180px)', 
+          width: '100%',
+          border: '1px solid #333',
+          borderRadius: '4px',
+          margin: '16px 0',
+          padding: '8px', // Reduced padding for more symmetry with inner gaps
+          opacity: isLoadingGallery ? 0.7 : 1,
+          transition: 'opacity 0.3s ease'
+        }}>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'row', 
+            gap: '8px', // Smaller, consistent gap
+            minHeight: '100%',
+            minWidth: Object.keys(collectiblesByEpoch).length * (parseZoom(zoomLevel) + 16) // Ensure horizontal scrolling works
+          }}>
+            {Object.keys(collectiblesByEpoch).length > 0 ? (
+              // Create a column for each epoch
+              Object.keys(collectiblesByEpoch).sort((a, b) => Number(a) - Number(b)).map(epoch => (
+                <div key={`epoch-${epoch}`} style={{ 
+                  display: 'flex',
+                  flexDirection: 'column',
+                  width: parseZoom(zoomLevel),
+                  gap: '8px', // Match the horizontal gap
+                  alignItems: 'center'
+                }}>
+                  <h3 style={{ 
+                    textAlign: 'center', 
+                    fontFamily: 'monospace',
+                    position: 'sticky',
+                    top: 0,
+                    background: '#111',
+                    width: '100%',
+                    padding: '4px 0', // Reduced padding for more symmetry
+                    marginTop: 0,
+                    marginBottom: '4px', // Small margin to separate from content
+                    fontSize: '14px', // Smaller font size
+                    zIndex: 10
+                  }}>
+                    Epoch {epoch}
+                  </h3>
+                  
+                  <div style={{ 
+                    display: 'flex',
+                    flexDirection: 'column', // Normal column direction to put lowest generations at top
+                    gap: '8px', // Match the other gaps
+                    alignItems: 'center',
+                    width: '100%'
+                  }}>
+                    {collectiblesByEpoch[epoch].map((item, idx) => (
+                      <div key={`collectible-${epoch}-${idx}`} style={{
+                        width: parseZoom(zoomLevel),
+                        height: parseZoom(zoomLevel), // Ensure square dimensions
+                        margin: 0 // Remove margin to rely on gap for spacing
+                      }}>
+                        <ItemCard
+                          item={item}
+                          ensProvider={mainnetProvider}
+                          blockExplorer={blockExplorer}
+                          transferToAddresses={transferToAddresses}
+                          setTransferToAddresses={setTransferToAddresses}
+                          writeContracts={writeContracts}
+                          tx={tx}
+                          address={address}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div style={{ 
+                width: '100%', 
+                textAlign: 'center', 
+                padding: '40px 0', 
+                fontFamily: 'monospace' 
+              }}>
+                No collectibles found
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
