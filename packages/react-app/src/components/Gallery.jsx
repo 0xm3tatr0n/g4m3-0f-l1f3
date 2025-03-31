@@ -302,6 +302,7 @@ function Gallery(props) {
                           writeContracts={writeContracts}
                           tx={tx}
                           address={address}
+                          zoomLevel={zoomLevel} // Pass zoom level to the card
                         />
                       </div>
                     ))}
