@@ -11,6 +11,7 @@ import "./App.css";
 import { Address, Contract, Header, ItemCard, Gallery, MintInfo } from "./components";
 import { INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
+import { getStaticManifest, loadAllStaticTokens } from "./helpers/staticTokenLoader";
 import { useBalance, useContractLoader, useContractReader, useGasPrice, useUserProvider, useLocalStorage } from "./hooks";
 // Unused IPFS functionality removed
 
@@ -26,6 +27,8 @@ const mainnetInfura = new StaticJsonRpcProvider("https://mainnet.infura.io/v3/" 
 // Set up local provider
 const localProviderUrl = targetNetwork.rpcUrl;
 const localProviderUrlFromEnv = process.env.REACT_APP_PROVIDER ? process.env.REACT_APP_PROVIDER : localProviderUrl;
+// Add a debugging message to check provider URL
+console.log('🔌 Using provider URL:', localProviderUrlFromEnv);
 const localProvider = new StaticJsonRpcProvider(localProviderUrlFromEnv);
 
 // Block explorer URL
@@ -290,6 +293,102 @@ function App(props) {
   const [maxChunksLoaded, setMaxChunksLoaded] = useState(false);
   const CHUNK_SIZE = 5;
   
+  // Static tokens manifest data
+  const [staticManifest, setStaticManifest] = useState(null);
+  const [loadingStaticManifest, setLoadingStaticManifest] = useState(false);
+  const [staticTokensById, setStaticTokensById] = useState({});
+  
+  // Load static tokens on component mount 
+  useEffect(() => {
+    const loadStaticTokenData = async () => {
+      try {
+        // Set loading state
+        setLoadingStaticManifest(true);
+        
+        // Get the static manifest directly from our utility
+        const manifest = getStaticManifest();
+        console.log("📚 Using static manifest:", manifest);
+        setStaticManifest(manifest);
+        
+        // Load all static tokens
+        console.log(`📂 Loading static tokens from ${manifest.minTokenId} to ${manifest.maxTokenId}`);
+        const tokens = await loadAllStaticTokens();
+        
+        const tokenCount = Object.keys(tokens).length;
+        console.log(`✅ Successfully loaded ${tokenCount} static tokens`);
+        
+        // Debug log the first few tokens to check their structure
+        const tokenIds = Object.keys(tokens).slice(0, 3);
+        console.log("📝 Example tokens:", tokenIds.map(id => ({id, data: tokens[id]})));
+        
+        // Store static tokens in state
+        setStaticTokensById(tokens);
+        
+        // Create an entry in the gallery for static tokens
+        if (tokenCount > 0) {
+          // Count by epoch for reporting
+          const epochCounts = {};
+          const staticTokenArray = Object.values(tokens);
+          
+          console.log("🔍 Examining static token array:", staticTokenArray.length, "tokens");
+            
+          // Debug the first few tokens to check their structure
+          console.log("🔍 First few tokens:", staticTokenArray.slice(0, 3));
+          
+          staticTokenArray.forEach((token, idx) => {
+            // Debug every 50th token
+            if (idx % 50 === 0) {
+              console.log(`Token #${idx}:`, token);
+            }
+            
+            let epoch = "Unknown";
+            if (token.attributes) {
+              const epochAttr = token.attributes.find(attr => attr.trait_type === "epoch");
+              if (epochAttr) epoch = epochAttr.value.replace('#', '');
+            }
+            epochCounts[epoch] = (epochCounts[epoch] || 0) + 1;
+          });
+          
+          console.log("📊 Static tokens by epoch:", epochCounts);
+          
+          // Add to gallery - use different key format to ensure it's not filtered out
+          const rangeKey = "static-tokens-all";
+          console.log(`📊 Adding ${staticTokenArray.length} tokens to gallery with key ${rangeKey}`);
+          setFullGallery(prevGallery => {
+            const newGallery = {
+              ...prevGallery,
+              [rangeKey]: staticTokenArray
+            };
+            console.log("📚 Updated gallery:", Object.keys(newGallery).map(k => `${k}: ${newGallery[k]?.length || 0} items`));
+            return newGallery;
+          });
+        }
+        
+        // Check if we need to load additional tokens from RPC
+        if (readContracts && readContracts.G4m3) {
+          const totalSupply = await readContracts.G4m3.totalSupply();
+          const totalSupplyNum = totalSupply.toNumber();
+          console.log(`📊 Total supply from contract: ${totalSupplyNum}`);
+          
+          if (totalSupplyNum > manifest.maxTokenId) {
+            // Need to load more tokens from RPC
+            console.log(`🔄 Need to load ${totalSupplyNum - manifest.maxTokenId} more tokens from RPC`);
+            setGalleryLoadRange([manifest.maxTokenId + 1, totalSupplyNum]);
+          } else {
+            console.log("✅ All tokens are available in static storage");
+            setMaxChunksLoaded(true);
+          }
+        }
+      } catch (error) {
+        console.log("❌ Error loading static tokens:", error);
+      } finally {
+        setLoadingStaticManifest(false);
+      }
+    };
+    
+    loadStaticTokenData();
+  }, [readContracts]);
+  
   // Reset chunk loader when component mounts or route changes
   useEffect(() => {
     const handleRouteChange = () => {
@@ -311,182 +410,126 @@ function App(props) {
     };
   }, []);
   
-  // Load tokens in chunks, but only up to totalSupply
+  // Load additional tokens from RPC when needed
   useEffect(() => {
-    // Skip if we've already loaded the maximum or if totalSupply isn't available yet
-    if (maxChunksLoaded || !totalSupply) return;
-    
-    const totalTokens = totalSupply.toNumber();
-    
-    const loadNextChunk = () => {
-      const startToken = (currentChunk - 1) * CHUNK_SIZE + 1;
-      const endToken = Math.min(currentChunk * CHUNK_SIZE, totalTokens);
-      
-      console.log(`Loading chunk ${currentChunk}: tokens ${startToken}-${endToken} (Total: ${totalTokens})`);
-      setGalleryLoadRange([startToken, endToken]);
-      
-      // Schedule next chunk if we haven't reached the total supply
-      if (endToken < totalTokens && currentChunk < 100) { // Safety limit of 100 chunks
-        setTimeout(() => setCurrentChunk(prev => prev + 1), 300);
-      } else {
-        // Mark as done loading chunks
-        setMaxChunksLoaded(true);
-        console.log("All tokens loaded or reached max chunks!");
+    const loadAdditionalTokensFromRPC = async () => {
+      // Skip if no range or if static tokens are still loading
+      if (!galleryLoadRange || galleryLoadRange.length !== 2 || loadingStaticManifest) {
+        return;
       }
-    };
-    
-    loadNextChunk();
-  }, [currentChunk, totalSupply, setGalleryLoadRange, maxChunksLoaded]);
-
-  useEffect(() => {
-    const updateGallery = async () => {
-      console.log(`new range to query: ${galleryLoadRange[0]}-${galleryLoadRange[1]}`);
-      setIsLoadingGallery(true);
-
+      
+      // Skip if no contract access
+      if (!readContracts || !readContracts.G4m3) {
+        return;
+      }
+      
       try {
-        if (!readContracts || !readContracts.G4m3) {
-          console.log("Contracts not loaded yet");
-          return;
-        }
+        const [startId, endId] = galleryLoadRange;
+        console.log(`🔄 Loading additional tokens from RPC: ${startId} to ${endId}`);
         
-        // Create a cache key based on the current range
-        const rangeKey = `range-${galleryLoadRange[0]}-${galleryLoadRange[1]}`;
+        setIsLoadingGallery(true);
         
-        // Get current total supply to check for new tokens
-        const currentTotalSupply = await readContracts.G4m3.totalSupply();
-        const currentTotalSupplyNum = currentTotalSupply ? currentTotalSupply.toNumber() : 0;
+        // Process in batches
+        const BATCH_SIZE = 5;
+        let additionalTokens = [];
         
-        // Check if we have cached data for this range AND the total supply hasn't changed
-        if (fullGallery && 
-            fullGallery[rangeKey] && 
-            fullGallery.lastKnownTotalSupply && 
-            fullGallery.lastKnownTotalSupply === currentTotalSupplyNum) {
-          console.log("Using cached gallery data for range:", rangeKey);
-          setIsLoadingGallery(false);
-          return;
-        }
-        
-        console.log("Gallery cache invalidated - total supply changed or first load");
-        console.log("Current supply:", currentTotalSupplyNum, "Cached supply:", fullGallery?.lastKnownTotalSupply);
-
-        const tokenUriPromises = [];
-        const validTokenIds = [];
-
-        // First check if tokens exist - using batched parallel processing
-        const BATCH_SIZE = 5;  // Process in smaller batches for better performance
-        const checkResults = [];
-        
-        // Loop through the range in batches
-        for (let i = galleryLoadRange[0]; i <= galleryLoadRange[1]; i += BATCH_SIZE) {
-          const batchPromises = [];
-          const endIdx = Math.min(i + BATCH_SIZE - 1, galleryLoadRange[1]);
+        for (let i = startId; i <= endId; i += BATCH_SIZE) {
+          const batchEnd = Math.min(i + BATCH_SIZE - 1, endId);
           
-          // Process each batch in parallel
-          for (let j = i; j <= endIdx; j++) {
+          // Log progress
+          if ((i - startId) % 10 === 0 || i === startId) {
+            console.log(`🔄 Loading RPC batch ${i}-${batchEnd} (${Math.round((i-startId)/(endId-startId+1)*100)}%)`);
+          }
+          
+          // Process each token in the batch
+          const batchPromises = [];
+          for (let tokenId = i; tokenId <= batchEnd; tokenId++) {
             batchPromises.push(
-              readContracts.G4m3.ownerOf(j)
-                .then(() => j) // Return the token ID if it exists
-                .catch(() => null) // Return null if the token doesn't exist
+              (async () => {
+                try {
+                  // Skip if we already have this token in static storage
+                  if (staticTokensById[tokenId]) {
+                    return null;
+                  }
+                  
+                  // Check if token exists
+                  await readContracts.G4m3.ownerOf(tokenId);
+                  
+                  // Get token data
+                  const tokenURI = await readContracts.G4m3.tokenURI(tokenId);
+                  const base64 = tokenURI.split('base64,')[1];
+                  const jsonString = atob(base64);
+                  const jsonManifest = JSON.parse(jsonString);
+                  
+                  return {
+                    id: tokenId,
+                    ...jsonManifest,
+                    uri: tokenURI,
+                    owner: await readContracts.G4m3.ownerOf(tokenId),
+                    source: 'rpc'
+                  };
+                } catch (error) {
+                  // Token doesn't exist or other error
+                  return null;
+                }
+              })()
             );
           }
           
-          // Wait for the current batch to complete
+          // Wait for batch to complete
           const batchResults = await Promise.all(batchPromises);
-          checkResults.push(...batchResults);
           
-          // Add a small delay between batches to avoid UI freezing
-          if (i + BATCH_SIZE <= galleryLoadRange[1]) {
-            await new Promise(resolve => setTimeout(resolve, 0));
+          // Add valid tokens to our collection
+          const validTokens = batchResults.filter(t => t !== null);
+          additionalTokens = [...additionalTokens, ...validTokens];
+          
+          // Pause between batches
+          if (i + BATCH_SIZE <= endId) {
+            await new Promise(resolve => setTimeout(resolve, 100));
           }
         }
         
-        // Filter out null results
-        const existingTokenIds = checkResults.filter(id => id !== null);
-
-        // Now get token URIs in parallel
-        for (const id of existingTokenIds) {
-          validTokenIds.push(id);
-          tokenUriPromises.push(readContracts.G4m3.tokenURI(id));
-        }
-
-        if (validTokenIds.length === 0) {
-          console.log("No valid tokens found in the range");
-          // Cache empty result for this range
-          const rangeKey = `range-${galleryLoadRange[0]}-${galleryLoadRange[1]}`;
+        // Add additional tokens to the gallery
+        if (additionalTokens.length > 0) {
+          console.log(`✅ Loaded ${additionalTokens.length} additional tokens from RPC`);
           
-          // Get current total supply to store with the cache
-          const currentTotalSupply = await readContracts.G4m3.totalSupply();
-          const currentTotalSupplyNum = currentTotalSupply ? currentTotalSupply.toNumber() : 0;
-          
-          setFullGallery(prevGallery => ({
-            ...prevGallery,
-            [rangeKey]: [],
-            lastKnownTotalSupply: currentTotalSupplyNum
-          }));
-          setIsLoadingGallery(false);
-          return;
-        }
-
-        const allURIs = await Promise.all(tokenUriPromises);
-
-        try {
-          // Process in smaller batches to avoid UI freezing
-          const batchSize = 5;
-          const totalBatches = Math.ceil(allURIs.length / batchSize);
-          let processedGallery = [];
-
-          for (let i = 0; i < totalBatches; i++) {
-            const startIdx = i * batchSize;
-            const endIdx = Math.min(startIdx + batchSize, allURIs.length);
-            const batchURIs = allURIs.slice(startIdx, endIdx);
-            const batchIds = validTokenIds.slice(startIdx, endIdx);
-
-            const batchUpdate = batchURIs.map((u, idx) => {
-              const jsonManifestString = atob(u.substring(29));
-              const jsonManifest = JSON.parse(jsonManifestString);
-              return { id: batchIds[idx], uri: u, owner: address, ...jsonManifest };
-            });
-
-            processedGallery = [...processedGallery, ...batchUpdate];
-
-            // If this isn't the last batch, give the UI a chance to breathe
-            if (i < totalBatches - 1) {
-              await new Promise(resolve => setTimeout(resolve, 0));
+          // Count by epoch
+          const epochCounts = {};
+          additionalTokens.forEach(token => {
+            let epoch = "Unknown";
+            if (token.attributes) {
+              const epochAttr = token.attributes.find(attr => attr.trait_type === "epoch");
+              if (epochAttr) epoch = epochAttr.value.replace('#', '');
             }
-          }
-
-          // Create a cache key based on the current range
-          const rangeKey = `range-${galleryLoadRange[0]}-${galleryLoadRange[1]}`;
-          
-          // Get current total supply again to ensure it's the latest
-          const currentTotalSupply = await readContracts.G4m3.totalSupply();
-          const currentTotalSupplyNum = currentTotalSupply ? currentTotalSupply.toNumber() : 0;
-          
-          // Cache the gallery data by range and store the current total supply
-          setFullGallery(prevGallery => {
-            // Update just this range in the cached object and store total supply
-            return {
-              ...prevGallery,
-              [rangeKey]: processedGallery,
-              lastKnownTotalSupply: currentTotalSupplyNum
-            };
+            epochCounts[epoch] = (epochCounts[epoch] || 0) + 1;
           });
           
-          console.log("Gallery updated and cached with", processedGallery.length, "tokens for range", rangeKey);
-        } catch (error) {
-          console.log("error updating gallery collectibles: ", error);
+          console.log("📊 RPC tokens by epoch:", epochCounts);
+          
+          // Add to gallery
+          const rangeKey = `rpc-tokens-${startId}-${endId}`;
+          setFullGallery(prevGallery => ({
+            ...prevGallery,
+            [rangeKey]: additionalTokens
+          }));
         }
-      } catch (err) {
-        console.log("error updating gallery: ", err);
+        
+        // Mark loading as complete
+        setMaxChunksLoaded(true);
+      } catch (error) {
+        console.log("❌ Error loading additional tokens from RPC:", error);
       } finally {
         setIsLoadingGallery(false);
       }
     };
-
-    if (readContracts && readContracts.G4m3) {
-      updateGallery();
+    
+    if (readContracts && readContracts.G4m3 && !loadingStaticManifest) {
+      loadAdditionalTokensFromRPC();
     }
-  }, [totalSupply, galleryLoadRange, readContracts, address]);
+  }, [galleryLoadRange, readContracts, staticTokensById, loadingStaticManifest]);
+
+  // We don't need this function anymore since we're loading everything directly
+  // in the previous useEffect hook
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -828,7 +871,6 @@ function App(props) {
                 // Combine all loaded chunks into a single array and remove duplicates by ID
                 Array.from(new Map(
                   Object.keys(fullGallery)
-                    .filter(key => key.startsWith('range-'))
                     .flatMap(key => fullGallery[key] || [])
                     .map(item => [item.id, item]) // Use id as the key
                 ).values())

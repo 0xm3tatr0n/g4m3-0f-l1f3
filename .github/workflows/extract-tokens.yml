@@ -1,0 +1,86 @@
+name: Extract NFT tokens to static storage
+
+on:
+  # Run on pushes to main branch
+  push:
+    branches: [ master, main ]
+  
+  # Run on schedule (every day at 00:00 UTC)
+  schedule:
+    - cron: '0 0 * * *'
+  
+  # Allow manual triggering from GitHub UI
+  workflow_dispatch:
+    inputs:
+      start_token:
+        description: 'Start token ID (defaults to 1)'
+        required: false
+        default: '1'
+      max_tokens:
+        description: 'Maximum number of tokens to extract (0 = all)'
+        required: false
+        default: '0'
+      mint_to_max:
+        description: 'Mint to maximum capacity first (true/false)'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  extract-tokens:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'yarn'
+      
+      - name: Install dependencies
+        run: |
+          cd packages/hardhat
+          yarn install
+      
+      - name: Set up environment variables
+        env:
+          # Set up contract address for production (this would be your mainnet address)
+          CONTRACT_ADDRESS: ${{ secrets.CONTRACT_ADDRESS }}
+        run: echo "CONTRACT_ADDRESS=${CONTRACT_ADDRESS}" > .env
+      
+      - name: Start local hardhat node
+        run: |
+          cd packages/hardhat
+          npx hardhat node &
+          # Wait for node to start
+          sleep 10
+      
+      - name: Extract tokens to static storage
+        env:
+          START_TOKEN_ID: ${{ github.event.inputs.start_token || '1' }}
+          BATCH_SIZE: '5'
+          MAX_TOKENS: ${{ github.event.inputs.max_tokens || '0' }}
+          MINT_TO_MAX: ${{ github.event.inputs.mint_to_max || 'false' }}
+        run: |
+          cd packages/hardhat
+          echo "Starting extraction with parameters:"
+          echo "- START_TOKEN_ID: $START_TOKEN_ID"
+          echo "- MAX_TOKENS: $MAX_TOKENS"
+          echo "- MINT_TO_MAX: $MINT_TO_MAX"
+          
+          if [ "$MINT_TO_MAX" = "true" ]; then
+            echo "⚠️ MINT_TO_MAX is enabled - will mint to maximum capacity first!"
+          fi
+          
+          npx hardhat run scripts/extract-tokens-to-static.js --network localhost
+      
+      - name: Stop local node
+        run: pkill node || true
+      
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "🤖 Update static token data [skip ci]"
+          file_pattern: 'packages/react-app/public/static-tokens/*'

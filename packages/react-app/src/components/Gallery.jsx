@@ -6,7 +6,7 @@ const defaultStats = { totalSupply: 0, latestGen: "n/a" };
 
 // Stats component
 function Stats(props) {
-  const { collectibles } = props;
+  const { collectibles, totalSupply } = props;
 
   const [stats, setStats] = useState(defaultStats);
 
@@ -62,32 +62,60 @@ function GalleryControl(props) {
   const { zoomLevel, setZoomLevel, setGalleryLoadRange } = props;
 
   useEffect(() => {
-    // Load all tokens when the component mounts
-    const loadAllTokens = async () => {
-      // Set a range large enough to get all tokens - let's say 1-500
-      // This will be cached so it's not a performance issue after the first load
-      setGalleryLoadRange([1, 500]);
-    };
-
-    loadAllTokens();
-  }, [setGalleryLoadRange]);
+    // No longer need to set initial range - this is now handled by the static token loading
+  }, []);
 
   const onChangeZoom = newValue => {
     setZoomLevel(newValue);
   };
+  
+  // Function to clear cache and force reload
+  const clearCacheAndReload = () => {
+    // Clear localStorage cache
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('collectibles-') || key === 'gallery-cache') {
+        localStorage.removeItem(key);
+      }
+    });
+    
+    // Force reload the page
+    window.location.reload();
+  };
 
   return (
-    <Col span={6}>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <span style={{ marginRight: '10px', fontFamily: 'monospace' }}>Zoom:</span>
-        <Slider 
-          min={1} 
-          max={5} 
-          onChange={onChangeZoom} 
-          value={typeof zoomLevel === "number" ? zoomLevel : 0}
-          style={{ flex: 1 }}
-        />
-      </div>
+    <Col span={24}>
+      <Row gutter={16} align="middle">
+        <Col span={16}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <span style={{ marginRight: '10px', fontFamily: 'monospace' }}>Zoom:</span>
+            <Slider 
+              min={1} 
+              max={5} 
+              onChange={onChangeZoom} 
+              value={typeof zoomLevel === "number" ? zoomLevel : 0}
+              style={{ flex: 1 }}
+            />
+          </div>
+        </Col>
+        <Col span={8} style={{ textAlign: 'right' }}>
+          <button 
+            onClick={clearCacheAndReload}
+            style={{
+              padding: '8px 16px',
+              fontFamily: 'monospace',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              background: '#28a745',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            🔄 Refresh All Tokens
+          </button>
+        </Col>
+      </Row>
     </Col>
   );
 }
@@ -136,7 +164,8 @@ function Gallery(props) {
       if (item.attributes) {
         const epochAttr = item.attributes.find(attr => attr.trait_type === "epoch");
         if (epochAttr) {
-          epoch = epochAttr.value;
+          // Extract just the number from the epoch value (remove # if present)
+          epoch = epochAttr.value.replace('#', '');
         }
       }
       
@@ -146,6 +175,11 @@ function Gallery(props) {
         if (epochMatch) {
           epoch = epochMatch[1];
         }
+      }
+      
+      // For debugging
+      if (epoch === "Unknown") {
+        console.log("⚠️ Found token without epoch:", item);
       }
       
       // Initialize array if this epoch doesn't exist yet
@@ -191,7 +225,7 @@ function Gallery(props) {
 
   return (
     <div style={{ maxWidth: '100%', margin: "auto", padding: "0 16px 32px 16px" }}>
-      <Row>
+      <Row gutter={16}>
         <GalleryControl
           zoomLevel={zoomLevel}
           setZoomLevel={setZoomLevel}
@@ -199,8 +233,35 @@ function Gallery(props) {
         />
       </Row>
       <Row>
-        <Stats collectibles={allCollectibles} />
+        <Stats collectibles={allCollectibles} totalSupply={totalSupply} />
       </Row>
+      
+      {/* Debug info */}
+      <div style={{ background: '#222', color: '#aaa', fontFamily: 'monospace', fontSize: '12px', padding: '12px', marginBottom: '16px', borderRadius: '4px' }}>
+        <div style={{ marginBottom: '8px', borderBottom: '1px solid #444', paddingBottom: '4px', color: '#fff', fontWeight: 'bold' }}>
+          Gallery Stats
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+          <div><span style={{color: '#00d0ff'}}>Total tokens:</span> {allCollectibles?.length || 0}</div>
+          <div><span style={{color: '#00d0ff'}}>Epochs found:</span> {Object.keys(collectiblesByEpoch).length}</div>
+          <div><span style={{color: '#00d0ff'}}>Supply:</span> {totalSupply?.toString() || 'Loading...'}</div>
+        </div>
+        <div style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap' }}>
+          {Object.entries(collectiblesByEpoch)
+            .sort(([a], [b]) => parseInt(a) - parseInt(b))
+            .map(([epoch, tokens]) => (
+              <div key={epoch} style={{ 
+                margin: '4px', 
+                padding: '4px 8px', 
+                background: '#333', 
+                borderRadius: '4px',
+                border: '1px solid #555'
+              }}>
+                <span style={{color: '#ffcc00'}}>Epoch {epoch}:</span> {tokens.length} tokens
+              </div>
+          ))}
+        </div>
+      </div>
       
       {/* Gallery with loading overlay */}
       <div style={{ position: 'relative' }}>
@@ -254,6 +315,21 @@ function Gallery(props) {
             minHeight: '100%',
             minWidth: Object.keys(collectiblesByEpoch).length * (parseZoom(zoomLevel) + 16) // Ensure horizontal scrolling works
           }}>
+            {/* Debug info about collectibles */}
+            {allCollectibles.length === 0 && (
+              <div style={{
+                width: '100%', 
+                textAlign: 'center', 
+                padding: '20px',
+                background: '#222',
+                borderRadius: '4px',
+                fontFamily: 'monospace'
+              }}>
+                <div style={{color: 'yellow', marginBottom: '10px'}}>No collectibles found to display</div>
+                <div style={{fontSize: '12px', color: '#aaa'}}>(Check browser console for debug information)</div>
+              </div>
+            )}
+            
             {Object.keys(collectiblesByEpoch).length > 0 ? (
               // Create a column for each epoch
               Object.keys(collectiblesByEpoch).sort((a, b) => Number(a) - Number(b)).map(epoch => (

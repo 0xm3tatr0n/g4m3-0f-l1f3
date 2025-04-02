@@ -1,0 +1,49 @@
+{
+  "name": "g4m3 0f l1f3 #91 4/29",
+  "description": "g4m3 0f l1f3 iteration #91. Generation #29 in epoch #4",
+  "attributes": [
+    {
+      "trait_type": "epoch",
+      "value": "#4"
+    },
+    {
+      "trait_type": "generation",
+      "value": "29"
+    },
+    {
+      "trait_type": "population",
+      "value": "19"
+    },
+    {
+      "trait_type": "births",
+      "value": "8"
+    },
+    {
+      "trait_type": "deaths",
+      "value": "4"
+    },
+    {
+      "trait_type": "diff",
+      "value": "+4"
+    },
+    {
+      "trait_type": "times",
+      "value": "Ocean"
+    },
+    {
+      "trait_type": "shape",
+      "value": "Oi!"
+    },
+    {
+      "trait_type": "speed",
+      "value": "static"
+    },
+    {
+      "trait_type": "pattern",
+      "value": "none"
+    }
+  ],
+  "owner": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+  "image": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjM2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48YW5pbWF0ZSBpZD0iYWEiIGJlZ2luPSIwcyIvPjxyZWN0IGlkPSJkIiB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIGZpbGw9IiNCOUQ2RjIiPjwvcmVjdD48Y2lyY2xlIGlkPSJsIiByPSIxOCIgZmlsbD0iIzAwMzU1OSI+PC9jaXJjbGU+PHJlY3QgaWQ9InAiIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgZmlsbD0iIzAwMzU1OSI+PC9yZWN0PjxjaXJjbGUgaWQ9ImIiIHI9IjE4IiBmaWxsPSIjMDA2REFBIj48L2NpcmNsZT48L2RlZnM+PHJlY3Qgd2lkdGg9IjM2MCIgaGVpZ2h0PSIzNjAiIGZpbGw9IiMwNjFBNDAiIC8+PHVzZSBocmVmPSIjbCIgeD0iNDAiIHk9IjQwIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjIyIiB5PSI2MiIgLz48dXNlIGhyZWY9IiNkIiB4PSIyMiIgeT0iMTAyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjIyIiB5PSIxNDIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMjIiIHk9IjE4MiIgLz48dXNlIGhyZWY9IiNkIiB4PSIyMiIgeT0iMjIyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjIyIiB5PSIyNjIiIC8+PHVzZSBocmVmPSIjbCIgeD0iNDAiIHk9IjMyMCIgLz48dXNlIGhyZWY9IiNiIiB4PSI4MCIgeT0iNDAiIC8+PHVzZSBocmVmPSIjbCIgeD0iODAiIHk9IjgwIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjYyIiB5PSIxMDIiIC8+PHVzZSBocmVmPSIjZCIgeD0iNjIiIHk9IjE0MiIgLz48dXNlIGhyZWY9IiNkIiB4PSI2MiIgeT0iMTgyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjYyIiB5PSIyMjIiIC8+PHVzZSBocmVmPSIjbCIgeD0iODAiIHk9IjI4MCIgLz48dXNlIGhyZWY9IiNiIiB4PSI4MCIgeT0iMzIwIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjEwMiIgeT0iMjIiIC8+PHVzZSBocmVmPSIjYiIgeD0iMTIwIiB5PSI4MCIgLz48dXNlIGhyZWY9IiNsIiB4PSIxMjAiIHk9IjEyMCIgLz48dXNlIGhyZWY9IiNiIiB4PSIxMjAiIHk9IjE2MCIgLz48dXNlIGhyZWY9IiNkIiB4PSIxMDIiIHk9IjE4MiIgLz48dXNlIGhyZWY9IiNwIiB4PSIxMDIiIHk9IjIyMiIgLz48dXNlIGhyZWY9IiNkIiB4PSIxMDIiIHk9IjI2MiIgLz48dXNlIGhyZWY9IiNkIiB4PSIxMDIiIHk9IjMwMiIgLz48dXNlIGhyZWY9IiNkIiB4PSIxNDIiIHk9IjIyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjE0MiIgeT0iNjIiIC8+PHVzZSBocmVmPSIjbCIgeD0iMTYwIiB5PSIxMjAiIC8+PHVzZSBocmVmPSIjbCIgeD0iMTYwIiB5PSIxNjAiIC8+PHVzZSBocmVmPSIjYiIgeD0iMTYwIiB5PSIyMDAiIC8+PHVzZSBocmVmPSIjZCIgeD0iMTQyIiB5PSIyMjIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMTQyIiB5PSIyNjIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMTQyIiB5PSIzMDIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMTgyIiB5PSIyMiIgLz48dXNlIGhyZWY9IiNkIiB4PSIxODIiIHk9IjYyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjE4MiIgeT0iMTAyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjE4MiIgeT0iMTQyIiAvPjx1c2UgaHJlZj0iI2IiIHg9IjIwMCIgeT0iMjAwIiAvPjx1c2UgaHJlZj0iI3AiIHg9IjE4MiIgeT0iMjIyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjE4MiIgeT0iMjYyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjE4MiIgeT0iMzAyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjIyMiIgeT0iMjIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMjIyIiB5PSI2MiIgLz48dXNlIGhyZWY9IiNsIiB4PSIyNDAiIHk9IjEyMCIgLz48dXNlIGhyZWY9IiNsIiB4PSIyNDAiIHk9IjE2MCIgLz48dXNlIGhyZWY9IiNkIiB4PSIyMjIiIHk9IjE4MiIgLz48dXNlIGhyZWY9IiNkIiB4PSIyMjIiIHk9IjIyMiIgLz48dXNlIGhyZWY9IiNwIiB4PSIyMjIiIHk9IjI2MiIgLz48dXNlIGhyZWY9IiNkIiB4PSIyMjIiIHk9IjMwMiIgLz48dXNlIGhyZWY9IiNwIiB4PSIyNjIiIHk9IjIyIiAvPjx1c2UgaHJlZj0iI2wiIHg9IjI4MCIgeT0iODAiIC8+PHVzZSBocmVmPSIjbCIgeD0iMjgwIiB5PSIxMjAiIC8+PHVzZSBocmVmPSIjYiIgeD0iMjgwIiB5PSIxNjAiIC8+PHVzZSBocmVmPSIjZCIgeD0iMjYyIiB5PSIxODIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMjYyIiB5PSIyMjIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMjYyIiB5PSIyNjIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMjYyIiB5PSIzMDIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMzAyIiB5PSIyMiIgLz48dXNlIGhyZWY9IiNkIiB4PSIzMDIiIHk9IjYyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjMwMiIgeT0iMTAyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjMwMiIgeT0iMTQyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjMwMiIgeT0iMTgyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjMwMiIgeT0iMjIyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjMwMiIgeT0iMjYyIiAvPjx1c2UgaHJlZj0iI2IiIHg9IjMyMCIgeT0iMzIwIiAvPjwvc3ZnPg==",
+  "id": 91
+}

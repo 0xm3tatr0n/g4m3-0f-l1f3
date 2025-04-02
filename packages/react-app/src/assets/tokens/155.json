@@ -1,0 +1,49 @@
+{
+  "name": "g4m3 0f l1f3 #155 4/93",
+  "description": "g4m3 0f l1f3 iteration #155. Generation #93 in epoch #4",
+  "attributes": [
+    {
+      "trait_type": "epoch",
+      "value": "#4"
+    },
+    {
+      "trait_type": "generation",
+      "value": "93"
+    },
+    {
+      "trait_type": "population",
+      "value": "14"
+    },
+    {
+      "trait_type": "births",
+      "value": "7"
+    },
+    {
+      "trait_type": "deaths",
+      "value": "6"
+    },
+    {
+      "trait_type": "diff",
+      "value": "+1"
+    },
+    {
+      "trait_type": "times",
+      "value": "Enchanted Forest"
+    },
+    {
+      "trait_type": "shape",
+      "value": "Oi!"
+    },
+    {
+      "trait_type": "speed",
+      "value": "raw"
+    },
+    {
+      "trait_type": "pattern",
+      "value": "none"
+    }
+  ],
+  "owner": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+  "image": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjM2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48YW5pbWF0ZSBpZD0iYWEiIGJlZ2luPSIwcyIvPjxyZWN0IGlkPSJkIiB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIGZpbGw9IiMyNTExMDEiPjwvcmVjdD48Y2lyY2xlIGlkPSJsIiByPSIxOCIgZmlsbD0iI0ZGMTA1MyI+PC9jaXJjbGU+PC9kZWZzPjxyZWN0IHdpZHRoPSIzNjAiIGhlaWdodD0iMzYwIiBmaWxsPSIjMDcxRTIyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjIyIiB5PSIyMiIgLz48dXNlIGhyZWY9IiNkIiB4PSIyMiIgeT0iNjIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMjIiIHk9IjEwMiIgLz48dXNlIGhyZWY9IiNkIiB4PSIyMiIgeT0iMTQyIiAvPjx1c2UgaHJlZj0iI2wiIHg9IjQwIiB5PSIyMDAiIC8+PHVzZSBocmVmPSIjbCIgeD0iNDAiIHk9IjI0MCIgLz48dXNlIGhyZWY9IiNkIiB4PSIyMiIgeT0iMjYyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjIyIiB5PSIzMDIiIC8+PHVzZSBocmVmPSIjZCIgeD0iNjIiIHk9IjIyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjYyIiB5PSI2MiIgLz48dXNlIGhyZWY9IiNkIiB4PSI2MiIgeT0iMTAyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjYyIiB5PSIxNDIiIC8+PHVzZSBocmVmPSIjZCIgeD0iNjIiIHk9IjE4MiIgLz48dXNlIGhyZWY9IiNkIiB4PSI2MiIgeT0iMjIyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjYyIiB5PSIyNjIiIC8+PHVzZSBocmVmPSIjZCIgeD0iNjIiIHk9IjMwMiIgLz48dXNlIGhyZWY9IiNkIiB4PSIxMDIiIHk9IjIyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjEwMiIgeT0iNjIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMTAyIiB5PSIxMDIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMTAyIiB5PSIxNDIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMTAyIiB5PSIxODIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMTAyIiB5PSIyMjIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMTAyIiB5PSIyNjIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMTAyIiB5PSIzMDIiIC8+PHVzZSBocmVmPSIjbCIgeD0iMTYwIiB5PSI0MCIgLz48dXNlIGhyZWY9IiNsIiB4PSIxNjAiIHk9IjgwIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjE0MiIgeT0iMTAyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjE0MiIgeT0iMTQyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjE0MiIgeT0iMTgyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjE0MiIgeT0iMjIyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjE0MiIgeT0iMjYyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjE0MiIgeT0iMzAyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjE4MiIgeT0iMjIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMTgyIiB5PSI2MiIgLz48dXNlIGhyZWY9IiNsIiB4PSIyMDAiIHk9IjEyMCIgLz48dXNlIGhyZWY9IiNkIiB4PSIxODIiIHk9IjE0MiIgLz48dXNlIGhyZWY9IiNkIiB4PSIxODIiIHk9IjE4MiIgLz48dXNlIGhyZWY9IiNkIiB4PSIxODIiIHk9IjIyMiIgLz48dXNlIGhyZWY9IiNkIiB4PSIxODIiIHk9IjI2MiIgLz48dXNlIGhyZWY9IiNkIiB4PSIxODIiIHk9IjMwMiIgLz48dXNlIGhyZWY9IiNsIiB4PSIyNDAiIHk9IjQwIiAvPjx1c2UgaHJlZj0iI2wiIHg9IjI0MCIgeT0iODAiIC8+PHVzZSBocmVmPSIjbCIgeD0iMjQwIiB5PSIxMjAiIC8+PHVzZSBocmVmPSIjZCIgeD0iMjIyIiB5PSIxNDIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMjIyIiB5PSIxODIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMjIyIiB5PSIyMjIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMjIyIiB5PSIyNjIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMjIyIiB5PSIzMDIiIC8+PHVzZSBocmVmPSIjbCIgeD0iMjgwIiB5PSI0MCIgLz48dXNlIGhyZWY9IiNkIiB4PSIyNjIiIHk9IjYyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjI2MiIgeT0iMTAyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjI2MiIgeT0iMTQyIiAvPjx1c2UgaHJlZj0iI2wiIHg9IjI4MCIgeT0iMjAwIiAvPjx1c2UgaHJlZj0iI2wiIHg9IjI4MCIgeT0iMjQwIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjI2MiIgeT0iMjYyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjI2MiIgeT0iMzAyIiAvPjx1c2UgaHJlZj0iI2QiIHg9IjMwMiIgeT0iMjIiIC8+PHVzZSBocmVmPSIjZCIgeD0iMzAyIiB5PSI2MiIgLz48dXNlIGhyZWY9IiNkIiB4PSIzMDIiIHk9IjEwMiIgLz48dXNlIGhyZWY9IiNkIiB4PSIzMDIiIHk9IjE0MiIgLz48dXNlIGhyZWY9IiNsIiB4PSIzMjAiIHk9IjIwMCIgLz48dXNlIGhyZWY9IiNsIiB4PSIzMjAiIHk9IjI0MCIgLz48dXNlIGhyZWY9IiNsIiB4PSIzMjAiIHk9IjI4MCIgLz48dXNlIGhyZWY9IiNkIiB4PSIzMDIiIHk9IjMwMiIgLz48L3N2Zz4=",
+  "id": 155
+}
