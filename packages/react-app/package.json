@@ -76,6 +76,10 @@
     "s3": "node ./scripts/s3.js",
     "ship": "yarn surge",
     "theme": "npx gulp less",
-    "watch": "node ./scripts/watch.js"
+    "watch": "node ./scripts/watch.js",
+    "extract-tokens": "node ./scripts/extract-tokens.js extract",
+    "mint-tokens": "node ./scripts/extract-tokens.js mint",
+    "mint-to-end": "node ./scripts/extract-tokens.js mintToEnd",
+    "clear-tokens": "rm -rf ./src/assets/tokens/*.json"
   }
 }

@@ -61,6 +61,10 @@
     "extract-tokens": "hardhat run scripts/extract-tokens-to-static.js --network localhost",
     "extract-tokens:all": "MAX_TOKENS=0 hardhat run scripts/extract-tokens-to-static.js --network localhost",
     "extract-tokens:test": "START_TOKEN_ID=1 BATCH_SIZE=3 MAX_TOKENS=5 hardhat run scripts/extract-tokens-to-static.js --network localhost",
-    "extract-tokens:max": "MINT_TO_MAX=true hardhat run scripts/extract-tokens-to-static.js --network localhost"
+    "extract-tokens:max": "MINT_TO_MAX=true hardhat run scripts/extract-tokens-to-static.js --network localhost",
+    "react:extract-tokens": "cd ../react-app && yarn extract-tokens",
+    "react:mint-tokens": "cd ../react-app && yarn mint-tokens",
+    "react:mint-to-end": "cd ../react-app && yarn mint-to-end",
+    "react:clear-tokens": "cd ../react-app && yarn clear-tokens"
   }
 }

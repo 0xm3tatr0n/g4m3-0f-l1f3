@@ -325,10 +325,13 @@ function App(props) {
         setStaticTokensById(tokens);
         
         // Create an entry in the gallery for static tokens
-        if (tokenCount > 0) {
+        // Always create an entry in the gallery for static tokens, even if empty
+        const staticTokenArray = Object.values(tokens);
+        console.log("🔍 Static tokens available:", staticTokenArray.length);
+        
+        if (staticTokenArray.length > 0) {
           // Count by epoch for reporting
           const epochCounts = {};
-          const staticTokenArray = Object.values(tokens);
           
           console.log("🔍 Examining static token array:", staticTokenArray.length, "tokens");
             
@@ -350,19 +353,21 @@ function App(props) {
           });
           
           console.log("📊 Static tokens by epoch:", epochCounts);
-          
-          // Add to gallery - use different key format to ensure it's not filtered out
-          const rangeKey = "static-tokens-all";
-          console.log(`📊 Adding ${staticTokenArray.length} tokens to gallery with key ${rangeKey}`);
-          setFullGallery(prevGallery => {
-            const newGallery = {
-              ...prevGallery,
-              [rangeKey]: staticTokenArray
-            };
-            console.log("📚 Updated gallery:", Object.keys(newGallery).map(k => `${k}: ${newGallery[k]?.length || 0} items`));
-            return newGallery;
-          });
+        } else {
+          console.log("⚠️ No static tokens found. Run 'npm run extract-tokens' to populate the gallery.");
         }
+        
+        // Always add to gallery, even if empty - use different key format to ensure it's not filtered out
+        const rangeKey = "static-tokens-all";
+        console.log(`📊 Adding ${staticTokenArray.length} tokens to gallery with key ${rangeKey}`);
+        setFullGallery(prevGallery => {
+          const newGallery = {
+            ...prevGallery,
+            [rangeKey]: staticTokenArray
+          };
+          console.log("📚 Updated gallery:", Object.keys(newGallery).map(k => `${k}: ${newGallery[k]?.length || 0} items`));
+          return newGallery;
+        });
         
         // Check if we need to load additional tokens from RPC
         if (readContracts && readContracts.G4m3) {
