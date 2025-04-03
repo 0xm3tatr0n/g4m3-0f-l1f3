@@ -342,8 +342,8 @@ function Gallery(props) {
               minWidth: Object.keys(collectiblesByEpoch).length * (parseZoom(zoomLevel) + 16), // Ensure horizontal scrolling works
             }}
           >
-            {/* Debug info about collectibles */}
-            {allCollectibles.length === 0 && (
+            {/* Empty state message */}
+            {allCollectibles.length === 0 && !isLoadingGallery && (
               <div
                 style={{
                   width: "100%",
@@ -367,6 +367,50 @@ function Gallery(props) {
                 </div>
                 <div style={{ fontSize: "14px", color: "#aaa", maxWidth: "600px", margin: "0 auto", marginTop: "8px" }}>
                   See <span style={{background: "#333", padding: "2px 6px", borderRadius: "4px", fontWeight: "bold"}}>STATIC-TOKENS.md</span> for more commands and options.
+                </div>
+                <div style={{ fontSize: "14px", color: "#00cc00", maxWidth: "600px", margin: "0 auto", marginTop: "16px", padding: "12px", border: "1px dashed #333" }}>
+                  <strong>Tip:</strong> If you've already minted tokens but don't see them here, check if your local blockchain is running.
+                  Try running <span style={{background: "#333", padding: "2px 6px", borderRadius: "4px", fontWeight: "bold"}}>yarn clear-tokens</span> followed by 
+                  <span style={{background: "#333", padding: "2px 6px", borderRadius: "4px", fontWeight: "bold", margin: "0 4px"}}>yarn extract-tokens</span> to refresh the gallery.
+                </div>
+                
+                <div style={{ marginTop: "24px" }}>
+                  <button
+                    onClick={() => window.open('https://github.com/m3tatr0n/g4m3-0f-l1f3/wiki/Token-Extraction-Guide', '_blank')}
+                    style={{
+                      padding: "12px 20px",
+                      background: "#2a9d8f",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "4px",
+                      fontFamily: "monospace",
+                      fontSize: "14px",
+                      fontWeight: "bold", 
+                      cursor: "pointer",
+                      marginRight: "16px",
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+                    }}
+                  >
+                    📖 View Token Guide
+                  </button>
+                  <a href="/debug" style={{ textDecoration: "none" }}>
+                    <button
+                      style={{
+                        padding: "12px 20px",
+                        background: "#e76f51",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        fontFamily: "monospace",
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+                      }}
+                    >
+                      🛠️ Debug Contract
+                    </button>
+                  </a>
                 </div>
               </div>
             )}

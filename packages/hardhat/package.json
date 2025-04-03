@@ -64,7 +64,9 @@
     "extract-tokens:max": "MINT_TO_MAX=true hardhat run scripts/extract-tokens-to-static.js --network localhost",
     "react:extract-tokens": "cd ../react-app && yarn extract-tokens",
     "react:mint-tokens": "cd ../react-app && yarn mint-tokens",
+    "react:mint-tokens:no-extract": "cd ../react-app && yarn mint-tokens:no-extract",
     "react:mint-to-end": "cd ../react-app && yarn mint-to-end",
+    "react:mint-to-end:no-extract": "cd ../react-app && yarn mint-to-end:no-extract",
     "react:clear-tokens": "cd ../react-app && yarn clear-tokens"
   }
 }

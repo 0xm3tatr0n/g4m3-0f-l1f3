@@ -63,11 +63,20 @@ async function main() {
       // Mint N additional tokens
       console.log(`Minting ${count} new tokens...`);
       await mintTokens(contract, count, signerAddress);
-      // Get updated supply
-      const newSupply = await contract.totalSupply();
-      // Extract the newly minted tokens
-      const startFrom = newSupply.toNumber() - count;
-      await extractTokens(contract, outputDir, count, startFrom);
+      
+      // Check if we should extract tokens (default is yes)
+      const skipExtraction = process.env.SKIP_EXTRACTION === "true";
+      
+      if (skipExtraction) {
+        console.log(`🚫 Skipping token extraction as requested by SKIP_EXTRACTION flag`);
+      } else {
+        // Get updated supply
+        const newSupply = await contract.totalSupply();
+        // Extract the newly minted tokens
+        const startFrom = newSupply.toNumber() - count;
+        console.log(`📥 Extracting newly minted tokens...`);
+        await extractTokens(contract, outputDir, count, startFrom);
+      }
     }
     
     if (mode === "mintToEnd" && count > totalSupply.toNumber()) {
@@ -75,9 +84,18 @@ async function main() {
       const toMint = count - totalSupply.toNumber();
       console.log(`Minting ${toMint} tokens to reach total of ${count}...`);
       await mintTokens(contract, toMint, signerAddress);
-      // Extract all tokens to ensure we have everything
-      const newSupply = await contract.totalSupply();
-      await extractTokens(contract, outputDir, newSupply.toNumber());
+      
+      // Check if we should extract tokens (default is yes)
+      const skipExtraction = process.env.SKIP_EXTRACTION === "true";
+      
+      if (skipExtraction) {
+        console.log(`🚫 Skipping token extraction as requested by SKIP_EXTRACTION flag`);
+      } else {
+        // Extract all tokens to ensure we have everything
+        const newSupply = await contract.totalSupply();
+        console.log(`📥 Extracting all tokens...`);
+        await extractTokens(contract, outputDir, newSupply.toNumber());
+      }
     }
     
     // Update manifest

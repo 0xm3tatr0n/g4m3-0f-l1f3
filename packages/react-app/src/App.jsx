@@ -310,6 +310,46 @@ function App(props) {
         console.log("📚 Using static manifest:", manifest);
         setStaticManifest(manifest);
         
+        // Check if totalTokensStored is 0 or if minTokenId/maxTokenId are missing
+        // This handles both cases: empty directory or no tokens extracted yet
+        if (!manifest.totalTokensStored || manifest.totalTokensStored === 0 || 
+            !manifest.minTokenId || !manifest.maxTokenId) {
+          console.log("⚠️ No static tokens found. Run 'yarn extract-tokens' to populate the gallery.");
+          
+          // Add empty array to gallery
+          const rangeKey = "static-tokens-all";
+          setFullGallery(prevGallery => ({
+            ...prevGallery,
+            [rangeKey]: []
+          }));
+          
+          // Check if we need to load from RPC when no static tokens exist
+          if (readContracts && readContracts.G4m3) {
+            try {
+              const totalSupply = await readContracts.G4m3.totalSupply();
+              const totalSupplyNum = totalSupply.toNumber();
+              console.log(`📊 Total supply from contract: ${totalSupplyNum}`);
+              
+              if (totalSupplyNum > 0) {
+                // Load all tokens from RPC since none exist in static storage
+                console.log(`🔄 Loading ${totalSupplyNum} tokens from RPC (no static tokens found)`);
+                setGalleryLoadRange([1, totalSupplyNum]);
+              } else {
+                console.log("📊 No tokens minted yet");
+                setMaxChunksLoaded(true);
+              }
+            } catch (error) {
+              console.error("Error checking total supply:", error);
+              setMaxChunksLoaded(true);
+            }
+          } else {
+            setMaxChunksLoaded(true);
+          }
+          
+          setLoadingStaticManifest(false);
+          return;
+        }
+        
         // Load all static tokens
         console.log(`📂 Loading static tokens from ${manifest.minTokenId} to ${manifest.maxTokenId}`);
         const tokens = await loadAllStaticTokens();
@@ -354,7 +394,7 @@ function App(props) {
           
           console.log("📊 Static tokens by epoch:", epochCounts);
         } else {
-          console.log("⚠️ No static tokens found. Run 'npm run extract-tokens' to populate the gallery.");
+          console.log("⚠️ No static tokens found. Run 'yarn extract-tokens' to populate the gallery.");
         }
         
         // Always add to gallery, even if empty - use different key format to ensure it's not filtered out
@@ -386,6 +426,12 @@ function App(props) {
         }
       } catch (error) {
         console.log("❌ Error loading static tokens:", error);
+        // Set an empty gallery when errors occur
+        setFullGallery(prevGallery => ({
+          ...prevGallery,
+          "static-tokens-all": []
+        }));
+        setMaxChunksLoaded(true);
       } finally {
         setLoadingStaticManifest(false);
       }

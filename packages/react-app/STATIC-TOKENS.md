@@ -26,11 +26,17 @@ Run these commands from the `packages/react-app` directory:
 # Extract all tokens 
 yarn extract-tokens
 
-# Mint additional tokens
+# Mint additional tokens (with automatic extraction)
 yarn mint-tokens <count>    # Example: yarn mint-tokens 10
 
-# Mint to a specific total
+# Mint additional tokens (without extraction)
+yarn mint-tokens:no-extract <count>   # Example: yarn mint-tokens:no-extract 10
+
+# Mint to a specific total (with automatic extraction)
 yarn mint-to-end <total>    # Example: yarn mint-to-end 100
+
+# Mint to a specific total (without extraction)
+yarn mint-to-end:no-extract <total>   # Example: yarn mint-to-end:no-extract 100
 
 # Clear all token files
 yarn clear-tokens
@@ -44,11 +50,17 @@ Run these commands from the `packages/hardhat` directory:
 # Extract all tokens 
 yarn react:extract-tokens
 
-# Mint additional tokens
+# Mint additional tokens (with automatic extraction)
 yarn react:mint-tokens <count>    # Example: yarn react:mint-tokens 10
 
-# Mint to a specific total
+# Mint additional tokens (without extraction)
+yarn react:mint-tokens:no-extract <count>   # Example: yarn react:mint-tokens:no-extract 10
+
+# Mint to a specific total (with automatic extraction)
 yarn react:mint-to-end <total>    # Example: yarn react:mint-to-end 100
+
+# Mint to a specific total (without extraction)
+yarn react:mint-to-end:no-extract <total>   # Example: yarn react:mint-to-end:no-extract 100
 
 # Clear all token files
 yarn react:clear-tokens
