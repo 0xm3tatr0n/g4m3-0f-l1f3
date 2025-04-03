@@ -147,3 +147,17 @@ html {
   z-index: 3;
   transform: rotateY(0deg);
 }
+
+/* Animation Modal Styles */
+.play-overlay {
+  transition: all 0.3s ease;
+}
+
+div[style*="cursor: pointer"]:hover .play-overlay {
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 0 20px rgba(38, 171, 212, 0.5);
+}
+
+div[style*="cursor: pointer"]:active .play-overlay {
+  transform: translate(-50%, -50%) scale(0.95);
+}

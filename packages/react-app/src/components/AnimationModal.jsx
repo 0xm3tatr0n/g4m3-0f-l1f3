@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Modal, Row, Col, Slider, Select, Button, Space, Spin, Typography, Switch } from "antd";
+import { Modal, Row, Col, Slider, Button, Space, Spin, Typography, Switch, Input } from "antd";
 import { PlayCircleOutlined, PauseCircleOutlined, StepForwardOutlined, StepBackwardOutlined } from "@ant-design/icons";
 
-const { Option } = Select;
 const { Text } = Typography;
 
 function AnimationModal(props) {
@@ -14,11 +13,13 @@ function AnimationModal(props) {
   } = props;
   
   // State for animation control
-  const [selectedEpoch, setSelectedEpoch] = useState(initialEpoch);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentGeneration, setCurrentGeneration] = useState(0);
   const [speed, setSpeed] = useState(1000); // milliseconds between frames
   const [showDetails, setShowDetails] = useState(true);
+  
+  // We're now using initialEpoch directly instead of allowing it to be changed
+  const selectedEpoch = initialEpoch;
   
   // Refs
   const animationRef = useRef(null);
@@ -28,7 +29,6 @@ function AnimationModal(props) {
   // Reset state when modal opens
   useEffect(() => {
     if (visible) {
-      setSelectedEpoch(initialEpoch);
       setIsPlaying(false);
       setCurrentGeneration(0);
     } else {
@@ -38,27 +38,9 @@ function AnimationModal(props) {
         animationRef.current = null;
       }
     }
-  }, [visible, initialEpoch]);
+  }, [visible]);
   
-  // Extract all available epochs from collectibles
-  const availableEpochs = React.useMemo(() => {
-    if (!allCollectibles || allCollectibles.length === 0) return [];
-    
-    const epochs = {};
-    
-    allCollectibles.forEach(item => {
-      if (item.attributes) {
-        // Find epoch attribute
-        const epochAttr = item.attributes.find(attr => attr.trait_type === "epoch");
-        if (epochAttr) {
-          const epoch = epochAttr.value.replace('#', '');
-          epochs[epoch] = true;
-        }
-      }
-    });
-    
-    return Object.keys(epochs).sort((a, b) => parseInt(a) - parseInt(b));
-  }, [allCollectibles]);
+  // We no longer need the availableEpochs since we're using initialEpoch directly
   
   // Group tokens by epoch and generation
   useEffect(() => {
@@ -100,23 +82,10 @@ function AnimationModal(props) {
     tokensByEpoch.current = epochMap;
     maxGeneration.current = globalMaxGen;
     
-    // If we already have a selected epoch but it doesn't exist anymore
-    if (selectedEpoch && !epochMap[selectedEpoch]) {
-      // Select the first available epoch
-      if (availableEpochs.length > 0) {
-        setSelectedEpoch(availableEpochs[0]);
-      } else {
-        setSelectedEpoch(null);
-      }
-    }
-  }, [allCollectibles, availableEpochs, selectedEpoch]);
+    // Since we're using initialEpoch directly, we don't need to handle epoch selection anymore
+  }, [allCollectibles]);
   
-  // Auto-select first epoch if none selected
-  useEffect(() => {
-    if (!selectedEpoch && availableEpochs.length > 0) {
-      setSelectedEpoch(availableEpochs[0]);
-    }
-  }, [availableEpochs, selectedEpoch]);
+  // No longer need auto-selection since we're using initialEpoch directly
   
   // Animation loop
   useEffect(() => {
@@ -295,20 +264,45 @@ function AnimationModal(props) {
     return Object.keys(epochTokens).map(g => parseInt(g)).sort((a, b) => a - b);
   }, [selectedEpoch]);
   
-  // Calculate slider marks
+  // Calculate simple min/max slider marks
   const sliderMarks = React.useMemo(() => {
     if (validGenerations.length === 0) return {};
     
-    const marks = {};
-    validGenerations.forEach(gen => {
-      marks[gen] = gen.toString();
-    });
-    return marks;
+    const minGen = Math.min(...validGenerations);
+    const maxGen = Math.max(...validGenerations);
+    
+    return {
+      [minGen]: '',
+      [maxGen]: ''
+    };
   }, [validGenerations]);
+  
+  // Handle generation input change
+  const handleGenerationInputChange = (value) => {
+    if (value === '' || isNaN(value)) return;
+    
+    const numValue = parseInt(value);
+    const minGen = Math.min(...validGenerations);
+    const maxGen = Math.max(...validGenerations);
+    
+    // Ensure value is within valid range
+    if (numValue >= minGen && numValue <= maxGen) {
+      // Find closest valid generation
+      let closestGen = validGenerations.reduce((prev, curr) => 
+        Math.abs(curr - numValue) < Math.abs(prev - numValue) ? curr : prev
+      );
+      
+      setCurrentGeneration(closestGen);
+    }
+  };
   
   return (
     <Modal
-      title={<div style={{ fontSize: "18px", fontWeight: "bold" }}>Game of Life Animation</div>}
+      title={
+        <div style={{ fontSize: "18px", fontWeight: "bold" }}>
+          Game of Life Animation - Epoch {selectedEpoch || '?'}
+        </div>
+      }
       open={visible}
       onCancel={onClose}
       footer={null}
@@ -320,27 +314,6 @@ function AnimationModal(props) {
       <Row gutter={[24, 24]}>
         <Col span={24}>
           <Space direction="vertical" style={{ width: "100%" }}>
-            <Row gutter={16} align="middle">
-              <Col span={6}>
-                <Text strong>Select Epoch:</Text>
-              </Col>
-              <Col span={18}>
-                <Select
-                  style={{ width: "100%" }}
-                  value={selectedEpoch}
-                  onChange={value => {
-                    setSelectedEpoch(value);
-                    setCurrentGeneration(0);
-                    setIsPlaying(false);
-                  }}
-                  placeholder="Select an epoch"
-                >
-                  {availableEpochs.map(epoch => (
-                    <Option key={epoch} value={epoch}>Epoch {epoch}</Option>
-                  ))}
-                </Select>
-              </Col>
-            </Row>
             
             <Row gutter={16} align="middle">
               <Col span={6}>
@@ -370,7 +343,7 @@ function AnimationModal(props) {
               <Col span={6}>
                 <Text strong>Generation:</Text>
               </Col>
-              <Col span={18}>
+              <Col span={14}>
                 <Slider
                   value={currentGeneration}
                   onChange={value => setCurrentGeneration(value)}
@@ -378,6 +351,19 @@ function AnimationModal(props) {
                   max={Math.max(...(validGenerations.length > 0 ? validGenerations : [0]))}
                   marks={sliderMarks}
                   disabled={validGenerations.length === 0}
+                  tooltip={{ formatter: null }} // Hide tooltip
+                />
+              </Col>
+              <Col span={4}>
+                <Input
+                  value={currentGeneration}
+                  onChange={e => handleGenerationInputChange(e.target.value)}
+                  disabled={validGenerations.length === 0}
+                  style={{ width: '100%' }}
+                  placeholder="Gen #"
+                  type="number"
+                  min={Math.min(...(validGenerations.length > 0 ? validGenerations : [0]))}
+                  max={Math.max(...(validGenerations.length > 0 ? validGenerations : [0]))}
                 />
               </Col>
             </Row>
@@ -470,7 +456,10 @@ function AnimationModal(props) {
                     const firstGenToken = getFirstGenerationToken();
                     if (firstGenToken) {
                       return (
-                        <div style={{ position: "relative" }}>
+                        <div 
+                          style={{ position: "relative", cursor: "pointer" }}
+                          onClick={() => setIsPlaying(true)}
+                        >
                           <img 
                             src={firstGenToken.image}
                             alt={`Epoch ${selectedEpoch} First Generation`}
@@ -491,10 +480,13 @@ function AnimationModal(props) {
                             backgroundColor: "rgba(0,0,0,0.7)",
                             padding: "15px 30px",
                             borderRadius: "8px",
-                            zIndex: 2
-                          }}>
+                            zIndex: 2,
+                            transition: "all 0.2s ease"
+                          }}
+                          className="play-overlay"
+                          >
                             <PlayCircleOutlined style={{ fontSize: "40px", marginBottom: "10px" }} />
-                            <div style={{ fontFamily: "monospace" }}>Press Play to begin animation</div>
+                            <div style={{ fontFamily: "monospace" }}>Click to play animation</div>
                           </div>
                         </div>
                       );
