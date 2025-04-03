@@ -251,6 +251,25 @@ function AnimationModal(props) {
     return generationTokens[0];
   }, [selectedEpoch, currentGeneration]);
   
+  // Get the first generation token for the selected epoch
+  const getFirstGenerationToken = () => {
+    if (!selectedEpoch) return null;
+    
+    const epochTokens = tokensByEpoch.current[selectedEpoch] || {};
+    const generations = Object.keys(epochTokens).map(g => parseInt(g)).sort((a, b) => a - b);
+    
+    if (generations.length === 0) return null;
+    
+    // Get the first generation
+    const firstGen = generations[0];
+    const firstGenTokens = epochTokens[firstGen] || [];
+    
+    if (firstGenTokens.length === 0) return null;
+    
+    // Return the first token for this generation
+    return firstGenTokens[0];
+  };
+
   // Format animation details
   const formatDetails = () => {
     if (!currentToken || !currentToken.attributes) return "No token selected";
@@ -445,7 +464,45 @@ function AnimationModal(props) {
               </>
             ) : (
               selectedEpoch ? (
-                <Spin tip="Loading tokens..." size="large" />
+                <>
+                  {/* Display first generation of epoch as placeholder */}
+                  {(() => {
+                    const firstGenToken = getFirstGenerationToken();
+                    if (firstGenToken) {
+                      return (
+                        <div style={{ position: "relative" }}>
+                          <img 
+                            src={firstGenToken.image}
+                            alt={`Epoch ${selectedEpoch} First Generation`}
+                            style={{
+                              maxWidth: "100%",
+                              maxHeight: "100%",
+                              objectFit: "contain",
+                              opacity: 0.5
+                            }}
+                          />
+                          <div style={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                            textAlign: "center",
+                            color: "#fff",
+                            backgroundColor: "rgba(0,0,0,0.7)",
+                            padding: "15px 30px",
+                            borderRadius: "8px",
+                            zIndex: 2
+                          }}>
+                            <PlayCircleOutlined style={{ fontSize: "40px", marginBottom: "10px" }} />
+                            <div style={{ fontFamily: "monospace" }}>Press Play to begin animation</div>
+                          </div>
+                        </div>
+                      );
+                    } else {
+                      return <Text style={{ color: "#666" }}>No tokens found for this epoch</Text>;
+                    }
+                  })()}
+                </>
               ) : (
                 <Text style={{ color: "#666" }}>Select an epoch to begin</Text>
               )
