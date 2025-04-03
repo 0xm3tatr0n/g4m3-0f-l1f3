@@ -5,10 +5,10 @@ import { Alert, Col, Row, Spin } from "antd";
 import "antd/dist/antd.css";
 import { useUserAddress } from "eth-hooks";
 import React, { useCallback, useEffect, useState } from "react";
-import { HashRouter as Router, Route, Switch } from "react-router-dom";
+import { HashRouter as Router, Route, Switch, Redirect } from "react-router-dom";
 import Web3Modal from "web3modal";
 import "./App.css";
-import { Address, Contract, ItemCard, Gallery, MintInfo, Animation, SinglePageApp } from "./components";
+import { Address, Contract, ItemCard, SinglePageApp } from "./components";
 import { INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
 import { getStaticManifest, loadAllStaticTokens } from "./helpers/staticTokenLoader";
@@ -773,47 +773,7 @@ function App(props) {
             />
           </Route>
           
-          {/* Keep existing routes for compatibility */}
-          <Route path="/gallery">
-            <Gallery
-              allCollectibles={
-                fullGallery ? 
-                Array.from(new Map(
-                  Object.keys(fullGallery)
-                    .flatMap(key => fullGallery[key] || [])
-                    .map(item => [item.id, item])
-                ).values())
-                : []
-              }
-              mainnetProvider={mainnetProvider}
-              blockExplorer={blockExplorer}
-              transferToAddresses={transferToAddresses}
-              setTransferToAddresses={setTransferToAddresses}
-              writeContracts={writeContracts}
-              tx={tx}
-              address={address}
-              totalSupply={totalSupply}
-              setGalleryLoadRange={setGalleryLoadRange}
-              isLoadingGallery={isLoadingGallery && !maxChunksLoaded}
-              loadProgress={totalSupply ? Math.min(100, (currentChunk * CHUNK_SIZE * 100) / totalSupply.toNumber()) : 0}
-              galleryLoadRange={galleryLoadRange}
-            />
-          </Route>
-          
-          <Route path="/animation">
-            <Animation
-              allCollectibles={
-                fullGallery ? 
-                Array.from(new Map(
-                  Object.keys(fullGallery)
-                    .flatMap(key => fullGallery[key] || [])
-                    .map(item => [item.id, item])
-                ).values())
-                : []
-              }
-            />
-          </Route>
-          
+          {/* Debug route for contract interaction */}
           <Route path="/debug">
             <div className="debug-container">
               <Address value={readContracts && readContracts.G4m3 && readContracts.G4m3.address} />
@@ -826,6 +786,11 @@ function App(props) {
               address={address}
               blockExplorer={blockExplorer}
             />
+          </Route>
+          
+          {/* Redirect any other paths to the main page */}
+          <Route path="*">
+            <Redirect to="/" />
           </Route>
         </Switch>
       </Router>

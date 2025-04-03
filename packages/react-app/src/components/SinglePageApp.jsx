@@ -135,52 +135,84 @@ function MintSection({
                         <Title level={4} style={{ fontFamily: "monospace", color: "#26abd4" }}>
                           Free Mints Available: {freeMintsRemaining.toString()}
                         </Title>
-                        <Space size="large">
-                          <Button
-                            style={{
-                              color: "black",
-                              padding: "10px 20px",
+                        <div style={{ display: "flex", justifyContent: "center", marginBottom: "10px" }}>
+                          <div style={{
+                            display: "flex",
+                            alignItems: "center",
+                            background: "#1f1f1f",
+                            borderRadius: "8px",
+                            border: "1px solid #333",
+                            padding: "5px"
+                          }}>
+                            <Button
+                              type="primary"
+                              ghost
+                              style={{
+                                height: "40px",
+                                width: "40px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: "18px",
+                                fontFamily: "monospace",
+                                padding: 0
+                              }}
+                              onClick={e => {
+                                const newValue = Math.max(0, noTokensForFreeMint - 1);
+                                setNoTokensForFreeMint(newValue);
+                              }}
+                            >
+                              -
+                            </Button>
+                            <div style={{
+                              padding: "0 15px",
                               fontSize: "18px",
                               fontFamily: "monospace",
-                              cursor: "pointer",
-                            }}
-                            onClick={e => {
-                              const newValue = Math.max(0, noTokensForFreeMint - 1);
-                              setNoTokensForFreeMint(newValue);
-                            }}
-                          >
-                            -
-                          </Button>
-                          <Button
-                            type="primary"
-                            style={{
-                              padding: "10px 20px",
-                              fontSize: "18px",
-                              fontFamily: "monospace",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => {
-                              tx(writeContracts.G4m3.mintFreeGated(noTokensForFreeMint));
-                            }}
-                          >
-                            mint free ({noTokensForFreeMint} of {freeMintsRemaining.toString()})
-                          </Button>
-                          <Button
-                            style={{
-                              color: "black",
-                              padding: "10px 20px",
-                              fontSize: "18px",
-                              fontFamily: "monospace",
-                              cursor: "pointer",
-                            }}
-                            onClick={e => {
-                              const newValue = Math.min(freeMintsRemaining.toString(), noTokensForFreeMint + 1);
-                              setNoTokensForFreeMint(newValue);
-                            }}
-                          >
-                            +
-                          </Button>
-                        </Space>
+                              color: "#fff",
+                              minWidth: "40px",
+                              textAlign: "center"
+                            }}>
+                              {noTokensForFreeMint}
+                            </div>
+                            <Button
+                              type="primary"
+                              ghost
+                              style={{
+                                height: "40px",
+                                width: "40px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: "18px",
+                                fontFamily: "monospace",
+                                padding: 0
+                              }}
+                              onClick={e => {
+                                const newValue = Math.min(freeMintsRemaining.toString(), noTokensForFreeMint + 1);
+                                setNoTokensForFreeMint(newValue);
+                              }}
+                            >
+                              +
+                            </Button>
+                          </div>
+                        </div>
+                        <Button
+                          type="primary"
+                          size="large"
+                          style={{
+                            padding: "10px 30px",
+                            height: "auto",
+                            fontSize: "18px",
+                            fontFamily: "monospace",
+                            background: "#26abd4",
+                            borderColor: "#26abd4"
+                          }}
+                          onClick={() => {
+                            tx(writeContracts.G4m3.mintFreeGated(noTokensForFreeMint));
+                          }}
+                        >
+                          Mint Free ({noTokensForFreeMint} of {freeMintsRemaining.toString()})
+                        </Button>
                       </div>
                     ) : null}
                     
