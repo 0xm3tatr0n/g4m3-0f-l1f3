@@ -404,6 +404,145 @@ import token397 from '../assets/tokens/397.json';
 import token398 from '../assets/tokens/398.json';
 import token399 from '../assets/tokens/399.json';
 import token400 from '../assets/tokens/400.json';
+import token401 from '../assets/tokens/401.json';
+import token402 from '../assets/tokens/402.json';
+import token403 from '../assets/tokens/403.json';
+import token404 from '../assets/tokens/404.json';
+import token405 from '../assets/tokens/405.json';
+import token406 from '../assets/tokens/406.json';
+import token407 from '../assets/tokens/407.json';
+import token408 from '../assets/tokens/408.json';
+import token409 from '../assets/tokens/409.json';
+import token410 from '../assets/tokens/410.json';
+import token411 from '../assets/tokens/411.json';
+import token412 from '../assets/tokens/412.json';
+import token413 from '../assets/tokens/413.json';
+import token414 from '../assets/tokens/414.json';
+import token415 from '../assets/tokens/415.json';
+import token416 from '../assets/tokens/416.json';
+import token417 from '../assets/tokens/417.json';
+import token418 from '../assets/tokens/418.json';
+import token419 from '../assets/tokens/419.json';
+import token420 from '../assets/tokens/420.json';
+import token421 from '../assets/tokens/421.json';
+import token422 from '../assets/tokens/422.json';
+import token423 from '../assets/tokens/423.json';
+import token424 from '../assets/tokens/424.json';
+import token425 from '../assets/tokens/425.json';
+import token426 from '../assets/tokens/426.json';
+import token427 from '../assets/tokens/427.json';
+import token428 from '../assets/tokens/428.json';
+import token429 from '../assets/tokens/429.json';
+import token430 from '../assets/tokens/430.json';
+import token431 from '../assets/tokens/431.json';
+import token432 from '../assets/tokens/432.json';
+import token433 from '../assets/tokens/433.json';
+import token434 from '../assets/tokens/434.json';
+import token435 from '../assets/tokens/435.json';
+import token436 from '../assets/tokens/436.json';
+import token437 from '../assets/tokens/437.json';
+import token438 from '../assets/tokens/438.json';
+import token439 from '../assets/tokens/439.json';
+import token440 from '../assets/tokens/440.json';
+import token441 from '../assets/tokens/441.json';
+import token442 from '../assets/tokens/442.json';
+import token443 from '../assets/tokens/443.json';
+import token444 from '../assets/tokens/444.json';
+import token445 from '../assets/tokens/445.json';
+import token446 from '../assets/tokens/446.json';
+import token447 from '../assets/tokens/447.json';
+import token448 from '../assets/tokens/448.json';
+import token449 from '../assets/tokens/449.json';
+import token450 from '../assets/tokens/450.json';
+import token451 from '../assets/tokens/451.json';
+import token452 from '../assets/tokens/452.json';
+import token453 from '../assets/tokens/453.json';
+import token454 from '../assets/tokens/454.json';
+import token455 from '../assets/tokens/455.json';
+import token456 from '../assets/tokens/456.json';
+import token457 from '../assets/tokens/457.json';
+import token458 from '../assets/tokens/458.json';
+import token459 from '../assets/tokens/459.json';
+import token460 from '../assets/tokens/460.json';
+import token461 from '../assets/tokens/461.json';
+import token462 from '../assets/tokens/462.json';
+import token463 from '../assets/tokens/463.json';
+import token464 from '../assets/tokens/464.json';
+import token465 from '../assets/tokens/465.json';
+import token466 from '../assets/tokens/466.json';
+import token467 from '../assets/tokens/467.json';
+import token468 from '../assets/tokens/468.json';
+import token469 from '../assets/tokens/469.json';
+import token470 from '../assets/tokens/470.json';
+import token471 from '../assets/tokens/471.json';
+import token472 from '../assets/tokens/472.json';
+import token473 from '../assets/tokens/473.json';
+import token474 from '../assets/tokens/474.json';
+import token475 from '../assets/tokens/475.json';
+import token476 from '../assets/tokens/476.json';
+import token477 from '../assets/tokens/477.json';
+import token478 from '../assets/tokens/478.json';
+import token479 from '../assets/tokens/479.json';
+import token480 from '../assets/tokens/480.json';
+import token481 from '../assets/tokens/481.json';
+import token482 from '../assets/tokens/482.json';
+import token483 from '../assets/tokens/483.json';
+import token484 from '../assets/tokens/484.json';
+import token485 from '../assets/tokens/485.json';
+import token486 from '../assets/tokens/486.json';
+import token487 from '../assets/tokens/487.json';
+import token488 from '../assets/tokens/488.json';
+import token489 from '../assets/tokens/489.json';
+import token490 from '../assets/tokens/490.json';
+import token491 from '../assets/tokens/491.json';
+import token492 from '../assets/tokens/492.json';
+import token493 from '../assets/tokens/493.json';
+import token494 from '../assets/tokens/494.json';
+import token495 from '../assets/tokens/495.json';
+import token496 from '../assets/tokens/496.json';
+import token497 from '../assets/tokens/497.json';
+import token498 from '../assets/tokens/498.json';
+import token499 from '../assets/tokens/499.json';
+import token500 from '../assets/tokens/500.json';
+import token501 from '../assets/tokens/501.json';
+import token502 from '../assets/tokens/502.json';
+import token503 from '../assets/tokens/503.json';
+import token504 from '../assets/tokens/504.json';
+import token505 from '../assets/tokens/505.json';
+import token506 from '../assets/tokens/506.json';
+import token507 from '../assets/tokens/507.json';
+import token508 from '../assets/tokens/508.json';
+import token509 from '../assets/tokens/509.json';
+import token510 from '../assets/tokens/510.json';
+import token511 from '../assets/tokens/511.json';
+import token512 from '../assets/tokens/512.json';
+import token513 from '../assets/tokens/513.json';
+import token514 from '../assets/tokens/514.json';
+import token515 from '../assets/tokens/515.json';
+import token516 from '../assets/tokens/516.json';
+import token517 from '../assets/tokens/517.json';
+import token518 from '../assets/tokens/518.json';
+import token519 from '../assets/tokens/519.json';
+import token520 from '../assets/tokens/520.json';
+import token521 from '../assets/tokens/521.json';
+import token522 from '../assets/tokens/522.json';
+import token523 from '../assets/tokens/523.json';
+import token524 from '../assets/tokens/524.json';
+import token525 from '../assets/tokens/525.json';
+import token526 from '../assets/tokens/526.json';
+import token527 from '../assets/tokens/527.json';
+import token528 from '../assets/tokens/528.json';
+import token529 from '../assets/tokens/529.json';
+import token530 from '../assets/tokens/530.json';
+import token531 from '../assets/tokens/531.json';
+import token532 from '../assets/tokens/532.json';
+import token533 from '../assets/tokens/533.json';
+import token534 from '../assets/tokens/534.json';
+import token535 from '../assets/tokens/535.json';
+import token536 from '../assets/tokens/536.json';
+import token537 from '../assets/tokens/537.json';
+import token538 from '../assets/tokens/538.json';
+import token539 from '../assets/tokens/539.json';
 
 // Map of token ID to token data
 const staticTokens = {
@@ -807,6 +946,145 @@ const staticTokens = {
   398: token398,
   399: token399,
   400: token400,
+  401: token401,
+  402: token402,
+  403: token403,
+  404: token404,
+  405: token405,
+  406: token406,
+  407: token407,
+  408: token408,
+  409: token409,
+  410: token410,
+  411: token411,
+  412: token412,
+  413: token413,
+  414: token414,
+  415: token415,
+  416: token416,
+  417: token417,
+  418: token418,
+  419: token419,
+  420: token420,
+  421: token421,
+  422: token422,
+  423: token423,
+  424: token424,
+  425: token425,
+  426: token426,
+  427: token427,
+  428: token428,
+  429: token429,
+  430: token430,
+  431: token431,
+  432: token432,
+  433: token433,
+  434: token434,
+  435: token435,
+  436: token436,
+  437: token437,
+  438: token438,
+  439: token439,
+  440: token440,
+  441: token441,
+  442: token442,
+  443: token443,
+  444: token444,
+  445: token445,
+  446: token446,
+  447: token447,
+  448: token448,
+  449: token449,
+  450: token450,
+  451: token451,
+  452: token452,
+  453: token453,
+  454: token454,
+  455: token455,
+  456: token456,
+  457: token457,
+  458: token458,
+  459: token459,
+  460: token460,
+  461: token461,
+  462: token462,
+  463: token463,
+  464: token464,
+  465: token465,
+  466: token466,
+  467: token467,
+  468: token468,
+  469: token469,
+  470: token470,
+  471: token471,
+  472: token472,
+  473: token473,
+  474: token474,
+  475: token475,
+  476: token476,
+  477: token477,
+  478: token478,
+  479: token479,
+  480: token480,
+  481: token481,
+  482: token482,
+  483: token483,
+  484: token484,
+  485: token485,
+  486: token486,
+  487: token487,
+  488: token488,
+  489: token489,
+  490: token490,
+  491: token491,
+  492: token492,
+  493: token493,
+  494: token494,
+  495: token495,
+  496: token496,
+  497: token497,
+  498: token498,
+  499: token499,
+  500: token500,
+  501: token501,
+  502: token502,
+  503: token503,
+  504: token504,
+  505: token505,
+  506: token506,
+  507: token507,
+  508: token508,
+  509: token509,
+  510: token510,
+  511: token511,
+  512: token512,
+  513: token513,
+  514: token514,
+  515: token515,
+  516: token516,
+  517: token517,
+  518: token518,
+  519: token519,
+  520: token520,
+  521: token521,
+  522: token522,
+  523: token523,
+  524: token524,
+  525: token525,
+  526: token526,
+  527: token527,
+  528: token528,
+  529: token529,
+  530: token530,
+  531: token531,
+  532: token532,
+  533: token533,
+  534: token534,
+  535: token535,
+  536: token536,
+  537: token537,
+  538: token538,
+  539: token539,
 };
 
 // TIP: After running `yarn extract-tokens`, this file will be auto-updated
@@ -814,10 +1092,10 @@ const staticTokens = {
 
 // The manifest data directly embedded to avoid issues with loading JSON
 const staticManifestData = {
-  "lastUpdated": "2025-04-03T10:01:21.393Z",
-  "totalTokensStored": 400,
+  "lastUpdated": "2025-04-03T11:23:22.662Z",
+  "totalTokensStored": 539,
   "minTokenId": 1,
-  "maxTokenId": 400,
+  "maxTokenId": 539,
   "version": "1.0"
 };
 
