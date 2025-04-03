@@ -8,7 +8,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { HashRouter as Router, Route, Switch } from "react-router-dom";
 import Web3Modal from "web3modal";
 import "./App.css";
-import { Address, Contract, Header, ItemCard, Gallery, MintInfo, Animation } from "./components";
+import { Address, Contract, ItemCard, Gallery, MintInfo, Animation, SinglePageApp } from "./components";
 import { INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
 import { getStaticManifest, loadAllStaticTokens } from "./helpers/staticTokenLoader";
@@ -736,187 +736,29 @@ function App(props) {
       {networkDisplay}
 
       <Router>
-        {/* Header and MintInfo are now inside the Router */}
-        <Header />
-        <MintInfo totalSupply />
         <Switch>
           <Route exact path="/">
-            {/*
-                🎛 this scaffolding is full of commonly used components
-                this <Contract/> component will automatically parse your ABI
-                and give you a form to interact with it locally
-            */}
-
-            <div id={"controls"} style={{ maxWidth: 820, margin: "auto", marginTop: 32, padding: "0 0 32px 0" }}>
-              {isSigner ? (
-                <>
-                  {isFreeMintEligible && freeMintsRemaining && freeMintsRemaining.toString() > 0 ? (
-                    <>
-                      {" "}
-                      {/* <form>
-                        <label htmlFor="freeMintInput">mint for free:</label>
-                        <input
-                          type="text"
-                          id="freeMintInput"
-                          name="freeMintInput"
-                          style={{
-                            color: "black",
-                          }}
-                          onChange={e => setNoTokensForFreeMint(e.target.value)}
-                        ></input>
-                      </form> */}
-                      <button
-                        style={{
-                          margin: "30px",
-                          color: "black",
-                          padding: "10px 30px 10px 30px",
-                          fontSize: "20px",
-                          fontFamily: "monospace",
-                          cursor: "pointer",
-                        }}
-                        onClick={e => {
-                          const newValue = Math.max(0, noTokensForFreeMint - 1);
-                          console.log(`>>> minus button. old value: ${noTokensForFreeMint}. new value: ${newValue}`);
-                          setNoTokensForFreeMint(newValue);
-                        }}
-                      >
-                        -
-                      </button>
-                      <button
-                        style={{
-                          margin: "30px",
-                          color: "black",
-                          padding: "10px 30px 10px 30px",
-                          fontSize: "20px",
-                          fontFamily: "monospace",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => {
-                          tx(writeContracts.G4m3.mintFreeGated(noTokensForFreeMint));
-                        }}
-                      >
-                        mint free ({noTokensForFreeMint} of {freeMintsRemaining.toString()})
-                      </button>
-                      <button
-                        style={{
-                          margin: "30px",
-                          color: "black",
-                          padding: "10px 30px 10px 30px",
-                          fontSize: "20px",
-                          fontFamily: "monospace",
-                          cursor: "pointer",
-                        }}
-                        onClick={e => {
-                          const newValue = Math.min(freeMintsRemaining.toString(), noTokensForFreeMint + 1);
-                          console.log(`>>> plus button. old value: ${noTokensForFreeMint}. new value: ${newValue}`);
-                          setNoTokensForFreeMint(newValue);
-                        }}
-                      >
-                        +
-                      </button>
-                    </>
-                  ) : (
-                    <></>
-                  )}
-                  <button
-                    style={{
-                      margin: "30px",
-                      color: "black",
-                      padding: "10px 30px 10px 30px",
-                      fontSize: "20px",
-                      fontFamily: "monospace",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => {
-                      tx(writeContracts.G4m3.mintItem(address, { value: parseEther("0.02") }));
-                    }}
-                  >
-                    mint one
-                  </button>
-                  <button
-                    style={{
-                      margin: "30px",
-                      color: "black",
-                      padding: "10px 30px 10px 30px",
-                      fontSize: "20px",
-                      fontFamily: "monospace",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => {
-                      tx(writeContracts.G4m3.mintPack(address, { value: parseEther("0.05") }));
-                    }}
-                  >
-                    mint pack (5 tokens)
-                  </button>
-                </>
-              ) : (
-                <button
-                  style={{
-                    margin: "30px",
-                    color: "black",
-                    padding: "10px 30px 10px 30px",
-                    fontSize: "20px",
-                    fontFamily: "monospace",
-                  }}
-                  onClick={loadWeb3Modal}
-                >
-                  connect
-                </button>
-              )}
-            </div>
-
-            <div style={{ maxWidth: 820, margin: "auto", padding: "0 16px 256px 16px" }}>
-              <Row gutter={[16, 16]}>
-                {yourCollectibles && yourCollectibles.length > 0 ? (
-                  // When we have collectibles to show
-                  yourCollectibles.map((c, icx) => {
-                    return (
-                      <Col xs={24} md={12} lg={12} key={`collectible-${icx}`}>
-                        <ItemCard
-                          item={c}
-                          ensProvider={mainnetProvider}
-                          blockExplorer={blockExplorer}
-                          transferToAddresses={transferToAddresses}
-                          setTransferToAddresses={setTransferToAddresses}
-                          writeContracts={writeContracts}
-                          tx={tx}
-                          address={address}
-                        />
-                      </Col>
-                    );
-                  })
-                ) : (
-                  // Loading or no collectibles
-                  <Col span={24} style={{ fontFamily: "monospace", textAlign: "center", padding: "40px 0 40px 0" }}>
-                    {/* Different loading states */}
-                    {collectionLoadingState === "checking" ? (
-                      <div>Checking your collection...</div>
-                    ) : collectionLoadingState === "loading" ? (
-                      <div>Loading your {detectedCollectibles} collectibles...</div>
-                    ) : (
-                      // Only show "no collectibles" when we're done loading and confirmed none exist
-                      <div>You don't have any collectibles yet. Try minting some!</div>
-                    )}
-                  </Col>
-                )}
-              </Row>
-            </div>
-            <div
-              style={{ maxWidth: 820, margin: "auto", marginTop: 32, padding: "0 0 256px 0", fontFamily: "monospace" }}
-            >
-              🛠 built with{" "}
-              <a href="https://github.com/austintgriffith/scaffold-eth" target="_blank">
-                🏗 scaffold-eth
-              </a>
-              🍴{" "}
-              <a href="https://github.com/austintgriffith/scaffold-eth" target="_blank">
-                Fork this repo
-              </a>{" "}
-              and build a cool SVG NFT!
-            </div>
-          </Route>
-          <Route path="/gallery">
-            <Gallery
+            {/* Single Page App View */}
+            <SinglePageApp
+              yourCollectibles={yourCollectibles}
+              mainnetProvider={mainnetProvider}
+              blockExplorer={blockExplorer}
+              transferToAddresses={transferToAddresses}
+              setTransferToAddresses={setTransferToAddresses}
+              writeContracts={writeContracts}
+              tx={tx}
+              address={address}
+              totalSupply={totalSupply}
+              isLoadingGallery={isLoadingGallery && !maxChunksLoaded}
+              loadProgress={totalSupply ? Math.min(100, (currentChunk * CHUNK_SIZE * 100) / totalSupply.toNumber()) : 0}
+              loadWeb3Modal={loadWeb3Modal}
+              isSigner={isSigner}
+              isFreeMintEligible={isFreeMintEligible}
+              freeMintsRemaining={freeMintsRemaining}
+              noTokensForFreeMint={noTokensForFreeMint}
+              setNoTokensForFreeMint={setNoTokensForFreeMint}
+              parseEther={parseEther}
+              ItemCard={ItemCard}
               allCollectibles={
                 fullGallery ? 
                 // Combine all loaded chunks into a single array and remove duplicates by ID
@@ -924,6 +766,22 @@ function App(props) {
                   Object.keys(fullGallery)
                     .flatMap(key => fullGallery[key] || [])
                     .map(item => [item.id, item]) // Use id as the key
+                ).values())
+                : []
+              }
+              isLoadingCollection={collectionLoadingState !== "complete"}
+            />
+          </Route>
+          
+          {/* Keep existing routes for compatibility */}
+          <Route path="/gallery">
+            <Gallery
+              allCollectibles={
+                fullGallery ? 
+                Array.from(new Map(
+                  Object.keys(fullGallery)
+                    .flatMap(key => fullGallery[key] || [])
+                    .map(item => [item.id, item])
                 ).values())
                 : []
               }
@@ -941,22 +799,22 @@ function App(props) {
               galleryLoadRange={galleryLoadRange}
             />
           </Route>
+          
           <Route path="/animation">
             <Animation
               allCollectibles={
                 fullGallery ? 
-                // Combine all loaded chunks into a single array and remove duplicates by ID
                 Array.from(new Map(
                   Object.keys(fullGallery)
                     .flatMap(key => fullGallery[key] || [])
-                    .map(item => [item.id, item]) // Use id as the key
+                    .map(item => [item.id, item])
                 ).values())
                 : []
               }
             />
           </Route>
+          
           <Route path="/debug">
-            {/* Remove inline style and use just a simple div */}
             <div className="debug-container">
               <Address value={readContracts && readContracts.G4m3 && readContracts.G4m3.address} />
             </div>
