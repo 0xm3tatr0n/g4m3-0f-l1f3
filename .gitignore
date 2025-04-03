@@ -20,6 +20,10 @@ packages/react-app/src/contracts/*
 !packages/react-app/src/contracts/G4m3.bytecode.js
 packages/svg/*
 
+# Exclude token files but keep the README.md
+packages/react-app/src/assets/tokens/*.json
+!packages/react-app/src/assets/tokens/README.md
+
 packages/hardhat/cache
 packages/hardhat/gas-results
 
