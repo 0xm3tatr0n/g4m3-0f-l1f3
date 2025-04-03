@@ -8,7 +8,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { HashRouter as Router, Route, Switch } from "react-router-dom";
 import Web3Modal from "web3modal";
 import "./App.css";
-import { Address, Contract, Header, ItemCard, Gallery, MintInfo } from "./components";
+import { Address, Contract, Header, ItemCard, Gallery, MintInfo, Animation } from "./components";
 import { INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
 import { getStaticManifest, loadAllStaticTokens } from "./helpers/staticTokenLoader";
@@ -939,6 +939,20 @@ function App(props) {
               isLoadingGallery={isLoadingGallery && !maxChunksLoaded}
               loadProgress={totalSupply ? Math.min(100, (currentChunk * CHUNK_SIZE * 100) / totalSupply.toNumber()) : 0}
               galleryLoadRange={galleryLoadRange}
+            />
+          </Route>
+          <Route path="/animation">
+            <Animation
+              allCollectibles={
+                fullGallery ? 
+                // Combine all loaded chunks into a single array and remove duplicates by ID
+                Array.from(new Map(
+                  Object.keys(fullGallery)
+                    .flatMap(key => fullGallery[key] || [])
+                    .map(item => [item.id, item]) // Use id as the key
+                ).values())
+                : []
+              }
             />
           </Route>
           <Route path="/debug">

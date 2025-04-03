@@ -19,3 +19,4 @@ export { default as Wallet } from "./Wallet";
 export { default as ItemCard } from "./ItemCard";
 export { default as Gallery } from "./Gallery";
 export { default as MintInfo } from "./MintInfo.jsx";
+export { default as Animation } from "./Animation";

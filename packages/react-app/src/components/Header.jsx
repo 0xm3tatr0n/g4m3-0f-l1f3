@@ -46,6 +46,11 @@ export default function Header() {
             gallery
           </Link>
         </div>
+        <div style={styles.items}>
+          <Link to="/animation" style={styles.a}>
+            animation
+          </Link>
+        </div>
       </div>
     </>
   );
