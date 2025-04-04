@@ -300,7 +300,7 @@ function AnimationModal(props) {
     <Modal
       title={
         <div style={{ fontSize: "18px", fontWeight: "bold" }}>
-          Game of Life Animation - Epoch {selectedEpoch || '?'}
+          g4m3 0f l1f3 Animation - Epoch {selectedEpoch || '?'}
         </div>
       }
       open={visible}

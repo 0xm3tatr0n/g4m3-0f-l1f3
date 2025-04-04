@@ -82,11 +82,11 @@ function IntroSection() {
           <Col xs={24}>
             <div>
               <Title level={1} style={styles.sectionTitle}>
-                Game of Life NFTs
+                g4m3 0f l1f3 NFTs
               </Title>
               <Paragraph style={{ fontSize: "18px", textAlign: "center", maxWidth: "800px", margin: "0 auto" }}>
-                A collection of generative art based on Conway's Game of Life automaton.
-                Each token evolves following cellular automaton rules, creating unique and fascinating patterns.
+                A collection of generative art based on Conway's cellular automaton.
+                Each token evolves following automaton rules, creating unique and fascinating patterns.
               </Paragraph>
             </div>
           </Col>
@@ -115,7 +115,7 @@ function MintSection({
           Mint Your NFT
         </Title>
         <Title level={4} style={styles.sectionSubtitle}>
-          Create your own generative Game of Life collectible
+          Create your own generative g4m3 0f l1f3 collectible
         </Title>
 
         <Row justify="center">
@@ -296,7 +296,7 @@ function MyItemsSection({
           My Collection
         </Title>
         <Title level={4} style={styles.sectionSubtitle}>
-          Your Game of Life NFTs
+          Your g4m3 0f l1f3 NFTs
         </Title>
 
         <Row gutter={[16, 16]}>
@@ -408,7 +408,7 @@ function GallerySection({
           Gallery
         </Title>
         <Title level={4} style={styles.sectionSubtitle}>
-          Explore all Game of Life NFTs by epoch
+          Explore all g4m3 0f l1f3 NFTs by epoch
         </Title>
 
         {isLoadingGallery ? (

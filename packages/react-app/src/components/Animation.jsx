@@ -308,7 +308,7 @@ function Animation(props) {
   return (
     <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
       <Title level={2} style={{ textAlign: "center", marginBottom: "24px" }}>
-        Game of Life Animation
+        g4m3 0f l1f3 Animation
       </Title>
 
       <Row gutter={[24, 24]}>
