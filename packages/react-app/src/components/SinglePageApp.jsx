@@ -121,10 +121,9 @@ function MintSection({
         <Row justify="center">
           <Col xs={24} md={18} lg={14}>
             <Card 
+              className="win311-window"
               style={{ 
-                background: "#1a1a1a", 
-                borderRadius: "12px",
-                border: "1px solid #333"
+                padding: "10px"
               }}
             >
               <div style={{ textAlign: "center" }}>
@@ -139,14 +138,14 @@ function MintSection({
                           <div style={{
                             display: "flex",
                             alignItems: "center",
-                            background: "#1f1f1f",
-                            borderRadius: "8px",
-                            border: "1px solid #333",
-                            padding: "5px"
+                            background: "#c0c0c0",
+                            border: "2px solid",
+                            borderColor: "#ffffff #404040 #404040 #ffffff",
+                            padding: "5px",
+                            boxShadow: "2px 2px 0 #222222"
                           }}>
                             <Button
-                              type="primary"
-                              ghost
+                              className="win311-button"
                               style={{
                                 height: "40px",
                                 width: "40px",
@@ -154,7 +153,6 @@ function MintSection({
                                 alignItems: "center",
                                 justifyContent: "center",
                                 fontSize: "18px",
-                                fontFamily: "monospace",
                                 padding: 0
                               }}
                               onClick={e => {
@@ -166,17 +164,21 @@ function MintSection({
                             </Button>
                             <div style={{
                               padding: "0 15px",
-                              fontSize: "18px",
-                              fontFamily: "monospace",
-                              color: "#fff",
+                              fontSize: "16px",
+                              fontFamily: '"MS Sans Serif", "Tahoma", "Arial", sans-serif',
+                              color: "#000",
                               minWidth: "40px",
-                              textAlign: "center"
+                              textAlign: "center",
+                              background: "#fff",
+                              border: "2px solid",
+                              borderColor: "#404040 #ffffff #ffffff #404040",
+                              margin: "0 6px",
+                              boxShadow: "inset 1px 1px 2px rgba(0, 0, 0, 0.3)"
                             }}>
                               {noTokensForFreeMint}
                             </div>
                             <Button
-                              type="primary"
-                              ghost
+                              className="win311-button"
                               style={{
                                 height: "40px",
                                 width: "40px",
@@ -184,7 +186,6 @@ function MintSection({
                                 alignItems: "center",
                                 justifyContent: "center",
                                 fontSize: "18px",
-                                fontFamily: "monospace",
                                 padding: 0
                               }}
                               onClick={e => {
@@ -197,15 +198,10 @@ function MintSection({
                           </div>
                         </div>
                         <Button
-                          type="primary"
-                          size="large"
+                          className="win311-button win311-button-primary win311-button-large"
                           style={{
-                            padding: "10px 30px",
                             height: "auto",
-                            fontSize: "18px",
-                            fontFamily: "monospace",
-                            background: "#26abd4",
-                            borderColor: "#26abd4"
+                            fontSize: "16px"
                           }}
                           onClick={() => {
                             tx(writeContracts.G4m3.mintFreeGated(noTokensForFreeMint));
@@ -220,13 +216,9 @@ function MintSection({
                     
                     <Space size="large" wrap style={{ justifyContent: "center" }}>
                       <Button
-                        type="primary"
-                        size="large"
+                        className="win311-button win311-button-large"
                         style={{
-                          padding: "10px 30px",
-                          height: "auto",
-                          fontSize: "18px",
-                          fontFamily: "monospace",
+                          marginRight: "10px"
                         }}
                         onClick={() => {
                           tx(writeContracts.G4m3.mintItem(address, { value: parseEther("0.02") }));
@@ -235,16 +227,7 @@ function MintSection({
                         Mint One (0.02 ETH)
                       </Button>
                       <Button
-                        type="primary"
-                        size="large"
-                        style={{
-                          padding: "10px 30px",
-                          height: "auto",
-                          fontSize: "18px",
-                          fontFamily: "monospace",
-                          background: "#26abd4",
-                          borderColor: "#26abd4"
-                        }}
+                        className="win311-button win311-button-primary win311-button-large"
                         onClick={() => {
                           tx(writeContracts.G4m3.mintPack(address, { value: parseEther("0.05") }));
                         }}
@@ -255,14 +238,7 @@ function MintSection({
                   </>
                 ) : (
                   <Button
-                    type="primary"
-                    size="large"
-                    style={{
-                      padding: "10px 40px",
-                      height: "auto",
-                      fontSize: "18px",
-                      fontFamily: "monospace"
-                    }}
+                    className="win311-button win311-button-primary win311-button-large"
                     onClick={loadWeb3Modal}
                   >
                     Connect Wallet to Mint
@@ -330,7 +306,7 @@ function MyItemsSection({
                 You don't have any collectibles yet. Try minting some!
               </div>
               <Button
-                type="primary"
+                className="win311-button win311-button-primary win311-button-large"
                 style={{ marginTop: "20px" }}
                 onClick={() => document.getElementById('mint-section').scrollIntoView({ behavior: 'smooth' })}
               >

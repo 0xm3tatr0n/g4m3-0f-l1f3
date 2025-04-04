@@ -161,3 +161,184 @@ div[style*="cursor: pointer"]:hover .play-overlay {
 div[style*="cursor: pointer"]:active .play-overlay {
   transform: translate(-50%, -50%) scale(0.95);
 }
+
+/* Windows 3.11 Style UI - Balanced style */
+.win311-button {
+  background-color: #c0c0c0 !important;
+  color: #000 !important;
+  border: 2px solid !important;
+  border-color: #ffffff #404040 #404040 #ffffff !important;
+  border-radius: 0 !important;
+  font-family: "MS Sans Serif", "Tahoma", "Arial", sans-serif !important;
+  font-size: 12px !important;
+  font-weight: normal !important;
+  text-shadow: none !important;
+  box-shadow: 1px 1px 0 #000000 !important;
+  padding: 4px 10px !important;
+  height: auto !important;
+  position: relative !important;
+  overflow: visible !important;
+  transform: translateY(0) !important;
+  transition: transform 0.05s, box-shadow 0.05s !important;
+  margin: 0 1px 1px 0 !important;
+}
+
+.win311-button:hover {
+  background-color: #d0d0d0 !important;
+  border-color: #ffffff #404040 #404040 #ffffff !important;
+}
+
+.win311-button:focus {
+  outline: 1px dotted #000 !important;
+  outline-offset: -4px !important;
+}
+
+.win311-button:active {
+  border-color: #404040 #ffffff #ffffff #404040 !important;
+  transform: translateY(1px) !important;
+  box-shadow: 0px 0px 0 #000000 !important;
+  margin: 0 1px 0 0 !important;
+}
+
+.win311-button-primary {
+  background-color: #000080 !important;
+  color: #ffffff !important;
+  border-color: #0040ff #000040 #000040 #0040ff !important;
+  box-shadow: 1px 1px 0 #000000 !important;
+}
+
+.win311-button-primary:hover {
+  background-color: #0000a0 !important;
+}
+
+.win311-button-primary:active {
+  border-color: #000040 #0040ff #0040ff #000040 !important;
+  box-shadow: 0px 0px 0 #000000 !important;
+}
+
+.win311-button.win311-button-large {
+  font-size: 14px !important;
+  padding: 6px 14px !important;
+  border-width: 2px !important;
+  box-shadow: 2px 2px 0 #000000 !important;
+  margin: 0 2px 2px 0 !important;
+}
+
+.win311-button.win311-button-large:active {
+  box-shadow: 0px 0px 0 #000000 !important;
+  transform: translateY(2px) !important;
+  margin: 0 2px 0 0 !important;
+}
+
+/* Style for Windows 3.11 card/window */
+.win311-window {
+  background-color: #c0c0c0 !important;
+  border: 2px solid !important;
+  border-color: #ffffff #404040 #404040 #ffffff !important;
+  border-radius: 0 !important;
+  box-shadow: 2px 2px 0 #222222 !important;
+}
+
+.win311-window .ant-card-head {
+  background-color: #000080 !important;
+  color: #ffffff !important;
+  border-bottom: 2px solid #404040 !important;
+  padding: 2px 8px !important;
+  min-height: auto !important;
+  height: 24px !important;
+  line-height: 20px !important;
+  border-radius: 0 !important;
+}
+
+.win311-window .ant-card-head-title {
+  font-family: "MS Sans Serif", "Tahoma", "Arial", sans-serif !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+  padding: 0 !important;
+  text-align: center !important;
+}
+
+/* Input control styling */
+.win311-input {
+  background-color: #ffffff !important;
+  border: 2px solid !important;
+  border-color: #404040 #ffffff #ffffff #404040 !important;
+  border-radius: 0 !important;
+  font-family: "MS Sans Serif", "Tahoma", "Arial", sans-serif !important;
+  height: auto !important;
+  padding: 3px 4px !important;
+  color: #000 !important;
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.win311-input:focus {
+  border-color: #404040 #ffffff #ffffff #404040 !important;
+  outline: 1px dotted #000 !important;
+}
+
+/* Select control styling */
+.win311-select .ant-select-selector {
+  background-color: #ffffff !important;
+  border: 2px solid !important;
+  border-color: #404040 #ffffff #ffffff #404040 !important;
+  border-radius: 0 !important;
+  font-family: "MS Sans Serif", "Tahoma", "Arial", sans-serif !important;
+  height: auto !important;
+  padding: 3px 4px !important;
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.win311-select:focus .ant-select-selector {
+  outline: 1px dotted #000 !important;
+}
+
+/* Sliders */
+.win311-slider .ant-slider-rail {
+  background-color: #808080 !important;
+  height: 6px !important;
+  border-radius: 0 !important;
+  border: 2px solid !important;
+  border-color: #404040 #ffffff #ffffff #404040 !important;
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.win311-slider .ant-slider-track {
+  background-color: #000080 !important;
+  height: 2px !important;
+  border-radius: 0 !important;
+}
+
+.win311-slider .ant-slider-handle {
+  background-color: #c0c0c0 !important;
+  border: 2px solid !important;
+  border-color: #ffffff #404040 #404040 #ffffff !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin-top: -6px !important;
+  border-radius: 0 !important;
+  box-shadow: 1px 1px 0 #000000 !important;
+}
+
+.win311-slider .ant-slider-handle:focus {
+  outline: 1px dotted #000 !important;
+}
+
+/* Switch control */
+.win311-switch {
+  background-color: #808080 !important;
+  border: 2px solid !important;
+  border-color: #404040 #ffffff #ffffff #404040 !important;
+  border-radius: 0 !important;
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.win311-switch.ant-switch-checked {
+  background-color: #000080 !important;
+}
+
+.win311-switch .ant-switch-handle {
+  border-radius: 0 !important;
+  border: 2px solid !important;
+  border-color: #ffffff #404040 #404040 #ffffff !important;
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3) !important;
+}

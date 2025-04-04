@@ -299,7 +299,13 @@ function AnimationModal(props) {
   return (
     <Modal
       title={
-        <div style={{ fontSize: "18px", fontWeight: "bold" }}>
+        <div style={{ 
+          fontSize: "14px", 
+          fontWeight: "bold", 
+          fontFamily: '"MS Sans Serif", "Tahoma", "Arial", sans-serif',
+          textAlign: "center",
+          color: "#fff"
+        }}>
           g4m3 0f l1f3 Animation - Epoch {selectedEpoch || '?'}
         </div>
       }
@@ -308,8 +314,16 @@ function AnimationModal(props) {
       footer={null}
       width={900}
       style={{ top: 20 }}
-      bodyStyle={{ padding: "24px", maxHeight: "80vh", overflow: "auto" }}
+      bodyStyle={{ 
+        padding: "24px", 
+        maxHeight: "80vh", 
+        overflow: "auto",
+        backgroundColor: "#c0c0c0",
+        border: "2px solid",
+        borderColor: "#ffffff #404040 #404040 #ffffff"
+      }}
       centered
+      className="win311-window"
     >
       <Row gutter={[24, 24]}>
         <Col span={24}>
@@ -345,6 +359,7 @@ function AnimationModal(props) {
               </Col>
               <Col span={14}>
                 <Slider
+                  className="win311-slider"
                   value={currentGeneration}
                   onChange={value => setCurrentGeneration(value)}
                   min={Math.min(...(validGenerations.length > 0 ? validGenerations : [0]))}
@@ -356,6 +371,7 @@ function AnimationModal(props) {
               </Col>
               <Col span={4}>
                 <Input
+                  className="win311-input"
                   value={currentGeneration}
                   onChange={e => handleGenerationInputChange(e.target.value)}
                   disabled={validGenerations.length === 0}
@@ -372,27 +388,27 @@ function AnimationModal(props) {
               <Col>
                 <Space>
                   <Button 
+                    className="win311-button"
                     onClick={handleStepBackward}
                     disabled={!selectedEpoch || validGenerations.length === 0}
                     icon={<StepBackwardOutlined />}
-                    size="large"
                   />
                   <Button
-                    type="primary"
+                    className="win311-button win311-button-primary win311-button-large"
                     onClick={() => setIsPlaying(!isPlaying)}
                     disabled={!selectedEpoch || validGenerations.length === 0}
                     icon={isPlaying ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
-                    size="large"
                   >
                     {isPlaying ? "Pause" : "Play"}
                   </Button>
                   <Button 
+                    className="win311-button"
                     onClick={handleStepForward}
                     disabled={!selectedEpoch || validGenerations.length === 0}
                     icon={<StepForwardOutlined />}
-                    size="large"
                   />
                   <Switch 
+                    className="win311-switch"
                     checked={showDetails} 
                     onChange={setShowDetails} 
                     checkedChildren="Details On" 
