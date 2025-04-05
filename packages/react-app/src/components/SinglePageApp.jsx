@@ -147,12 +147,12 @@ function MintSection({
                             <Button
                               className="win311-button"
                               style={{
-                                height: "40px",
-                                width: "40px",
+                                height: "44px",
+                                width: "44px",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                fontSize: "18px",
+                                fontSize: "20px",
                                 padding: 0
                               }}
                               onClick={e => {
@@ -164,15 +164,19 @@ function MintSection({
                             </Button>
                             <div style={{
                               padding: "0 15px",
-                              fontSize: "16px",
+                              fontSize: "18px",
                               fontFamily: '"MS Sans Serif", "Tahoma", "Arial", sans-serif',
                               color: "#000",
-                              minWidth: "40px",
+                              minWidth: "50px",
+                              height: "44px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
                               textAlign: "center",
                               background: "#fff",
                               border: "2px solid",
                               borderColor: "#404040 #ffffff #ffffff #404040",
-                              margin: "0 6px",
+                              margin: "0 8px",
                               boxShadow: "inset 1px 1px 2px rgba(0, 0, 0, 0.3)"
                             }}>
                               {noTokensForFreeMint}
@@ -180,12 +184,12 @@ function MintSection({
                             <Button
                               className="win311-button"
                               style={{
-                                height: "40px",
-                                width: "40px",
+                                height: "44px",
+                                width: "44px",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                fontSize: "18px",
+                                fontSize: "20px",
                                 padding: 0
                               }}
                               onClick={e => {

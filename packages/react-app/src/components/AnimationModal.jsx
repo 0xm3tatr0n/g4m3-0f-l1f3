@@ -243,17 +243,43 @@ function AnimationModal(props) {
   const formatDetails = () => {
     if (!currentToken || !currentToken.attributes) return "No token selected";
     
-    const details = [];
-    
     // Add basic token info
-    details.push(`Token #${currentToken.id || '?'}`);
+    let tokenInfo = `Token #${currentToken.id || '?'}`;
     
-    // Add attributes
-    currentToken.attributes.forEach(attr => {
-      details.push(`${attr.trait_type}: ${attr.value}`);
-    });
+    // Format attributes for better mobile display
+    const attrLines = currentToken.attributes.map(attr => 
+      `${attr.trait_type}: ${attr.value}`
+    );
     
-    return details.join(" • ");
+    // Join with line breaks for better mobile viewing
+    return (
+      <div>
+        <div style={{ 
+          fontWeight: 'bold', 
+          marginBottom: '8px',
+          background: '#000080',
+          color: '#fff',
+          padding: '2px 4px',
+          border: '2px solid',
+          borderColor: '#000080',
+          fontFamily: '"MS Sans Serif", "Tahoma", "Arial", sans-serif'
+        }}>{tokenInfo}</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px' }}>
+          {attrLines.map((line, index) => (
+            <span key={index} style={{ 
+              background: '#ffffff',
+              padding: '4px 8px', 
+              border: '1px solid',
+              borderColor: '#404040 #ffffff #ffffff #404040',
+              fontSize: '12px',
+              boxShadow: 'inset 1px 1px 2px rgba(0, 0, 0, 0.2)'
+            }}>
+              {line}
+            </span>
+          ))}
+        </div>
+      </div>
+    );
   };
   
   // Get valid generations for the current epoch
@@ -313,7 +339,7 @@ function AnimationModal(props) {
       onCancel={onClose}
       footer={null}
       width={900}
-      style={{ top: 20 }}
+      style={{ top: 20, maxWidth: '95vw' }}
       bodyStyle={{ 
         padding: "24px", 
         maxHeight: "80vh", 
@@ -327,14 +353,15 @@ function AnimationModal(props) {
     >
       <Row gutter={[24, 24]}>
         <Col span={24}>
-          <Space direction="vertical" style={{ width: "100%" }}>
+          <Space direction="vertical" size="middle" style={{ width: "100%" }}>
             
-            <Row gutter={16} align="middle">
-              <Col span={6}>
+            <Row gutter={[16, 16]} align="middle">
+              <Col xs={24} sm={6}>
                 <Text strong>Animation Speed:</Text>
               </Col>
-              <Col span={18}>
+              <Col xs={24} sm={18}>
                 <Slider
+                  className="win311-slider"
                   min={100}
                   max={2000}
                   step={100}
@@ -353,11 +380,11 @@ function AnimationModal(props) {
               </Col>
             </Row>
             
-            <Row gutter={16} align="middle">
-              <Col span={6}>
+            <Row gutter={[16, 16]} align="middle">
+              <Col xs={24} sm={6}>
                 <Text strong>Generation:</Text>
               </Col>
-              <Col span={14}>
+              <Col xs={16} sm={14}>
                 <Slider
                   className="win311-slider"
                   value={currentGeneration}
@@ -369,7 +396,7 @@ function AnimationModal(props) {
                   tooltip={{ formatter: null }} // Hide tooltip
                 />
               </Col>
-              <Col span={4}>
+              <Col xs={8} sm={4}>
                 <Input
                   className="win311-input"
                   value={currentGeneration}
@@ -384,20 +411,22 @@ function AnimationModal(props) {
               </Col>
             </Row>
             
-            <Row gutter={16} justify="center">
-              <Col>
-                <Space>
+            <Row gutter={[16, 16]} justify="center">
+              <Col xs={24} sm="auto">
+                <Space size="middle" wrap style={{ width: '100%', justifyContent: 'center' }}>
                   <Button 
                     className="win311-button"
                     onClick={handleStepBackward}
                     disabled={!selectedEpoch || validGenerations.length === 0}
-                    icon={<StepBackwardOutlined />}
+                    icon={<StepBackwardOutlined style={{ fontSize: '18px' }} />}
+                    style={{ height: '48px', width: '48px' }}
                   />
                   <Button
                     className="win311-button win311-button-primary win311-button-large"
                     onClick={() => setIsPlaying(!isPlaying)}
                     disabled={!selectedEpoch || validGenerations.length === 0}
-                    icon={isPlaying ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
+                    icon={isPlaying ? <PauseCircleOutlined style={{ fontSize: '20px' }} /> : <PlayCircleOutlined style={{ fontSize: '20px' }} />}
+                    style={{ minWidth: '120px' }}
                   >
                     {isPlaying ? "Pause" : "Play"}
                   </Button>
@@ -405,15 +434,19 @@ function AnimationModal(props) {
                     className="win311-button"
                     onClick={handleStepForward}
                     disabled={!selectedEpoch || validGenerations.length === 0}
-                    icon={<StepForwardOutlined />}
+                    icon={<StepForwardOutlined style={{ fontSize: '18px' }} />}
+                    style={{ height: '48px', width: '48px' }}
                   />
-                  <Switch 
-                    className="win311-switch"
-                    checked={showDetails} 
-                    onChange={setShowDetails} 
-                    checkedChildren="Details On" 
-                    unCheckedChildren="Details Off" 
-                  />
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '8px', fontSize: '14px' }}>Details:</span>
+                    <Switch 
+                      className="win311-switch"
+                      checked={showDetails} 
+                      onChange={setShowDetails} 
+                      checkedChildren="On" 
+                      unCheckedChildren="Off" 
+                    />
+                  </div>
                 </Space>
               </Col>
             </Row>
@@ -422,17 +455,20 @@ function AnimationModal(props) {
         
         <Col span={24}>
           <div 
+            className="animation-container"
             style={{ 
               position: "relative",
               width: "100%", 
-              height: "400px", 
+              height: "calc(40vh - 60px)", 
+              minHeight: "250px",
               backgroundColor: "#111",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
               overflow: "hidden",
               border: "1px solid #333",
-              borderRadius: "8px"
+              borderRadius: "8px",
+              marginBottom: showDetails ? "120px" : "0"
             }}
           >
             {currentToken ? (
@@ -447,22 +483,8 @@ function AnimationModal(props) {
                   }}
                 />
                 
-                {showDetails && (
-                  <div style={{
-                    position: "absolute",
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    padding: "10px",
-                    backgroundColor: "rgba(0,0,0,0.7)",
-                    color: "white",
-                    fontFamily: "monospace",
-                    fontSize: "14px",
-                    textAlign: "center"
-                  }}>
-                    {formatDetails()}
-                  </div>
-                )}
+                {/* Image only in the container */}
+                
               </>
             ) : (
               selectedEpoch ? (
@@ -497,7 +519,9 @@ function AnimationModal(props) {
                             padding: "15px 30px",
                             borderRadius: "8px",
                             zIndex: 2,
-                            transition: "all 0.2s ease"
+                            transition: "all 0.2s ease",
+                            width: "80%",
+                            maxWidth: "300px"
                           }}
                           className="play-overlay"
                           >
@@ -516,6 +540,33 @@ function AnimationModal(props) {
               )
             )}
           </div>
+          
+          {/* Details panel below the image */}
+          {showDetails && currentToken && (
+            <div 
+              className="details-panel"
+              style={{
+                position: "absolute",
+                bottom: "20px",
+                left: "24px",
+                right: "24px",
+                padding: "15px",
+                backgroundColor: "#c0c0c0",
+                color: "#000",
+                border: "2px solid",
+                borderColor: "#ffffff #404040 #404040 #ffffff",
+                boxShadow: "2px 2px 0 #222222",
+                borderRadius: "0",
+                fontFamily: "monospace",
+                fontSize: "14px",
+                textAlign: "center",
+                maxHeight: "120px",
+                overflowY: "auto",
+                zIndex: 10
+              }}>
+              {formatDetails()}
+            </div>
+          )}
         </Col>
       </Row>
     </Modal>
