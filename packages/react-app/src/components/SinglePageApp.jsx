@@ -82,11 +82,11 @@ function IntroSection() {
           <Col xs={24}>
             <div>
               <Title level={1} style={styles.sectionTitle}>
-                g4m3 0f l1f3 NFTs
+                g4m3 0f l1f3
               </Title>
               <Paragraph style={{ fontSize: "18px", textAlign: "center", maxWidth: "800px", margin: "0 auto" }}>
-                A collection of generative art based on Conway's cellular automaton.
-                Each token evolves following automaton rules, creating unique and fascinating patterns.
+                A collection of generative art based on Conway's cellular automaton. Each token evolves following
+                automaton rules, creating unique and fascinating patterns.
               </Paragraph>
             </div>
           </Col>
@@ -96,23 +96,23 @@ function IntroSection() {
   );
 }
 
-function MintSection({ 
-  tx, 
-  writeContracts, 
-  address, 
-  loadWeb3Modal, 
-  isSigner, 
+function MintSection({
+  tx,
+  writeContracts,
+  address,
+  loadWeb3Modal,
+  isSigner,
   isFreeMintEligible,
   freeMintsRemaining,
   noTokensForFreeMint,
   setNoTokensForFreeMint,
-  parseEther
+  parseEther,
 }) {
   return (
     <div id="mint-section" style={{ ...styles.section, background: "#111" }}>
       <div style={styles.container}>
         <Title level={2} style={styles.sectionTitle}>
-          Mint Your NFT
+          Mint
         </Title>
         <Title level={4} style={styles.sectionSubtitle}>
           Create your own generative g4m3 0f l1f3 collectible
@@ -120,10 +120,10 @@ function MintSection({
 
         <Row justify="center">
           <Col xs={24} md={18} lg={14}>
-            <Card 
+            <Card
               className="win311-window"
-              style={{ 
-                padding: "10px"
+              style={{
+                padding: "10px",
               }}
             >
               <div style={{ textAlign: "center" }}>
@@ -135,15 +135,17 @@ function MintSection({
                           Free Mints Available: {freeMintsRemaining.toString()}
                         </Title>
                         <div style={{ display: "flex", justifyContent: "center", marginBottom: "10px" }}>
-                          <div style={{
-                            display: "flex",
-                            alignItems: "center",
-                            background: "#c0c0c0",
-                            border: "2px solid",
-                            borderColor: "#ffffff #404040 #404040 #ffffff",
-                            padding: "5px",
-                            boxShadow: "2px 2px 0 #222222"
-                          }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              background: "#c0c0c0",
+                              border: "2px solid",
+                              borderColor: "#ffffff #404040 #404040 #ffffff",
+                              padding: "5px",
+                              boxShadow: "2px 2px 0 #222222",
+                            }}
+                          >
                             <Button
                               className="win311-button"
                               style={{
@@ -153,7 +155,7 @@ function MintSection({
                                 alignItems: "center",
                                 justifyContent: "center",
                                 fontSize: "20px",
-                                padding: 0
+                                padding: 0,
                               }}
                               onClick={e => {
                                 const newValue = Math.max(0, noTokensForFreeMint - 1);
@@ -162,23 +164,25 @@ function MintSection({
                             >
                               -
                             </Button>
-                            <div style={{
-                              padding: "0 15px",
-                              fontSize: "18px",
-                              fontFamily: '"MS Sans Serif", "Tahoma", "Arial", sans-serif',
-                              color: "#000",
-                              minWidth: "50px",
-                              height: "44px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              textAlign: "center",
-                              background: "#fff",
-                              border: "2px solid",
-                              borderColor: "#404040 #ffffff #ffffff #404040",
-                              margin: "0 8px",
-                              boxShadow: "inset 1px 1px 2px rgba(0, 0, 0, 0.3)"
-                            }}>
+                            <div
+                              style={{
+                                padding: "0 15px",
+                                fontSize: "18px",
+                                fontFamily: '"MS Sans Serif", "Tahoma", "Arial", sans-serif',
+                                color: "#000",
+                                minWidth: "50px",
+                                height: "44px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                textAlign: "center",
+                                background: "#fff",
+                                border: "2px solid",
+                                borderColor: "#404040 #ffffff #ffffff #404040",
+                                margin: "0 8px",
+                                boxShadow: "inset 1px 1px 2px rgba(0, 0, 0, 0.3)",
+                              }}
+                            >
                               {noTokensForFreeMint}
                             </div>
                             <Button
@@ -190,7 +194,7 @@ function MintSection({
                                 alignItems: "center",
                                 justifyContent: "center",
                                 fontSize: "20px",
-                                padding: 0
+                                padding: 0,
                               }}
                               onClick={e => {
                                 const newValue = Math.min(freeMintsRemaining.toString(), noTokensForFreeMint + 1);
@@ -205,7 +209,7 @@ function MintSection({
                           className="win311-button win311-button-primary win311-button-large"
                           style={{
                             height: "auto",
-                            fontSize: "16px"
+                            fontSize: "16px",
                           }}
                           onClick={() => {
                             tx(writeContracts.G4m3.mintFreeGated(noTokensForFreeMint));
@@ -215,14 +219,14 @@ function MintSection({
                         </Button>
                       </div>
                     ) : null}
-                    
+
                     <Divider style={{ borderColor: "#333" }} />
-                    
+
                     <Space size="large" wrap style={{ justifyContent: "center" }}>
                       <Button
                         className="win311-button win311-button-large"
                         style={{
-                          marginRight: "10px"
+                          marginRight: "10px",
                         }}
                         onClick={() => {
                           tx(writeContracts.G4m3.mintItem(address, { value: parseEther("0.02") }));
@@ -241,10 +245,7 @@ function MintSection({
                     </Space>
                   </>
                 ) : (
-                  <Button
-                    className="win311-button win311-button-primary win311-button-large"
-                    onClick={loadWeb3Modal}
-                  >
+                  <Button className="win311-button win311-button-primary win311-button-large" onClick={loadWeb3Modal}>
                     Connect Wallet to Mint
                   </Button>
                 )}
@@ -257,17 +258,17 @@ function MintSection({
   );
 }
 
-function MyItemsSection({ 
-  yourCollectibles, 
-  isLoadingCollection, 
-  mainnetProvider, 
+function MyItemsSection({
+  yourCollectibles,
+  isLoadingCollection,
+  mainnetProvider,
   blockExplorer,
-  transferToAddresses, 
-  setTransferToAddresses, 
-  writeContracts, 
-  tx, 
-  address, 
-  ItemCard 
+  transferToAddresses,
+  setTransferToAddresses,
+  writeContracts,
+  tx,
+  address,
+  ItemCard,
 }) {
   return (
     <div id="my-items-section" style={styles.section}>
@@ -283,9 +284,7 @@ function MyItemsSection({
           {isLoadingCollection ? (
             <Col span={24} style={{ textAlign: "center", padding: "40px 0" }}>
               <Spin size="large" />
-              <div style={{ marginTop: "20px", fontFamily: "monospace" }}>
-                Loading your collection...
-              </div>
+              <div style={{ marginTop: "20px", fontFamily: "monospace" }}>Loading your collection...</div>
             </Col>
           ) : yourCollectibles && yourCollectibles.length > 0 ? (
             // When we have collectibles to show
@@ -312,7 +311,7 @@ function MyItemsSection({
               <Button
                 className="win311-button win311-button-primary win311-button-large"
                 style={{ marginTop: "20px" }}
-                onClick={() => document.getElementById('mint-section').scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => document.getElementById("mint-section").scrollIntoView({ behavior: "smooth" })}
               >
                 Go to Mint Section
               </Button>
@@ -324,12 +323,7 @@ function MyItemsSection({
   );
 }
 
-function GallerySection({ 
-  allCollectibles, 
-  isLoadingGallery, 
-  loadProgress, 
-  ItemCard 
-}) {
+function GallerySection({ allCollectibles, isLoadingGallery, loadProgress, ItemCard }) {
   const [animationModalVisible, setAnimationModalVisible] = useState(false);
   const [selectedEpoch, setSelectedEpoch] = useState(null);
 
@@ -341,16 +335,16 @@ function GallerySection({
 
     allCollectibles.forEach(item => {
       if (!item.attributes) return;
-      
+
       // Find epoch
       const epochAttr = item.attributes.find(attr => attr.trait_type === "epoch");
       if (epochAttr) {
-        const epoch = epochAttr.value.replace('#', '');
-        
+        const epoch = epochAttr.value.replace("#", "");
+
         if (!result[epoch]) {
           result[epoch] = [];
         }
-        
+
         result[epoch].push(item);
       }
     });
@@ -360,9 +354,9 @@ function GallerySection({
       result[epoch].sort((a, b) => {
         const getGeneration = item => {
           const genAttr = item.attributes?.find(attr => attr.trait_type === "generation");
-          return genAttr ? parseInt(genAttr.value.replace('#', '')) : 0;
+          return genAttr ? parseInt(genAttr.value.replace("#", "")) : 0;
         };
-        
+
         return getGeneration(a) - getGeneration(b);
       });
     });
@@ -376,7 +370,7 @@ function GallerySection({
   };
 
   // Open animation modal for a specific epoch
-  const openAnimationModal = (epoch) => {
+  const openAnimationModal = epoch => {
     setSelectedEpoch(epoch);
     setAnimationModalVisible(true);
   };
@@ -414,17 +408,25 @@ function GallerySection({
                         size="small"
                         icon={<PlayCircleOutlined />}
                         onClick={() => openAnimationModal(epoch)}
-                        style={{ 
-                          position: "absolute", 
-                          right: 5, 
-                          top: 5, 
+                        style={{
+                          position: "absolute",
+                          right: 5,
+                          top: 5,
                           color: "#26abd4",
-                          padding: "0 4px" 
+                          padding: "0 4px",
                         }}
                       />
                     </h3>
-                    
-                    <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "center", width: "100%" }}>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "8px",
+                        alignItems: "center",
+                        width: "100%",
+                      }}
+                    >
                       {collectiblesByEpoch[epoch].map((item, idx) => (
                         <div key={`token-${item.id}`} style={{ width: getCardSize(), height: getCardSize() }}>
                           <ItemCard
@@ -446,7 +448,7 @@ function GallerySection({
             </div>
           </div>
         )}
-        
+
         {/* Animation Modal */}
         <AnimationModal
           visible={animationModalVisible}
@@ -460,7 +462,7 @@ function GallerySection({
 }
 
 function SinglePageApp(props) {
-  const { 
+  const {
     yourCollectibles,
     mainnetProvider,
     blockExplorer,
@@ -481,16 +483,16 @@ function SinglePageApp(props) {
     parseEther,
     ItemCard,
     allCollectibles,
-    isLoadingCollection
+    isLoadingCollection,
   } = props;
 
   return (
     <div>
       <SectionNavigation />
-      
+
       <IntroSection />
-      
-      <MintSection 
+
+      <MintSection
         tx={tx}
         writeContracts={writeContracts}
         address={address}
@@ -502,8 +504,8 @@ function SinglePageApp(props) {
         setNoTokensForFreeMint={setNoTokensForFreeMint}
         parseEther={parseEther}
       />
-      
-      <MyItemsSection 
+
+      <MyItemsSection
         yourCollectibles={yourCollectibles}
         isLoadingCollection={isLoadingCollection}
         mainnetProvider={mainnetProvider}
@@ -515,8 +517,8 @@ function SinglePageApp(props) {
         address={address}
         ItemCard={ItemCard}
       />
-      
-      <GallerySection 
+
+      <GallerySection
         allCollectibles={allCollectibles}
         isLoadingGallery={isLoadingGallery}
         loadProgress={loadProgress}
