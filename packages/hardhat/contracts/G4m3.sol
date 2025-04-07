@@ -40,7 +40,7 @@ contract G4m3 is ERC721Enumerable, Ownable {
     require(isMintingActive, 'mint not yet public');
     _;
   }
-  
+
   // Function to toggle minting state
   function toggleMinting(bool _state) public onlyOwner {
     isMintingActive = _state;
@@ -58,9 +58,10 @@ contract G4m3 is ERC721Enumerable, Ownable {
   uint8 internal constant scale = 40;
   uint8 internal constant N = 8;
   string s_scale = Strings.toString(scale - 4);
-  
+
   // Precomputed string constants for tokenURI and SVG generation
-  string private constant SVG_HEADER = '<svg width="360" height="360" xmlns="http://www.w3.org/2000/svg">';
+  string private constant SVG_HEADER =
+    '<svg width="360" height="360" xmlns="http://www.w3.org/2000/svg">';
   string private constant SVG_FOOTER = '</svg>';
   string private constant JSON_PREFIX = '{"name":"';
   string private constant JSON_DESC_PREFIX = '", "description":"';
@@ -68,7 +69,7 @@ contract G4m3 is ERC721Enumerable, Ownable {
   string private constant JSON_IMAGE_PREFIX = '", "image": "data:image/svg+xml;base64,';
   string private constant JSON_SUFFIX = '"}';
   string private constant TOKEN_URI_PREFIX = 'data:application/json;base64,';
-  
+
   // Constants for metadata strings
   string private constant NAME_PREFIX = 'g4m3 0f l1f3 #';
   string private constant DESC_PREFIX = 'g4m3 0f l1f3 iteration #';
@@ -82,7 +83,9 @@ contract G4m3 is ERC721Enumerable, Ownable {
     // 0x31027EF38d3b58f8186B0C33d8D7f298203E0570
     // eth main net
     0x4E1f41613c9084FdB9E34E11fAE9412427480e56, // terraforms
-    0x18Adc812fE66B9381700C2217f0c9DC816c879E6 // chaos roads
+    0x18Adc812fE66B9381700C2217f0c9DC816c879E6, // chaos roads
+    0xaD71f35dd8AC696BC89cD2A5B3aEE45272C5B1ed, // cycles
+    0x0D10816a099B1E782EA32BA4f5ECbA0aE4c3C902 // crimson echo
   ];
 
   // track number of free mints
@@ -182,43 +185,45 @@ contract G4m3 is ERC721Enumerable, Ownable {
     _currentGeneration = 0;
 
     // Generate a single seed value based on current conditions
-    bytes32 seedBytes = _currentEpoch == 1 
-        ? keccak256(abi.encodePacked(address(this), _currentEpoch, blockhash(block.number - 1), block.timestamp))
-        : keccak256(abi.encodePacked(address(this), _currentEpoch, gameStateInt));
-        
+    bytes32 seedBytes = _currentEpoch == 1
+      ? keccak256(
+        abi.encodePacked(address(this), _currentEpoch, blockhash(block.number - 1), block.timestamp)
+      )
+      : keccak256(abi.encodePacked(address(this), _currentEpoch, gameStateInt));
+
     // Use the full 256 bits of entropy from the hash
     uint256 fullSeed = uint256(seedBytes);
-    
+
     // Generate the initial state more efficiently
     uint64 gridInt = 0;
-    
+
     // Use different parts of the seed to set bits
     // We only need 64 bits of randomness total
     unchecked {
       for (uint8 i = 0; i < 64; i++) {
-        // Extract randomness from different parts of the seed 
+        // Extract randomness from different parts of the seed
         // based on position to avoid patterns
         uint8 byteOffset = i / 8;
         uint8 bitSelector = i % 8;
-        
+
         // Get a random byte from the seed - use modulo to wrap around
         // and get different parts of the seed
         uint8 randomByte = uint8(fullSeed >> (((i * 17) + (byteOffset * 13)) % 256));
-        
+
         // Use bit 'bitSelector' from randomByte to determine if this cell is alive
         bool isAlive = ((randomByte >> bitSelector) & 1) != 0;
-        
+
         // For increased randomness, apply an additional threshold
         // Use a different part of the seed for this check
         uint8 threshold = uint8(fullSeed >> (((i * 23) + 119) % 256));
-        
+
         // Approximately 50% chance of being alive (threshold > 127)
         if (isAlive && threshold > 127) {
           gridInt |= uint64(1) << i;
         }
       }
     }
-    
+
     gameStateInt = gridInt;
   }
 
@@ -228,7 +233,7 @@ contract G4m3 is ERC721Enumerable, Ownable {
     } else {
       // Use bitwise operations directly without grid conversion
       uint64 newGameStateInt = _determineNextGenerationBitwise(gameStateInt);
-      
+
       // The rest of the code uses the uint64 value directly
       if (occurredGameStates[_currentEpoch][newGameStateInt]) {
         _initState();
@@ -243,52 +248,52 @@ contract G4m3 is ERC721Enumerable, Ownable {
   // Optimized version that operates directly on bits without grid conversion
   function _determineNextGenerationBitwise(uint64 currentState) internal pure returns (uint64) {
     uint64 newState = 0;
-    
+
     // Pre-calculate shifted rows for neighbor checks with wraparound
     uint64 topRow = ((currentState & 0x00000000000000FF) << 56) | (currentState >> 8);
     uint64 middleRow = currentState;
     uint64 bottomRow = ((currentState & 0xFF00000000000000) >> 56) | (currentState << 8);
-    
+
     // Process cells row by row
     for (uint8 row = 0; row < 8; row++) {
       uint64 rowShift = row * 8;
-      
+
       // Extract row bits with wraparound already applied
       uint8 topRowBits = uint8((topRow >> rowShift) & 0xFF);
       uint8 midRowBits = uint8((middleRow >> rowShift) & 0xFF);
       uint8 botRowBits = uint8((bottomRow >> rowShift) & 0xFF);
-      
+
       for (uint8 col = 0; col < 8; col++) {
         uint8 cellPos = row * 8 + col;
         bool isAlive = ((currentState >> cellPos) & 1) == 1;
-        
+
         // Get neighbor columns with wraparound
         uint8 leftCol = (col == 0) ? 7 : col - 1;
         uint8 rightCol = (col == 7) ? 0 : col + 1;
-        
+
         // Count all 8 neighbors with bitwise operations
         uint8 neighbors = 0;
-        neighbors += (topRowBits >> leftCol) & 1;  // Top-left
-        neighbors += (topRowBits >> col) & 1;      // Top
+        neighbors += (topRowBits >> leftCol) & 1; // Top-left
+        neighbors += (topRowBits >> col) & 1; // Top
         neighbors += (topRowBits >> rightCol) & 1; // Top-right
-        neighbors += (midRowBits >> leftCol) & 1;  // Left
+        neighbors += (midRowBits >> leftCol) & 1; // Left
         neighbors += (midRowBits >> rightCol) & 1; // Right
-        neighbors += (botRowBits >> leftCol) & 1;  // Bottom-left
-        neighbors += (botRowBits >> col) & 1;      // Bottom
+        neighbors += (botRowBits >> leftCol) & 1; // Bottom-left
+        neighbors += (botRowBits >> col) & 1; // Bottom
         neighbors += (botRowBits >> rightCol) & 1; // Bottom-right
-        
+
         // Apply Game of Life rules
-        bool newCellState = isAlive ? 
-            (neighbors == 2 || neighbors == 3) : // Survival
-            (neighbors == 3);                    // Birth
-        
+        bool newCellState = isAlive
+          ? (neighbors == 2 || neighbors == 3) // Survival
+          : (neighbors == 3); // Birth
+
         // Set the bit if alive
         if (newCellState) {
-            newState |= (uint64(1) << cellPos);
+          newState |= (uint64(1) << cellPos);
         }
       }
     }
-    
+
     return newState;
   }
 
@@ -380,13 +385,13 @@ contract G4m3 is ERC721Enumerable, Ownable {
 
   function tokenURI(uint256 id) public view override returns (string memory) {
     require(_exists(id), 'nt');
-    
+
     // Unpack state once and reuse for all functions
     uint64 gameState;
     uint8 epoch;
     uint16 generation;
     (gameState, epoch, generation) = BitOps.unpackState(tokenState[id]);
-    
+
     // Pass cached state values to all functions
     string memory image = Base64.encode(bytes(generateSVGofTokenById(id, gameState)));
     Structs.MetaData memory metadata = generateMetadata(id, gameState, epoch, generation);
@@ -428,17 +433,14 @@ contract G4m3 is ERC721Enumerable, Ownable {
       );
   }
 
-  function generateSVGofTokenById(uint256 id, uint64 gameState) internal view returns (string memory) {
+  function generateSVGofTokenById(
+    uint256 id,
+    uint64 gameState
+  ) internal view returns (string memory) {
     // Use precomputed constants for SVG elements
-    return string(
-      abi.encodePacked(
-        SVG_HEADER,
-        renderGameGrid(id, gameState),
-        SVG_FOOTER
-      )
-    );
+    return string(abi.encodePacked(SVG_HEADER, renderGameGrid(id, gameState), SVG_FOOTER));
   }
-  
+
   // Keep the original function for backward compatibility
   function generateSVGofTokenById(uint256 id) internal view returns (string memory) {
     uint64 gameState;
@@ -478,7 +480,7 @@ contract G4m3 is ERC721Enumerable, Ownable {
     (gameState, , ) = BitOps.unpackState(tokenState[id]);
     return renderGameGrid(id, gameState);
   }
-  
+
   function renderGameGrid(uint256 id, uint64 gameState) private view returns (string memory) {
     // render that thing using the passed gameState instead of unpacking again
     bool[N][N] memory grid = BitOps.wordToGrid(gameState);
@@ -524,22 +526,22 @@ contract G4m3 is ERC721Enumerable, Ownable {
           CellData.alive = grid[i][j];
           string memory square;
 
-        // check for stateDiff
-        CellData.hasChanged = BitOps.getBooleanFromIndex64(stateDiff, (i * 8 + j));
+          // check for stateDiff
+          CellData.hasChanged = BitOps.getBooleanFromIndex64(stateDiff, (i * 8 + j));
 
-        // update tracking counters
-        if (CellData.hasChanged && CellData.alive) {
-          CellData.bornCounter += 1;
-        } else if (CellData.hasChanged && !CellData.alive) {
-          CellData.perishedCounter += 1;
+          // update tracking counters
+          if (CellData.hasChanged && CellData.alive) {
+            CellData.bornCounter += 1;
+          } else if (CellData.hasChanged && !CellData.alive) {
+            CellData.perishedCounter += 1;
+          }
+
+          square = G0l.renderGameSquare(CellData, colorMap);
+
+          squares[slotCounter] = square;
+          slotCounter += 1;
         }
-
-        square = G0l.renderGameSquare(CellData, colorMap);
-
-        squares[slotCounter] = square;
-        slotCounter += 1;
-      }
-    } // Close unchecked block
+      } // Close unchecked block
     }
 
     // combine array of squares into single bytes array
@@ -579,40 +581,29 @@ contract G4m3 is ERC721Enumerable, Ownable {
     (gameState, epoch, generation) = BitOps.unpackState(tokenState[id]);
     return generateMetadata(id, gameState, epoch, generation);
   }
-  
-  function generateMetadata(uint256 id, uint64 gameState, uint8 epoch, uint16 generation) internal view returns (Structs.MetaData memory) {
+
+  function generateMetadata(
+    uint256 id,
+    uint64 gameState,
+    uint8 epoch,
+    uint16 generation
+  ) internal view returns (Structs.MetaData memory) {
     Structs.MetaData memory metadata;
-    
+
     // Cache string conversions to avoid repeated conversions
     string memory epochStr = Strings.toString(epoch);
     string memory idStr = id.toString();
     string memory generationStr = uint256(generation).toString();
-    
+
     metadata.epoch = epochStr;
     metadata.generation = generation;
     metadata.populationDensity = BitOps.getCountOfOnBits(gameState);
-    
+
     // Use constants and cached strings
-    metadata.name = string(
-      abi.encodePacked(
-        NAME_PREFIX,
-        idStr,
-        ' ',
-        epochStr,
-        '/',
-        generationStr
-      )
-    );
-    
+    metadata.name = string(abi.encodePacked(NAME_PREFIX, idStr, ' ', epochStr, '/', generationStr));
+
     metadata.description = string(
-      abi.encodePacked(
-        DESC_PREFIX,
-        idStr,
-        GEN_PREFIX,
-        generationStr,
-        EPOCH_PREFIX,
-        epochStr
-      )
+      abi.encodePacked(DESC_PREFIX, idStr, GEN_PREFIX, generationStr, EPOCH_PREFIX, epochStr)
     );
 
     // "arbitrary" value to mix things up (not random because deterministic)

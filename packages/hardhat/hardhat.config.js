@@ -67,9 +67,32 @@ module.exports = {
         (you can put in a mnemonic here to set the deployer locally)
       */
     },
+    // Polygon Amoy (new testnet that replaced Mumbai)
+    amoy: {
+      url: `${process.env.ALCHEMY_URL_AMOY || 'https://rpc.polygon-amoy.quiknode.pro'}`,
+      chainId: 80002, // Amoy chainId (80002), different from Mumbai (80001)
+      // No accounts array needed when using Frame
+      gas: 'auto',
+      gasPrice: 20000000000, // 20 Gwei
+      gasMultiplier: 1.2,
+      timeout: 60000, // 60 seconds
+    },
+    
+    // Mumbai kept for backward compatibility but marked as deprecated
     mumbai: {
       url: `${process.env.ALCHEMY_URL_MUMBAI}`,
       chainId: 80001,
+      // No accounts array needed when using Frame
+      gas: 'auto',
+      gasPrice: 20000000000, // 20 Gwei
+      gasMultiplier: 1.2,
+      timeout: 60000, // 60 seconds
+      // Display warning when using this network
+      verify: async () => {
+        console.warn(
+          "\n⚠️  WARNING: Polygon Mumbai testnet is deprecated! Please use Polygon Amoy instead."
+        );
+      }
     },
     hardhat: {
       allowUnlimitedContractSize: true,
@@ -152,13 +175,25 @@ module.exports = {
     ],
   },
   etherscan: {
-    // Your API key for Etherscan
-    // Obtain one at https://etherscan.io/
-    // apiKey: 'PSW8C433Q667DVEX5BCRMGNAH9FSGFZ7Q8',
+    // Your API key for Etherscan/Polygonscan
+    // Obtain one at https://etherscan.io/ or https://polygonscan.com/
     apiKey: {
       mainnet: '1Q4SS4A66YIHZNMTUEYMTUAY9DC9WIFNFQ',
-      polygonMumbai: '6FBQSDUDJAJXT13SMTDNZ6ZJCS3Z33DJ9G',
+      // For Polygon networks
+      polygon: '6FBQSDUDJAJXT13SMTDNZ6ZJCS3Z33DJ9G',       // Main Polygon network
+      polygonMumbai: '6FBQSDUDJAJXT13SMTDNZ6ZJCS3Z33DJ9G', // Mumbai (deprecated)
+      polygonAmoy: '6FBQSDUDJAJXT13SMTDNZ6ZJCS3Z33DJ9G',   // Amoy testnet
     },
+    customChains: [
+      {
+        network: "polygonAmoy",
+        chainId: 80002,
+        urls: {
+          apiURL: "https://api-amoy.polygonscan.com/api",
+          browserURL: "https://amoy.polygonscan.com"
+        }
+      }
+    ]
   },
   mocha: {
     timeout: 100000000,
