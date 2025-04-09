@@ -56,6 +56,20 @@ The project can be deployed to Polygon Amoy testnet (the current Polygon testnet
 
 > **Note about NFT Collection Checks**: The contract checks ownership of specific NFT collections on Ethereum mainnet to determine eligibility for free mints. Since these NFT collections don't exist on Amoy, the deployment script automatically adds addresses to the whitelist to maintain functionality. No contract modifications needed!
 
+### Network Configuration System
+
+The project includes a smart network configuration system that handles different deployment environments:
+
+1. **Local Development**: By default, connects to your local Hardhat node (localhost:8545)
+2. **GitHub Pages Deployment**: Automatically detects GitHub Pages and uses Polygon Amoy
+3. **Production Deployment**: Can be configured to use any network, including Ethereum mainnet
+
+The system uses environment variables to determine the correct network:
+- `REACT_APP_NETWORK`: Explicitly sets which network to use (localhost, amoy, mainnet, etc.)
+- `REACT_APP_ALCHEMY_KEY`: Your Alchemy API key for enhanced RPC access (especially for Amoy)
+
+This approach ensures the frontend works properly in all environments without manual configuration.
+
 ### Prerequisites
 
 1. **Frame**: Install [Frame](https://frame.sh/) for hardware wallet integration
@@ -106,16 +120,25 @@ The project can be deployed to Polygon Amoy testnet (the current Polygon testnet
    yarn hardhat run scripts/publish.js --network amoy
    ```
 
-6. **Configure the frontend** to connect to Amoy by editing `packages/react-app/.env`:
+6. **Configure the frontend** to connect to Amoy:
+   
+   Create or edit `packages/react-app/.env.production` with these settings:
    ```
-   REACT_APP_PROVIDER=https://rpc.polygon-amoy.quiknode.pro
-   REACT_APP_NETWORK_ID=80002
+   REACT_APP_NETWORK=amoy
+   REACT_APP_ALCHEMY_KEY=YOUR_ALCHEMY_KEY
    ```
 
 7. **Start the frontend** to interact with your deployed contract:
    ```bash
    cd ../react-app
    yarn start
+   ```
+
+8. **Deploy to GitHub Pages** (if needed):
+   ```bash
+   cd ../react-app
+   yarn build
+   yarn deploy
    ```
 
 For more details, see the [deployment script documentation](packages/hardhat/scripts/README.md).
@@ -159,9 +182,15 @@ If you encounter issues during deployment, here are some common fixes:
    - Make sure you've set the correct Polygonscan API key
 
 4. **Frontend Connection Issues**:
-   - Double-check your `.env` file settings match the deployed network
+   - Double-check your `.env.production` file settings match the deployed network
    - Use the correct contract addresses by running the publish script
    - Clear your browser cache if you see outdated contract data
+   
+5. **GitHub Pages API Connection Errors**:
+   - If you see errors like `Failed to load resource: net::ERR_NAME_NOT_RESOLVED`, it means the RPC API key is invalid
+   - Update your Alchemy API key in `.env.production` with a valid key for Polygon Amoy
+   - Make sure to set `REACT_APP_NETWORK=amoy` in the `.env.production` file
+   - Rebuild and redeploy with the updated configuration
 
 ## Gas Usage Analysis
 

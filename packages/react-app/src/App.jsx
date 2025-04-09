@@ -18,7 +18,30 @@ import { useBalance, useContractLoader, useContractReader, useGasPrice, useUserP
 // Scaffold-eth boilerplate documentation removed
 
 /// Network configuration
-const targetNetwork = NETWORKS.localhost; // Force to localhost for local development
+// Determine which network to use based on environment variables or deployment status
+const getTargetNetwork = () => {
+  // Check for explicit network selection via environment variable
+  const networkFromEnv = process.env.REACT_APP_NETWORK;
+  if (networkFromEnv && NETWORKS[networkFromEnv]) {
+    console.log(`🔥 Using network specified in REACT_APP_NETWORK: ${networkFromEnv}`);
+    return NETWORKS[networkFromEnv];
+  }
+  
+  // Auto-detect GitHub Pages deployment
+  const isGitHubPages = window.location.hostname.includes('github.io');
+  
+  // If on GitHub Pages, default to Amoy testnet
+  if (isGitHubPages) {
+    console.log('📡 Using Polygon Amoy testnet for GitHub Pages deployment');
+    return NETWORKS.amoy;
+  }
+  
+  // For local development, use localhost
+  console.log('🏠 Using local network for development');
+  return NETWORKS.localhost;
+};
+
+const targetNetwork = getTargetNetwork();
 const DEBUG = false;
 
 // Providers configuration

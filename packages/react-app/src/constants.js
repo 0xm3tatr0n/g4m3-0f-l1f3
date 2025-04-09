@@ -374,4 +374,14 @@ export const NETWORKS = {
     faucet: "https://faucet.matic.network/",
     blockExplorer: "https://mumbai-explorer.matic.today/",
   },
+  amoy: {
+    name: "amoy",
+    color: "#1E90FF",
+    chainId: 80002,
+    price: 1,
+    gasPrice: 1000000000,
+    rpcUrl: `https://polygon-amoy.g.alchemy.com/v2/${process.env.REACT_APP_ALCHEMY_KEY || 'demo'}`,
+    faucet: "https://faucet.polygon.technology/",
+    blockExplorer: "https://www.oklink.com/amoy",
+  },
 };
