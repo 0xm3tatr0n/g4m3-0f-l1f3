@@ -3,7 +3,7 @@ import { parseEther } from "@ethersproject/units";
 import { Button, Modal, Spin, Tooltip, Typography } from "antd";
 import { useUserAddress } from "eth-hooks";
 import { ethers } from "ethers";
-import QR from "qrcode.react";
+import { QRCodeSVG } from "qrcode.react";
 import React, { useState } from "react";
 import { Transactor } from "../helpers";
 import Address from "./Address";
@@ -80,12 +80,11 @@ export default function Wallet(props) {
         <div>
           <Text copyable>{selectedAddress}</Text>
         </div>
-        <QR
+        <QRCodeSVG
           value={selectedAddress}
-          size="450"
+          size={450}
           level="H"
-          includeMargin
-          renderAs="svg"
+          includeMargin={true}
           imageSettings={{ excavate: false }}
         />
       </div>
@@ -168,12 +167,11 @@ export default function Wallet(props) {
             </a>
             :
           </i>
-          <QR
+          <QRCodeSVG
             value={"https://xdai.io/" + pk}
-            size="450"
+            size={450}
             level="H"
-            includeMargin
-            renderAs="svg"
+            includeMargin={true}
             imageSettings={{ excavate: false }}
           />
 

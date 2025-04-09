@@ -2,7 +2,7 @@ import { CameraOutlined, QrcodeOutlined } from "@ant-design/icons";
 import { Badge, Input } from "antd";
 import { useLookupAddress } from "eth-hooks";
 import React, { useCallback, useState } from "react";
-import QrReader from "react-qr-reader";
+import { QrReader } from "react-qr-reader";
 import Blockie from "./Blockie";
 
 // probably we need to change value={toAddress} to address={toAddress}
@@ -92,14 +92,16 @@ export default function AddressInput(props) {
       }}
     >
       <QrReader
-        delay={250}
-        resolution={1200}
-        onError={e => {
-          console.log("SCAN ERROR", e);
-          setScan(false);
-        }}
-        onScan={newValue => {
-          if (newValue) {
+        constraints={{ facingMode: 'environment' }}
+        onResult={(result, error) => {
+          if (error) {
+            console.log("SCAN ERROR", error);
+            // Don't set scan to false on error, just log it
+            return;
+          }
+          
+          if (result) {
+            const newValue = result?.text;
             console.log("SCAN VALUE", newValue);
             let possibleNewValue = newValue;
             if (possibleNewValue.indexOf("/") >= 0) {
