@@ -1,0 +1,694 @@
+/* Windows 3.11 Theme - Authentic Implementation */
+:root {
+  --title-bar-bg: #000080; /* Navy blue title bars */
+  --title-bar-text: #FFFFFF;
+  --inactive-title-bar-bg: #808080;
+  --window-bg: #C0C0C0; /* Classic Win3.1 gray */
+  --border-highlight: #FFFFFF;
+  --border-shadow: #808080;
+  --button-face: #C0C0C0;
+  --text-color: #000000;
+  --highlight-bg: #000080;
+  --highlight-text: #FFFFFF;
+  --button-text: #000000;
+  --input-bg: #FFFFFF;
+  --input-border-highlight: #FFFFFF;
+  --input-border-shadow: #808080;
+  --accent-color-cyan: #00FFFF;
+  --accent-color-magenta: #FF00FF;
+  --accent-color-red: #FF0000;
+  --desktop-bg: #008080; /* Classic teal Windows 3.1 background */
+}
+
+body {
+  background-color: var(--desktop-bg) !important;
+  color: var(--text-color) !important;
+  font-family: "MS Sans Serif", Tahoma, Arial, sans-serif !important;
+  font-size: 12px !important;
+  margin: 0;
+  padding: 0;
+  image-rendering: pixelated;
+  letter-spacing: 0px !important;
+  line-height: 1.2 !important;
+  text-rendering: optimizeSpeed !important;
+  -webkit-font-smoothing: none !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Center main app container */
+#root {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  width: 100% !important;
+  min-height: 100vh !important;
+  padding: 15px 0 !important;
+  /* Classic Windows 3.1 teal desktop with darker teal horizontal lines */
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.07) 0px,
+      rgba(0, 0, 0, 0.07) 1px,
+      transparent 1px,
+      transparent 2px
+    ),
+    linear-gradient(to right, var(--desktop-bg), var(--desktop-bg)) !important;
+  background-size: 100% 2px, 100% 100% !important;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6, .ant-typography {
+  font-family: "MS Sans Serif", Tahoma, Arial, sans-serif !important;
+  color: var(--text-color) !important;
+  font-weight: bold !important;
+}
+
+.ant-typography {
+  color: var(--text-color) !important;
+}
+
+/* Scroll bars */
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--window-bg);
+  border: 1px solid var(--border-shadow);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--button-face);
+  border: 2px solid;
+  border-color: var(--border-highlight) var(--border-shadow) var(--border-shadow) var(--border-highlight);
+}
+
+::-webkit-scrollbar-button {
+  background-color: var(--button-face);
+  border: 2px solid;
+  border-color: var(--border-highlight) var(--border-shadow) var(--border-shadow) var(--border-highlight);
+  display: block;
+  height: 16px;
+  width: 16px;
+}
+
+/* Cards as Windows - Authentic Windows 3.1 style */
+.ant-card {
+  background-color: var(--window-bg) !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: var(--border-highlight) var(--border-shadow) var(--border-shadow) var(--border-highlight) !important;
+  border-radius: 0 !important;
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.2) !important; /* Subtle shadow */
+  margin-bottom: 16px !important;
+  position: relative !important;
+  /* Double border effect */
+  outline: 1px solid var(--window-bg) !important;
+  outline-offset: -2px !important;
+}
+
+.ant-card::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  border: 1px solid var(--border-shadow);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ant-card-head {
+  background-color: #FFFFFF !important; /* White header bar */
+  color: #000000 !important; /* Black text */
+  border-bottom: 1px solid var(--border-shadow) !important;
+  padding: 4px 0 !important; /* Taller header */
+  min-height: auto !important;
+  height: 22px !important; /* Taller header */
+  line-height: 22px !important;
+  border-radius: 0 !important;
+  position: relative !important;
+}
+
+/* Left side minimize button */
+.ant-card-head::before {
+  content: '_';
+  position: absolute;
+  top: 1px;
+  left: 4px;
+  width: 18px;
+  height: 18px;
+  background-color: var(--button-face);
+  border: 1px solid;
+  border-color: var(--border-highlight) var(--border-shadow) var(--border-shadow) var(--border-highlight);
+  box-sizing: border-box;
+  text-align: center;
+  line-height: 14px;
+  font-weight: bold;
+  font-size: 14px;
+  z-index: 1;
+}
+
+/* Right side close button */
+.ant-card-head::after {
+  content: '×';
+  position: absolute;
+  top: 1px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  background-color: var(--button-face);
+  border: 1px solid;
+  border-color: var(--border-highlight) var(--border-shadow) var(--border-shadow) var(--border-highlight);
+  box-sizing: border-box;
+  text-align: center;
+  line-height: 16px;
+  font-weight: bold;
+  z-index: 1;
+}
+
+.ant-card-head-title {
+  padding: 0 !important;
+  text-align: center !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+  width: 100% !important;
+}
+
+.ant-card-body {
+  background-color: var(--window-bg) !important;
+  padding: 4px 6px !important; /* More accurate to Win 3.1 padding */
+  border-top: 1px solid var(--border-highlight) !important; /* Inner highlight */
+}
+
+/* Buttons - Authentic Windows 3.1 style */
+.ant-btn {
+  background-color: var(--button-face) !important;
+  color: var(--button-text) !important;
+  /* This creates the exact Win3.1 button border effect */
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: var(--border-highlight) var(--border-shadow) var(--border-shadow) var(--border-highlight) !important;
+  border-radius: 0 !important;
+  font-family: "MS Sans Serif", Tahoma, Arial, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: normal !important;
+  padding: 3px 8px !important; /* Authentic Win3.1 padding */
+  height: auto !important;
+  transform: none !important;
+  transition: none !important; /* No transitions in Win3.1 */
+  margin: 0 !important;
+  position: relative !important;
+  box-shadow: none !important;
+  text-align: center !important;
+  min-width: 75px !important; /* Standard button width in Win3.1 */
+  min-height: 23px !important;
+  line-height: 1 !important;
+}
+
+/* Win3.1 buttons don't change on hover - they only show the focus outline */
+.ant-btn:hover {
+  background-color: var(--button-face) !important;
+  color: var(--button-text) !important;
+}
+
+/* Dotted focus outline was a key Win3.1 feature */
+.ant-btn:focus {
+  outline: 1px dotted #000 !important;
+  outline-offset: -4px !important;
+}
+
+/* Windows 3.1 pressed button effect - it swaps the border colors */
+.ant-btn:active, .ant-btn-primary:active {
+  border-color: var(--border-shadow) var(--border-highlight) var(--border-highlight) var(--border-shadow) !important;
+  padding-left: 4px !important; 
+  padding-top: 4px !important;
+  padding-right: 7px !important;
+  padding-bottom: 2px !important;
+  /* No transforms or box-shadows in Win3.1 */
+  transform: none !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+
+/* Default buttons in Win3.1 had a bold font and thicker border */
+.ant-btn-primary {
+  background-color: var(--button-face) !important; /* Default buttons weren't blue in Win3.1 */
+  color: var(--button-text) !important;
+  border-width: 2px !important; /* Thicker border for default buttons */
+  padding: 2px 7px !important; /* Adjust padding for thicker border */
+  font-weight: bold !important; /* Default buttons were bold */
+  box-shadow: none !important;
+}
+
+.ant-btn-primary:hover {
+  background-color: var(--button-face) !important;
+  color: var(--button-text) !important;
+}
+
+/* Special case: blue buttons for our app styling - not standard Win3.1 */
+.blue-button, .ant-btn.blue-button {
+  background-color: var(--highlight-bg) !important;
+  color: var(--highlight-text) !important;
+  border-color: #0040ff #000040 #000040 #0040ff !important;
+}
+
+.blue-button:active, .ant-btn.blue-button:active {
+  border-color: #000040 #0040ff #0040ff #000040 !important;
+}
+
+/* Inputs - Authentic Windows 3.1 style */
+.ant-input, .ant-input-number, .ant-select-selector {
+  background-color: var(--input-bg) !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: var(--border-shadow) var(--border-highlight) var(--border-highlight) var(--border-shadow) !important;
+  border-radius: 0 !important;
+  height: auto !important;
+  padding: 2px 3px !important; /* Win3.1 had minimal padding */
+  color: var(--text-color) !important;
+  /* No box-shadow in Win3.1 - just the border creates the inset effect */
+  box-shadow: none !important;
+  font-family: "MS Sans Serif", Tahoma, Arial, sans-serif !important;
+  font-size: 12px !important;
+}
+
+/* Win3.1 text fields had a simple sunken border effect */
+.ant-input-affix-wrapper {
+  background-color: var(--input-bg) !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: var(--border-shadow) var(--border-highlight) var(--border-highlight) var(--border-shadow) !important;
+  border-radius: 0 !important;
+  padding: 0 3px !important;
+}
+
+.ant-input-affix-wrapper > input.ant-input {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.ant-input:focus, .ant-input-number:focus, .ant-select-focused .ant-select-selector {
+  border-color: var(--border-shadow) var(--border-highlight) var(--border-highlight) var(--border-shadow) !important;
+  outline: 1px dotted #000 !important;
+  /* No box-shadow in Win3.1 */
+  box-shadow: none !important;
+}
+
+/* Dropdown / Menu - Windows 3.1 style */
+.ant-dropdown-menu, .ant-select-dropdown {
+  background-color: var(--input-bg) !important;
+  border: 1px solid var(--text-color) !important;
+  border-radius: 0 !important;
+  padding: 1px !important; /* Win3.1 had minimal padding */
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.3) !important; /* Classic Win3.1 shadow */
+}
+
+.ant-dropdown-menu-item, .ant-select-item {
+  padding: 1px 8px !important; /* Win3.1 had tight spacing */
+  font-family: "MS Sans Serif", Tahoma, Arial, sans-serif !important;
+  font-size: 12px !important;
+  color: var(--text-color) !important;
+  min-height: 18px !important; /* Win3.1 menu item height */
+  line-height: 18px !important;
+}
+
+/* Perfect Windows 3.1 blue highlight on hover/selection */
+.ant-dropdown-menu-item:hover, 
+.ant-dropdown-menu-item-active,
+.ant-select-item-option-active {
+  background-color: var(--highlight-bg) !important;
+  color: var(--highlight-text) !important;
+  border: none !important;
+}
+
+.ant-dropdown-menu-item-selected,
+.ant-select-item-option-selected {
+  background-color: var(--highlight-bg) !important;
+  color: var(--highlight-text) !important;
+}
+
+/* Dropdown arrow - Win3.1 style */
+.ant-select-arrow {
+  color: var(--text-color) !important;
+  border-left: 4px solid transparent !important;
+  border-right: 4px solid transparent !important;
+  border-top: 4px solid var(--text-color) !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin-top: -2px !important;
+}
+
+/* Navigation */
+.ant-menu {
+  background-color: var(--window-bg) !important;
+  color: var(--text-color) !important;
+  border: 2px solid !important;
+  border-color: var(--border-highlight) var(--border-shadow) var(--border-shadow) var(--border-highlight) !important;
+  border-radius: 0 !important;
+}
+
+.ant-menu-item {
+  font-family: "MS Sans Serif", Tahoma, Arial, sans-serif !important;
+  color: var(--text-color) !important;
+  margin: 0 !important;
+  padding: 0 16px !important;
+  height: 24px !important;
+  line-height: 24px !important;
+  font-size: 12px !important;
+}
+
+.ant-menu-item:hover {
+  background-color: var(--highlight-bg) !important;
+  color: var(--highlight-text) !important;
+}
+
+.ant-menu-item-selected {
+  background-color: var(--highlight-bg) !important;
+  color: var(--highlight-text) !important;
+}
+
+/* Section styling - Windows 3.1 style windows */
+#intro-section, #mint-section, #my-items-section, #gallery-section {
+  /* Win3.1 windows had 1px borders with outer shadow effect */
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: var(--border-highlight) var(--border-shadow) var(--border-shadow) var(--border-highlight) !important;
+  background-color: var(--window-bg) !important;
+  margin: 10px !important;
+  padding: 10px !important;
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.2) !important; /* Subtle shadow */
+  position: relative !important;
+}
+
+/* Section headers for windows */
+.section-title {
+  background-color: #FFFFFF !important; /* White header bar */
+  color: #000000 !important; /* Black text */
+  font-size: 12px !important;
+  font-weight: bold !important;
+  text-align: center !important;
+  padding: 4px 0 !important; /* Increase padding for taller bar */
+  height: 22px !important; /* Taller header */
+  line-height: 22px !important;
+  margin-bottom: 8px !important;
+  border-bottom: 1px solid var(--border-shadow) !important;
+  position: relative !important;
+}
+
+/* Window control - left side minus/close button */
+.section-title::before {
+  content: '_';
+  position: absolute;
+  top: 1px;
+  left: 4px;
+  width: 18px;
+  height: 18px;
+  background-color: var(--button-face);
+  border: 1px solid;
+  border-color: var(--border-highlight) var(--border-shadow) var(--border-shadow) var(--border-highlight);
+  box-sizing: border-box;
+  text-align: center;
+  line-height: 14px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* Window control buttons - right side close/maximize */
+.section-title::after {
+  content: '×';
+  position: absolute;
+  top: 1px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  background-color: var(--button-face);
+  border: 1px solid;
+  border-color: var(--border-highlight) var(--border-shadow) var(--border-shadow) var(--border-highlight);
+  box-sizing: border-box;
+  text-align: center;
+  line-height: 16px;
+  font-weight: bold;
+}
+
+/* Gallery specific styles - Windows 3.1 inset panel */
+.gallery-container {
+  background-color: var(--input-bg) !important; /* White background for content area */
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: var(--border-shadow) var(--border-highlight) var(--border-highlight) var(--border-shadow) !important;
+  padding: 4px !important;
+  margin: 6px 0 !important;
+}
+
+/* Item cards - Windows 3.1 style */
+.card-front .ant-card, .card-back .ant-card, .ant-tooltip .ant-card {
+  background-color: var(--window-bg) !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: var(--border-highlight) var(--border-shadow) var(--border-shadow) var(--border-highlight) !important;
+  border-radius: 0 !important;
+  overflow: hidden !important;
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.2) !important;
+}
+
+/* Spinners */
+.ant-spin-dot-item {
+  background-color: var(--highlight-bg) !important;
+}
+
+/* Modal styling - Authentic Windows 3.1 dialog boxes */
+.ant-modal-content {
+  background-color: var(--window-bg) !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: var(--border-highlight) var(--border-shadow) var(--border-shadow) var(--border-highlight) !important;
+  border-radius: 0 !important;
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.2) !important;
+  position: relative !important;
+}
+
+.ant-modal-header {
+  background-color: #FFFFFF !important; /* White header bar */
+  color: #000000 !important; /* Black text */
+  border-bottom: 1px solid var(--border-shadow) !important;
+  padding: 4px 0 !important; /* Taller header */
+  height: 22px !important; /* Taller header */
+  border-radius: 0 !important;
+  position: relative !important;
+}
+
+.ant-modal-header::before {
+  content: '_';
+  position: absolute;
+  top: 1px;
+  left: 4px;
+  width: 18px;
+  height: 18px;
+  background-color: var(--button-face);
+  border: 1px solid;
+  border-color: var(--border-highlight) var(--border-shadow) var(--border-shadow) var(--border-highlight);
+  box-sizing: border-box;
+  text-align: center;
+  line-height: 14px;
+  font-weight: bold;
+  font-size: 14px;
+  z-index: 1;
+}
+
+.ant-modal-title {
+  color: #000000 !important; /* Black text */
+  font-family: "MS Sans Serif", Tahoma, Arial, sans-serif !important;
+  font-size: 12px !important;
+  line-height: 22px !important; /* Taller line height */
+  height: 22px !important; /* Taller height */
+  text-align: center !important;
+  font-weight: bold !important;
+  padding: 0 !important;
+}
+
+/* Windows 3.1 style close button (X) */
+.ant-modal-close {
+  color: #000000 !important; /* Black text */
+  top: 1px !important;
+  right: 2px !important;
+}
+
+.ant-modal-close-x {
+  width: 18px !important;
+  height: 18px !important;
+  background-color: var(--button-face) !important;
+  border: 1px solid !important;
+  border-color: var(--border-highlight) var(--border-shadow) var(--border-shadow) var(--border-highlight) !important;
+  box-sizing: border-box !important;
+  line-height: 18px !important;
+  text-align: center !important;
+  font-size: 14px !important;
+  font-weight: bold !important;
+  font-family: "MS Sans Serif", Tahoma, Arial, sans-serif !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.ant-modal-body {
+  padding: 10px !important;
+  background-color: var(--window-bg) !important;
+  border-top: 1px solid var(--border-highlight) !important; /* Inner highlight */
+}
+
+/* Dialog window footer - where buttons go */
+.ant-modal-footer {
+  border-top: 1px solid var(--border-shadow) !important;
+  background-color: var(--window-bg) !important;
+  padding: 10px !important;
+  text-align: center !important;
+  display: flex !important;
+  justify-content: center !important;
+  gap: 10px !important;
+}
+
+/* Proper dialog buttons positioning */
+.ant-modal-footer .ant-btn {
+  min-width: 75px !important;
+  margin: 0 5px !important;
+}
+
+/* Progress bars, sliders */
+.ant-progress-bg {
+  background-color: var(--highlight-bg) !important;
+}
+
+.ant-slider-rail {
+  background-color: var(--border-shadow) !important;
+  height: 6px !important;
+  border-radius: 0 !important;
+  border: 2px solid !important;
+  border-color: var(--border-shadow) var(--border-highlight) var(--border-highlight) var(--border-shadow) !important;
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.ant-slider-track {
+  background-color: var(--highlight-bg) !important;
+  height: 2px !important;
+  border-radius: 0 !important;
+}
+
+.ant-slider-handle {
+  background-color: var(--button-face) !important;
+  border: 2px solid !important;
+  border-color: var(--border-highlight) var(--border-shadow) var(--border-shadow) var(--border-highlight) !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin-top: -6px !important;
+  border-radius: 0 !important;
+  box-shadow: 1px 1px 0 #000000 !important;
+}
+
+/* Dividers */
+.ant-divider {
+  border-color: var(--border-shadow) !important;
+}
+
+/* Shadows and helpers */
+.pixel-shadow {
+  box-shadow: 1px 1px 0 #000000 !important;
+}
+
+.pixel-border {
+  border: 2px solid !important;
+  border-color: var(--border-highlight) var(--border-shadow) var(--border-shadow) var(--border-highlight) !important;
+}
+
+.pixel-border-inset {
+  border: 2px solid !important;
+  border-color: var(--border-shadow) var(--border-highlight) var(--border-highlight) var(--border-shadow) !important;
+}
+
+/* Warning elements - Windows 3.1 dialog style */
+.network-warning {
+  background-color: var(--window-bg) !important; /* Standard windows gray */
+  border: 1px solid !important;
+  border-color: var(--border-highlight) var(--border-shadow) var(--border-shadow) var(--border-highlight) !important;
+  padding: 0 !important; /* No padding for the container */
+  margin-bottom: 16px !important;
+  font-family: "MS Sans Serif", Tahoma, Arial, sans-serif !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.2) !important;
+}
+
+/* Warning dialog title bar */
+.network-warning::before {
+  content: 'WARNING';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 22px; /* Taller header */
+  background-color: #FFFFFF; /* White header bar */
+  color: #000000; /* Black text */
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 22px; /* Taller line height */
+  font-family: "MS Sans Serif", Tahoma, Arial, sans-serif;
+  border-bottom: 1px solid var(--border-shadow);
+}
+
+/* Left minimize button on warning */
+.network-warning > div::before {
+  content: '_';
+  position: absolute;
+  top: 1px;
+  left: 4px;
+  width: 18px;
+  height: 18px;
+  background-color: var(--button-face);
+  border: 1px solid;
+  border-color: var(--border-highlight) var(--border-shadow) var(--border-shadow) var(--border-highlight);
+  box-sizing: border-box;
+  text-align: center;
+  line-height: 14px;
+  font-weight: bold;
+  font-size: 14px;
+  z-index: 1;
+}
+
+/* Right close button on warning */
+.network-warning > div::after {
+  content: '×';
+  position: absolute;
+  top: 1px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  background-color: var(--button-face);
+  border: 1px solid;
+  border-color: var(--border-highlight) var(--border-shadow) var(--border-shadow) var(--border-highlight);
+  box-sizing: border-box;
+  text-align: center;
+  line-height: 16px;
+  font-weight: bold;
+  z-index: 1;
+}
+
+/* Warning symbol */
+.network-warning::after {
+  content: '⚠️';
+  position: absolute;
+  top: 32px; /* Adjusted for taller header */
+  left: 10px;
+  font-size: 24px;
+}
+
+/* Content container for warning dialog */
+.network-warning div {
+  margin-top: 22px !important; /* Space for taller title bar */
+  padding: 10px 10px 10px 50px !important; /* Space for warning icon */
+  background-color: var(--window-bg) !important;
+  color: var(--text-color) !important;
+  border-top: 1px solid var(--border-highlight) !important;
+}
