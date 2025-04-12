@@ -1,0 +1,51 @@
+<svg viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .vertical {
+      opacity: 1;
+      animation: vertical-anim 1.5s linear infinite;
+    }
+    .horizontal {
+      opacity: 0;
+      animation: horizontal-anim 1.5s linear infinite;
+    }
+    @keyframes vertical-anim {
+      0%, 45% { opacity: 1; }
+      50%, 95% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    @keyframes horizontal-anim {
+      0%, 45% { opacity: 0; }
+      50%, 95% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+  </style>
+  
+  <!-- White frame around the entire SVG -->
+  <rect x="0" y="0" width="180" height="180" fill="white" />
+  
+  <!-- 3x3 Grid background -->
+  <rect x="30" y="30" width="120" height="120" fill="white" />
+  
+  <!-- Blinker Vertical State -->
+  <g class="vertical">
+    <rect x="70" y="30" width="40" height="40" fill="black" />
+    <rect x="70" y="70" width="40" height="40" fill="black" />
+    <rect x="70" y="110" width="40" height="40" fill="black" />
+  </g>
+  
+  <!-- Blinker Horizontal State -->
+  <g class="horizontal">
+    <rect x="30" y="70" width="40" height="40" fill="black" />
+    <rect x="70" y="70" width="40" height="40" fill="black" />
+    <rect x="110" y="70" width="40" height="40" fill="black" />
+  </g>
+  
+  <!-- White grid lines on top of cells -->
+  <!-- Vertical grid lines -->
+  <line x1="70" y1="30" x2="70" y2="150" stroke="white" stroke-width="2" />
+  <line x1="110" y1="30" x2="110" y2="150" stroke="white" stroke-width="2" />
+  
+  <!-- Horizontal grid lines -->
+  <line x1="30" y1="70" x2="150" y2="70" stroke="white" stroke-width="2" />
+  <line x1="30" y1="110" x2="150" y2="110" stroke="white" stroke-width="2" />
+</svg>
