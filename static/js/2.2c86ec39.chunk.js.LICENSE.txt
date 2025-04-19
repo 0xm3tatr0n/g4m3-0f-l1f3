@@ -189,3 +189,9 @@ and limitations under the License.
      * This source code is licensed under the MIT license found in the
      * LICENSE file in the root directory of this source tree.
      */
+
+/** @preserve
+ * Counter block mode compatible with  Dr Brian Gladman fileenc.c
+ * derived from CryptoJS.mode.CTR
+ * Jan Hruby jhruby.web@gmail.com
+ */
